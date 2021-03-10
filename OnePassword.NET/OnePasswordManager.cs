@@ -13,13 +13,16 @@ namespace OnePassword
     public class OnePasswordManager
     {
         private readonly string _opPath;
+        private readonly bool _verbose;
         private string _sessionID;
 
-        public OnePasswordManager(string path = "", string executable = "op.exe")
+        public OnePasswordManager(string path = "", string executable = "op.exe", bool verbose = false)
         {
             _opPath = !string.IsNullOrEmpty(path) ? Path.Combine(path, executable) : Path.Combine(Directory.GetCurrentDirectory(), executable);
             if (!File.Exists(_opPath))
                 throw new Exception($"The 1Password CLI executable ({executable}) was not found in folder \"{Path.GetDirectoryName(_opPath)}\".");
+
+            _verbose = verbose;
 
             _sessionID = string.Empty;
         }
@@ -280,6 +283,9 @@ namespace OnePassword
             if (_sessionID.Length > 0)
                 arguments += $" --session {_sessionID}";
 
+            if (_verbose)
+                Console.WriteLine($"{Path.GetDirectoryName(_opPath)}> op {arguments}");
+
             ProcessStartInfo processStartInfo = new ProcessStartInfo(_opPath, $"{arguments}")
             {
                 CreateNoWindow = true,
@@ -299,8 +305,13 @@ namespace OnePassword
                 process.StandardInput.WriteLine(input);
 
             string output = GetStandardOutput(process);
+            if (_verbose)
+                Console.WriteLine(output);
 
             string error = GetStandardError(process);
+            if (_verbose)
+                Console.WriteLine(error);
+
             if (error.StartsWith("[ERROR]"))
             {
                 if (returnError)
