@@ -12,14 +12,14 @@ namespace OnePassword.Events
                 case EventAction.Created:
                     writer.WriteValue("create");
                     break;
-                case EventAction.Modified:
-                    writer.WriteValue("patch");
-                    break;
                 case EventAction.Updated:
                     writer.WriteValue("update");
                     break;
-                case EventAction.UpdatedAccess:
+                case EventAction.UpdatedAttribute:
                     writer.WriteValue("updatea");
+                    break;
+                case EventAction.UpdatedItem:
+                    writer.WriteValue("patch");
                     break;
                 case EventAction.Deleted:
                     writer.WriteValue("delete");
@@ -45,12 +45,12 @@ namespace OnePassword.Events
             {
                 case "create":
                     return EventAction.Created;
-                case "patch":
-                    return EventAction.Modified;
                 case "update":
                     return EventAction.Updated;
                 case "updatea":
-                    return EventAction.UpdatedAccess;
+                    return EventAction.UpdatedAttribute;
+                case "patch":
+                    return EventAction.UpdatedItem;
                 case "delete":
                     return EventAction.Deleted;
                 case "grant":
