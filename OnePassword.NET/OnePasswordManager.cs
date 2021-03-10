@@ -14,7 +14,8 @@ namespace OnePassword
     {
         private readonly string _opPath;
         private readonly bool _verbose;
-        private string _sessionID;
+        private string _shorthand;
+        private string _sessionId;
 
         public OnePasswordManager(string path = "", string executable = "op.exe", bool verbose = false)
         {
@@ -24,7 +25,7 @@ namespace OnePassword
 
             _verbose = verbose;
 
-            _sessionID = string.Empty;
+            _sessionId = string.Empty;
         }
 
         public void AddGroup(Group group, Vault vault) => op($"add group \"{group.Uuid}\" \"{vault.Uuid}\"");
@@ -238,17 +239,27 @@ namespace OnePassword
 
         public void RemoveUser(User user, Group group) => op($"remove user \"{user.Uuid}\" \"{group.Uuid}\"");
 
-        public void SignIn(string domain, string email, string secretKey, string password)
+        public void SignIn(string domain, string email, string secretKey, string password, string shorthand = "")
         {
             Regex OpDeviceRegex = new Regex("OP_DEVICE=(?<UUID>[a-z0-9]+)");
-            string signInResult = op($"signin {domain} {email} {secretKey} --raw", password, true);
-            if (signInResult.Contains("No saved device ID."))
+
+            string command = $"signin {domain} {email} {secretKey} --raw";
+            if (!string.IsNullOrEmpty(shorthand))
+                command += $" --shorthand {shorthand}";
+
+            string result = op(command, password, true);
+            if (result.Contains("No saved device ID."))
             {
-                string deviceUUID = OpDeviceRegex.Match(signInResult).Groups["UUID"].Value;
+                string deviceUUID = OpDeviceRegex.Match(result).Groups["UUID"].Value;
                 Environment.SetEnvironmentVariable("OP_DEVICE", deviceUUID);
-                signInResult = op($"signin {domain} {email} {secretKey} --raw", password);
+                result = op(command, password);
             }
-            _sessionID = signInResult.Trim();
+
+            if (result.StartsWith("[ERROR]"))
+                throw new Exception(result.Length > 28 ? result.Substring(28).Trim() : result);
+
+            _shorthand = shorthand;
+            _sessionId = result.Trim();
         }
 
         public void SignOut(bool forget = false)
@@ -280,11 +291,13 @@ namespace OnePassword
         private string op(string command, string input = "", bool returnError = false)
         {
             string arguments = command;
-            if (_sessionID.Length > 0)
-                arguments += $" --session {_sessionID}";
+            if (!string.IsNullOrEmpty(_sessionId))
+                arguments += $" --session {_sessionId}";
+            if (!string.IsNullOrEmpty(_shorthand))
+                command += $" --shorthand {_shorthand}";
 
             if (_verbose)
-                Console.WriteLine($"{Path.GetDirectoryName(_opPath)}> op {arguments}");
+                Console.WriteLine($"{Path.GetDirectoryName(_opPath)}>op {arguments}");
 
             ProcessStartInfo processStartInfo = new ProcessStartInfo(_opPath, $"{arguments}")
             {
