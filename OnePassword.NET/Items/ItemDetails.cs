@@ -14,19 +14,19 @@ namespace OnePassword.Items
         public List<PasswordHistory> PasswordHistory { get; set; }
 
         [JsonProperty("fields")]
-        public List<ItemField> Fields { get; set; }
+        public ItemFieldList Fields { get; set; }
 
         [JsonProperty("notesPlain")]
         public string Notes { get; set; }
 
         [JsonProperty("sections")]
-        public List<Section> Sections { get; set; }
+        public SectionList Sections { get; set; }
 
         public ItemDetails()
         {
             PasswordHistory = new List<PasswordHistory>();
-            Fields = new List<ItemField>();
-            Sections = new List<Section>();
+            Fields = new ItemFieldList();
+            Sections = new SectionList();
         }
 
         public string ToBase64() => Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(this, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }))).Replace("=", "");

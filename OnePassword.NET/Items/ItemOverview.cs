@@ -30,14 +30,14 @@ namespace OnePassword.Items
         public string AutoSubmit { get; set; }
 
         [JsonProperty("URLs")]
-        public List<UrlField> Urls { get; set; }
+        public UrlFieldList Urls { get; set; }
 
         [JsonProperty("tags")]
         public List<string> Tags { get; set; }
 
         public ItemOverview()
         {
-            Urls = new List<UrlField>();
+            Urls = new UrlFieldList();
             Tags = new List<string>();
         }
     }

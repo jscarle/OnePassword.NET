@@ -6,7 +6,7 @@ namespace OnePassword.Items
     public class IconDetails
     {
         [JsonProperty("fileId")]
-        public string FileID { get; set; }
+        public string FileId { get; set; }
 
         [JsonProperty("nonce")]
         public string Nonce { get; set; }

@@ -11,7 +11,7 @@ namespace OnePassword.Items
         public string Designation { get; set; }
 
         [JsonProperty("id")]
-        public string ID { get; set; }
+        public string Id { get; set; }
 
         [JsonProperty("type")]
         public string FieldType { get; set; }
