@@ -294,7 +294,7 @@ namespace OnePassword
             if (!string.IsNullOrEmpty(_sessionId))
                 arguments += $" --session {_sessionId}";
             if (!string.IsNullOrEmpty(_shorthand))
-                command += $" --shorthand {_shorthand}";
+                arguments += $" --shorthand {_shorthand}";
 
             if (_verbose)
                 Console.WriteLine($"{Path.GetDirectoryName(_opPath)}>op {arguments}");
