@@ -1,4 +1,4 @@
-# OnePassword.NET
+# OnePassword.NET - 1Password CLI Wrapper
 This library serves as a .NET wrapper for the [1Password](https://1password.com/) command-line tool op.exe ( [Download](https://app-updates.agilebits.com/product_history/CLI) | [Documentation](https://support.1password.com/command-line-reference/) ).
 
 ## References
