@@ -153,7 +153,15 @@ namespace OnePassword
 
         public Group GetGroup(Group group) => JsonConvert.DeserializeObject<Group>(Op($"get group \"{group.Uuid}\""));
 
-        public Item GetItem(Item item) => JsonConvert.DeserializeObject<Item>(Op($"get item \"{item.Uuid}\""));
+        public Item GetItem(Item item) => GetItem(item, null);
+
+        public Item GetItem(Item item, Vault vault)
+        {
+            string command = $"get item \"{item.Uuid}\"";
+            if (vault != null)
+                command += $" --vault \"{vault.Uuid}\"";
+            return JsonConvert.DeserializeObject<Item>(Op(command));
+        }
 
         public Template GetTemplate(Template template)
         {
