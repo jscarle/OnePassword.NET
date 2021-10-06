@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
 using System.Text;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json;
@@ -44,13 +45,35 @@ namespace OnePassword
             Op(command);
         }
 
+        public void ArchiveDocument(Document document) => ArchiveDocument(document, null);
+
+        public void ArchiveDocument(Document document, Vault vault)
+        {
+            string command = $"delete document \"{document.Uuid}\"";
+            if (vault != null)
+                command += $" --vault \"{vault.Uuid}\"";
+            command += $" --archive";
+            Op(command);
+        }
+
+        public void ArchiveItem(Item item) => ArchiveItem(item, null);
+
+        public void ArchiveItem(Item item, Vault vault)
+        {
+            string command = $"delete item \"{item.Uuid}\"";
+            if (vault != null)
+                command += $" --vault \"{vault.Uuid}\"";
+            command += $" --archive";
+            Op(command);
+        }
+
         public void ConfirmUser(User user) => Op($"confirm user \"{user.Uuid}\"");
 
         public void ConfirmAll() => Op($"confirm user --all");
 
-        public Document CreateDocument(Template template, string path) => CreateDocument(template, path, null);
+        public Document CreateDocument(Template template, string path) => CreateDocument(template, null, path);
 
-        public Document CreateDocument(Template template, string path, Vault vault)
+        public Document CreateDocument(Template template, Vault vault, string path)
         {
             if (template.Uuid != "006") // Document
                 throw new ArgumentException("Cannot create an Item using this method. Use CreateItem instead.");
@@ -117,21 +140,39 @@ namespace OnePassword
             return JsonConvert.DeserializeObject<User>(Op(command));
         }
 
-        public Vault CreateVault(string name, string description = "", bool allowAdminsToManage = true)
+        public Vault CreateVault(string name, string description = "", bool allowAdminsToManage = true, VaultIcon icon = VaultIcon.Default)
         {
             string command = $"create vault \"{name}\"";
             if (!string.IsNullOrEmpty(description))
                 command += $" --description \"{description}\"";
             if (!allowAdminsToManage)
                 command += $" --allow-admins-to-manage \"false\"";
+            if (icon != VaultIcon.Default)
+                command += $" --icon \"{GetIconName(icon)}\"";
             return JsonConvert.DeserializeObject<Vault>(Op(command));
         }
 
-        public void DeleteDocument(Document document) => Op($"delete document \"{document.Uuid}\"");
+        public void DeleteDocument(Document document) => DeleteDocument(document, null);
+
+        public void DeleteDocument(Document document, Vault vault)
+        {
+            string command = $"delete document \"{document.Uuid}\"";
+            if (vault != null)
+                command += $" --vault \"{vault.Uuid}\"";
+            Op(command);
+        }
 
         public void DeleteGroup(Group group) => Op($"delete group \"{group.Uuid}\"");
 
-        public void DeleteItem(Item item) => Op($"delete item \"{item.Uuid}\"");
+        public void DeleteItem(Item item) => DeleteItem(item, null);
+
+        public void DeleteItem(Item item, Vault vault)
+        {
+            string command = $"delete item \"{item.Uuid}\"";
+            if (vault != null)
+                command += $" --vault \"{vault.Uuid}\"";
+            Op(command);
+        }
 
         public void DeleteTrash(Vault vault) => Op($"delete trash \"{vault.Uuid}\"");
 
@@ -143,13 +184,28 @@ namespace OnePassword
 
         public void EditUser(User user, bool travelMode = false) => Op($"edit user \"{user.Uuid}\" --name \"{user.Name}\" --travelmode \"{(travelMode ? "on" : "off")}\"");
 
-        public void EditVault(Vault vault) => Op($"edit vault \"{vault.Uuid}\" --name \"{vault.Name}\"");
+        public void EditVault(Vault vault)
+        {
+            string command = $"edit vault \"{vault.Uuid}\" --name \"{vault.Name}\" --description \"{vault.Description}\"";
+            if (vault.Icon != VaultIcon.Default)
+                command += $" --icon \"{GetIconName(vault.Icon)}\"";
+            Op(command);
+        }
 
         public void Forget(string domain) => Op($"forget {domain}");
 
         public Account GetAccount() => JsonConvert.DeserializeObject<Account>(Op("get account"));
 
-        public void GetDocument(Item document, string path) => Op($"get document \"{document.Uuid}\" --output \"{path}\"");
+        public void GetDocument(Item document, string path) => GetDocument(document, null, path);
+
+        public void GetDocument(Item document, Vault vault, string path)
+        {
+            string command = $"get document \"{document.Uuid}\"";
+            if (vault != null)
+                command += $" --vault \"{vault.Uuid}\"";
+            command += $" --output \"{path}\"";
+            Op(command);
+        }
 
         public Group GetGroup(Group group) => JsonConvert.DeserializeObject<Group>(Op($"get group \"{group.Uuid}\""));
 
@@ -282,7 +338,48 @@ namespace OnePassword
             Op(command);
         }
 
-        public void SuspendUser(User user) => Op($"suspend \"{user.Uuid}\"");
+        public void SuspendUser(User user, bool deauthorizeDevices = false, int deauthorizeDevicesDelay = 0)
+        {
+            string command = $"suspend \"{user.Uuid}\"";
+            if (deauthorizeDevices)
+            {
+                command += " --deauthorize-devices";
+                if (deauthorizeDevicesDelay > 0)
+                    command += $" {deauthorizeDevicesDelay}";
+            }
+            Op(command);
+        }
+
+#if !NET40 && !NET35 && !NET20
+        public bool Update()
+        {
+            bool updated = false;
+
+            string tempDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+            Directory.CreateDirectory(tempDirectory);
+
+            string command = $"update --directory \"{tempDirectory}\"";
+            string result = Op(command);
+
+            if (Regex.Match(result, @"Version ([^\s]+) is now available\.").Success)
+                foreach (string file in Directory.GetFiles(tempDirectory, "*.zip"))
+                    using (ZipArchive zipArchive = ZipFile.Open(file, ZipArchiveMode.Read))
+                    {
+                        zipArchive.GetEntry("op.exe")?.ExtractToFile(_opPath, true);
+                        updated = true;
+                    }
+
+            Directory.Delete(tempDirectory, true);
+
+            return updated;
+        }
+#endif
+
+        private static string GetIconName(VaultIcon vaultIcon)
+        {
+            IconAttribute[] attributes = (IconAttribute[])vaultIcon.GetType().GetField(vaultIcon.ToString()).GetCustomAttributes(typeof(IconAttribute), false);
+            return attributes.Length > 0 ? attributes[0].Name : string.Empty;
+        }
 
         private static string GetStandardError(Process process)
         {
@@ -294,10 +391,10 @@ namespace OnePassword
 
         private static string GetStandardOutput(Process process)
         {
-            StringBuilder error = new StringBuilder();
+            StringBuilder output = new StringBuilder();
             while (process.StandardOutput.Peek() > -1)
-                error.Append((char)process.StandardOutput.Read());
-            return error.ToString();
+                output.Append((char)process.StandardOutput.Read());
+            return output.ToString();
         }
 
         private string Op(string command, string input = "", bool returnError = false)
