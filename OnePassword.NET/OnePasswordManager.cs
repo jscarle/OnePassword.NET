@@ -5,6 +5,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using Newtonsoft.Json;
 using OnePassword.Documents;
 using OnePassword.Groups;
@@ -17,6 +18,8 @@ namespace OnePassword
 {
     public class OnePasswordManager
     {
+        public static TimeSpan ChildProcessStartupTimeout = TimeSpan.FromMilliseconds(1000);
+
         private readonly string _opPath;
         private readonly bool _verbose;
         private string _shorthand;
@@ -223,7 +226,7 @@ namespace OnePassword
         {
             template.Details = JsonConvert.DeserializeObject<ItemDetails>(Op($"get template \"{template.Name}\""));
             return template;
-        } 
+        }
 
         public User GetUser(User user) => JsonConvert.DeserializeObject<User>(Op($"get user \"{user.Uuid}\""));
 
@@ -308,6 +311,17 @@ namespace OnePassword
         public void RemoveUser(User user, Group group) => Op($"remove user \"{user.Uuid}\" \"{group.Uuid}\"");
 
         public void SignIn(string domain, string email, string secretKey, string password, string shorthand = "")
+        {
+            SignIn(domain, email, secretKey, new[] { password }, shorthand);
+        }
+
+        public void SignInTotp(string domain, string email, string secretKey, string password, string totp,
+            string shorthand = "")
+        {
+            SignIn(domain, email, secretKey, new[] { password, totp }, shorthand);
+        }
+
+        private void SignIn(string domain, string email, string secretKey, string[] password, string shorthand)
         {
             Regex opDeviceRegex = new Regex("OP_DEVICE=(?<UUID>[a-z0-9]+)");
 
@@ -397,7 +411,7 @@ namespace OnePassword
             return output.ToString();
         }
 
-        private string Op(string command, string input = "", bool returnError = false)
+        private string Op(string command, string[] input = null, bool returnError = false)
         {
             string arguments = command;
             if (!string.IsNullOrEmpty(_sessionId))
@@ -423,8 +437,17 @@ namespace OnePassword
             if (process is null)
                 throw new Exception($"Could not start process for {_opPath}.");
 
-            if (input.Length > 0)
-                process.StandardInput.WriteLine(input);
+            if ((input?.Length ?? 0) > 0)
+            {
+                if (input.Length > 1)
+                    Thread.Sleep(ChildProcessStartupTimeout);
+
+                foreach (var inputLine in input)
+                {
+                    process.StandardInput.WriteLine(inputLine);
+                    process.StandardInput.Flush();
+                }
+            }
 
             string output = GetStandardOutput(process);
             if (_verbose)
