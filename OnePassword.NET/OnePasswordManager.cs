@@ -5,6 +5,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using Newtonsoft.Json;
 using OnePassword.Documents;
 using OnePassword.Groups;
@@ -17,6 +18,7 @@ namespace OnePassword
 {
     public class OnePasswordManager
     {
+        private readonly TimeSpan _totpProcessStartupTimeout = TimeSpan.FromMilliseconds(1000);
         private readonly string _opPath;
         private readonly bool _verbose;
         private string _shorthand;
@@ -223,7 +225,7 @@ namespace OnePassword
         {
             template.Details = JsonConvert.DeserializeObject<ItemDetails>(Op($"get template \"{template.Name}\""));
             return template;
-        } 
+        }
 
         public User GetUser(User user) => JsonConvert.DeserializeObject<User>(Op($"get user \"{user.Uuid}\""));
 
@@ -309,18 +311,28 @@ namespace OnePassword
 
         public void SignIn(string domain, string email, string secretKey, string password, string shorthand = "")
         {
+            SignIn(domain, email, secretKey, password, "", shorthand);
+        }
+
+        public void SignInTotp(string domain, string email, string secretKey, string password, string totp, string shorthand = "")
+        {
+            SignIn(domain, email, secretKey, password, totp, shorthand);
+        }
+
+        private void SignIn(string domain, string email, string secretKey, string password, string totp, string shorthand)
+        {
             Regex opDeviceRegex = new Regex("OP_DEVICE=(?<UUID>[a-z0-9]+)");
 
             string command = $"signin {domain} {email} {secretKey} --raw";
             if (!string.IsNullOrEmpty(shorthand))
                 command += $" --shorthand {shorthand}";
 
-            string result = Op(command, password, true);
+            string result = Op(command, new string[] { password, totp }, true);
             if (result.Contains("No saved device ID."))
             {
                 string deviceUuid = opDeviceRegex.Match(result).Groups["UUID"].Value;
                 Environment.SetEnvironmentVariable("OP_DEVICE", deviceUuid);
-                result = Op(command, password);
+                result = Op(command, new string[] { password, totp });
             }
 
             if (result.StartsWith("[ERROR]"))
@@ -399,6 +411,12 @@ namespace OnePassword
 
         private string Op(string command, string input = "", bool returnError = false)
         {
+            return Op(command, new string[] { input });
+        }
+
+        private string Op(string command, string[] input, bool returnError = false)
+        {
+
             string arguments = command;
             if (!string.IsNullOrEmpty(_sessionId))
                 arguments += $" --session {_sessionId}";
@@ -423,8 +441,17 @@ namespace OnePassword
             if (process is null)
                 throw new Exception($"Could not start process for {_opPath}.");
 
-            if (input.Length > 0)
-                process.StandardInput.WriteLine(input);
+            if (input != null && input.Length > 0)
+            {
+                if (input.Length > 1)
+                    Thread.Sleep(_totpProcessStartupTimeout);
+
+                foreach (var inputLine in input)
+                {
+                    process.StandardInput.WriteLine(inputLine);
+                    process.StandardInput.Flush();
+                }
+            }
 
             string output = GetStandardOutput(process);
             if (_verbose)
