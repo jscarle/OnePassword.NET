@@ -35,13 +35,13 @@ namespace OnePassword
             _sessionId = string.Empty;
         }
 
-        public void AddGroup(Group group, Vault vault) => Op($"add group \"{group.Uuid}\" \"{vault.Uuid}\"");
+        public void AddGroup(Group group, Vault vault, string permission = "allow_editing,allow_viewing,allow_managing") => Op($"vault group grant --vault \"{vault.Uuid}\" --group \"{group.Uuid}\" --permission \"{permission}\"");
 
-        public void AddUser(User user, Vault vault) => Op($"add user \"{user.Uuid}\" \"{vault.Uuid}\"");
+        public void AddUser(User user, Vault vault, string permission = "allow_editing,allow_viewing,allow_managing") => Op($"vault user grant --vault \"{vault.Uuid}\" --user \"{user.Uuid}\" --permission \"{permission}\"");
 
         public void AddUser(User user, Group group, UserRole userRole = UserRole.Member)
         {
-            string command = $"add user \"{user.Uuid}\" \"{group.Uuid}\"";
+            string command = $"group user grant --group \"{group.Uuid}\" --user \"{user.Uuid}\"";
             if (userRole == UserRole.Manager)
                 command += " --role manager";
             Op(command);
@@ -51,7 +51,7 @@ namespace OnePassword
 
         public void ArchiveDocument(Document document, Vault vault)
         {
-            string command = $"delete document \"{document.Uuid}\"";
+            string command = $"document delete \"{document.Uuid}\"";
             if (vault != null)
                 command += $" --vault \"{vault.Uuid}\"";
             command += $" --archive";
@@ -62,16 +62,16 @@ namespace OnePassword
 
         public void ArchiveItem(Item item, Vault vault)
         {
-            string command = $"delete item \"{item.Uuid}\"";
+            string command = $"item delete \"{item.Uuid}\"";
             if (vault != null)
                 command += $" --vault \"{vault.Uuid}\"";
             command += $" --archive";
             Op(command);
         }
 
-        public void ConfirmUser(User user) => Op($"confirm user \"{user.Uuid}\"");
+        public void ConfirmUser(User user) => Op($"user confirm \"{user.Uuid}\"");
 
-        public void ConfirmAll() => Op($"confirm user --all");
+        public void ConfirmAll() => Op($"user confirm --all");
 
         public Document CreateDocument(Template template, string path) => CreateDocument(template, null, path);
 
@@ -80,13 +80,13 @@ namespace OnePassword
             if (template.Uuid != "006") // Document
                 throw new ArgumentException("Cannot create an Item using this method. Use CreateItem instead.");
 
-            string command = $"create document \"{path}\"";
+            string command = $"document create \"{path}\"";
             if (!string.IsNullOrEmpty(template.Title))
                 command += $" --title \"{template.Title}\"";
             else
                 command += $" --title \"{template.Name}\"";
             if (!string.IsNullOrEmpty(template.Filename))
-                command += $" --filename \"{template.Filename}\"";
+                command += $" --file-name \"{template.Filename}\"";
             if (template.Tags.Count > 0)
                 command += $" --tags \"{string.Join(",", template.Tags.ToArray())}\"";
             if (vault != null)
@@ -96,7 +96,7 @@ namespace OnePassword
 
         public Group CreateGroup(string name, string description = "")
         {
-            string command = $"create group \"{name}\"";
+            string command = $"group create \"{name}\"";
             if (description.Length > 0)
                 command += $" --description \"{description}\"";
             return JsonConvert.DeserializeObject<Group>(Op(command));
@@ -109,7 +109,7 @@ namespace OnePassword
             if (template.Uuid == "006") // Document
                 throw new ArgumentException("Cannot create a Document using this method. Use CreateDocument instead.");
 
-            string command = $"create item \"{template.Name}\" \"{template.Details.ToBase64()}\"";
+            string command = $"item create \"{template.Name}\" \"{template.Details.ToBase64()}\"";
             if (!string.IsNullOrEmpty(template.Title))
                 command += $" --title \"{template.Title}\"";
             else
@@ -136,7 +136,7 @@ namespace OnePassword
 
         public User CreateUser(string emailAddress, string name, string language = "en")
         {
-            string command = $"create user \"{emailAddress}\" \"{name}\"";
+            string command = $"user provision \"{emailAddress}\" \"{name}\"";
             if (language.Length > 0)
                 command += $" --language \"{language}\"";
             return JsonConvert.DeserializeObject<User>(Op(command));
@@ -144,7 +144,7 @@ namespace OnePassword
 
         public Vault CreateVault(string name, string description = "", bool allowAdminsToManage = true, VaultIcon icon = VaultIcon.Default)
         {
-            string command = $"create vault \"{name}\"";
+            string command = $"vault create \"{name}\"";
             if (!string.IsNullOrEmpty(description))
                 command += $" --description \"{description}\"";
             if (!allowAdminsToManage)
@@ -158,64 +158,65 @@ namespace OnePassword
 
         public void DeleteDocument(Document document, Vault vault)
         {
-            string command = $"delete document \"{document.Uuid}\"";
+            string command = $"document delete \"{document.Uuid}\"";
             if (vault != null)
                 command += $" --vault \"{vault.Uuid}\"";
             Op(command);
         }
 
-        public void DeleteGroup(Group group) => Op($"delete group \"{group.Uuid}\"");
+        public void DeleteGroup(Group group) => Op($"group delete \"{group.Uuid}\"");
 
         public void DeleteItem(Item item) => DeleteItem(item, null);
 
         public void DeleteItem(Item item, Vault vault)
         {
-            string command = $"delete item \"{item.Uuid}\"";
+            string command = $"item delete \"{item.Uuid}\"";
             if (vault != null)
                 command += $" --vault \"{vault.Uuid}\"";
             Op(command);
         }
 
-        public void DeleteTrash(Vault vault) => Op($"delete trash \"{vault.Uuid}\"");
+        [Obsolete]
+        public void DeleteTrash(Vault vault) => throw new NotSupportedException("The list events command has been removed in version 2 of the 1Password CLI.");
 
-        public void DeleteUser(User user) => Op($"delete user \"{user.Uuid}\"");
+        public void DeleteUser(User user) => Op($"user delete \"{user.Uuid}\"");
 
-        public void DeleteVault(Vault vault) => Op($"delete vault \"{vault.Uuid}\"");
+        public void DeleteVault(Vault vault) => Op($"vault delete \"{vault.Uuid}\"");
 
-        public void EditGroup(Group group) => Op($"edit group \"{group.Uuid}\" --name \"{group.Name}\" --description \"{group.Description}\"");
+        public void EditGroup(Group group) => Op($"group edit \"{group.Uuid}\" --name \"{group.Name}\" --description \"{group.Description}\"");
 
-        public void EditUser(User user, bool travelMode = false) => Op($"edit user \"{user.Uuid}\" --name \"{user.Name}\" --travelmode \"{(travelMode ? "on" : "off")}\"");
+        public void EditUser(User user, bool travelMode = false) => Op($"user edit \"{user.Uuid}\" --name \"{user.Name}\" --travelmode \"{(travelMode ? "on" : "off")}\"");
 
         public void EditVault(Vault vault)
         {
-            string command = $"edit vault \"{vault.Uuid}\" --name \"{vault.Name}\" --description \"{vault.Description}\"";
+            string command = $"vault edit \"{vault.Uuid}\" --name \"{vault.Name}\" --description \"{vault.Description}\"";
             if (vault.Icon != VaultIcon.Default)
                 command += $" --icon \"{GetIconName(vault.Icon)}\"";
             Op(command);
         }
 
-        public void Forget(string domain) => Op($"forget {domain}");
+        public void Forget(string domain) => Op($"account forget {domain}");
 
-        public Account GetAccount() => JsonConvert.DeserializeObject<Account>(Op("get account"));
+        public Account GetAccount() => JsonConvert.DeserializeObject<Account>(Op("account get"));
 
         public void GetDocument(Item document, string path) => GetDocument(document, null, path);
 
         public void GetDocument(Item document, Vault vault, string path)
         {
-            string command = $"get document \"{document.Uuid}\"";
+            string command = $"document get \"{document.Uuid}\"";
             if (vault != null)
                 command += $" --vault \"{vault.Uuid}\"";
             command += $" --output \"{path}\"";
             Op(command);
         }
 
-        public Group GetGroup(Group group) => JsonConvert.DeserializeObject<Group>(Op($"get group \"{group.Uuid}\""));
+        public Group GetGroup(Group group) => JsonConvert.DeserializeObject<Group>(Op($"group get \"{group.Uuid}\""));
 
         public Item GetItem(Item item) => GetItem(item, null);
 
         public Item GetItem(Item item, Vault vault)
         {
-            string command = $"get item \"{item.Uuid}\"";
+            string command = $"item get \"{item.Uuid}\"";
             if (vault != null)
                 command += $" --vault \"{vault.Uuid}\"";
             return JsonConvert.DeserializeObject<Item>(Op(command));
@@ -223,19 +224,19 @@ namespace OnePassword
 
         public Template GetTemplate(Template template)
         {
-            template.Details = JsonConvert.DeserializeObject<ItemDetails>(Op($"get template \"{template.Name}\""));
+            template.Details = JsonConvert.DeserializeObject<ItemDetails>(Op($"item template gate \"{template.Name}\""));
             return template;
         }
 
-        public User GetUser(User user) => JsonConvert.DeserializeObject<User>(Op($"get user \"{user.Uuid}\""));
+        public User GetUser(User user) => JsonConvert.DeserializeObject<User>(Op($"user get \"{user.Uuid}\""));
 
-        public Vault GetVault(Vault vault) => JsonConvert.DeserializeObject<Vault>(Op($"get vault \"{vault.Uuid}\""));
+        public Vault GetVault(Vault vault) => JsonConvert.DeserializeObject<Vault>(Op($"vault get \"{vault.Uuid}\""));
 
         public DocumentList ListDocuments(bool includeTrash = false) => ListDocuments(null, includeTrash);
 
         public DocumentList ListDocuments(Vault vault, bool includeTrash = false)
         {
-            string command = "list documents";
+            string command = "document list";
             if (vault != null)
                 command += $" --vault \"{vault.Uuid}\"";
             if (includeTrash)
@@ -243,21 +244,17 @@ namespace OnePassword
             return JsonConvert.DeserializeObject<DocumentList>(Op(command));
         }
 
-        public List<Event> ListEvents() => JsonConvert.DeserializeObject<List<Event>>(Op("list events"));
+        [Obsolete]
+        public List<Event> ListEvents() => throw new NotSupportedException("The list events command has been removed in version 2 of the 1Password CLI.");
 
-        public List<Event> ListEvents(int eventId, bool older = false)
-        {
-            string command = $"list events --eventid {eventId}";
-            if (older)
-                command += " --older";
-            return JsonConvert.DeserializeObject<List<Event>>(Op(command));
-        }
+        [Obsolete]
+        public List<Event> ListEvents(int eventId, bool older = false) => throw new NotSupportedException("The list events command has been removed in version 2 of the 1Password CLI.");
 
-        public GroupList ListGroups() => JsonConvert.DeserializeObject<GroupList>(Op("list groups"));
+        public GroupList ListGroups() => JsonConvert.DeserializeObject<GroupList>(Op("group list"));
 
-        public GroupList ListGroups(User user) => JsonConvert.DeserializeObject<GroupList>(Op($"list groups --user \"{user.Uuid}\""));
+        public GroupList ListGroups(User user) => JsonConvert.DeserializeObject<GroupList>(Op($"group list --user \"{user.Uuid}\""));
 
-        public GroupList ListGroups(Vault vault) => JsonConvert.DeserializeObject<GroupList>(Op($"list groups --vault \"{vault.Uuid}\""));
+        public GroupList ListGroups(Vault vault) => JsonConvert.DeserializeObject<GroupList>(Op($"group list --vault \"{vault.Uuid}\""));
 
         public ItemList ListItems(bool includeTrash = false) => ListItems(null, null, string.Empty, includeTrash);
 
@@ -275,7 +272,7 @@ namespace OnePassword
 
         public ItemList ListItems(Vault vault, Template template, string tag, bool includeTrash = false)
         {
-            string command = "list items";
+            string command = "item list";
             if (vault != null)
                 command += $" --vault \"{vault.Uuid}\"";
             if (template != null)
@@ -287,27 +284,27 @@ namespace OnePassword
             return JsonConvert.DeserializeObject<ItemList>(Op(command));
         }
 
-        public TemplateList ListTemplates() => JsonConvert.DeserializeObject<TemplateList>(Op("list templates"));
+        public TemplateList ListTemplates() => JsonConvert.DeserializeObject<TemplateList>(Op("item template list"));
 
-        public UserList ListUsers() => JsonConvert.DeserializeObject<UserList>(Op("list users"));
+        public UserList ListUsers() => JsonConvert.DeserializeObject<UserList>(Op("user list"));
 
-        public UserList ListUsers(Group group) => JsonConvert.DeserializeObject<UserList>(Op($"list users --group \"{group.Uuid}\""));
+        public UserList ListUsers(Group group) => JsonConvert.DeserializeObject<UserList>(Op($"user list --group \"{group.Uuid}\""));
 
-        public UserList ListUsers(Vault vault) => JsonConvert.DeserializeObject<UserList>(Op($"list users --vault \"{vault.Uuid}\""));
+        public UserList ListUsers(Vault vault) => JsonConvert.DeserializeObject<UserList>(Op($"vault user list \"{vault.Uuid}\""));
 
-        public VaultList ListVaults() => JsonConvert.DeserializeObject<VaultList>(Op("list vaults"));
+        public VaultList ListVaults() => JsonConvert.DeserializeObject<VaultList>(Op("vault list"));
 
-        public VaultList ListVaults(User user) => JsonConvert.DeserializeObject<VaultList>(Op($"list vaults --user \"{user.Uuid}\""));
+        public VaultList ListVaults(User user) => JsonConvert.DeserializeObject<VaultList>(Op($"vault list --user \"{user.Uuid}\""));
 
-        public VaultList ListVaults(Group group) => JsonConvert.DeserializeObject<VaultList>(Op($"list vaults --group \"{group.Uuid}\""));
+        public VaultList ListVaults(Group group) => JsonConvert.DeserializeObject<VaultList>(Op($"vault list --group \"{group.Uuid}\""));
 
-        public void ReactivateUser(User user) => Op($"reactivate \"{user.Uuid}\"");
+        public void ReactivateUser(User user) => Op($"user reactivate \"{user.Uuid}\"");
 
-        public void RemoveGroup(Group group, Vault vault) => Op($"remove group \"{group.Uuid}\" \"{vault.Uuid}\"");
+        public void RemoveGroup(Group group, Vault vault) => Op($"vault group revoke --vault \"{vault.Uuid}\" --group \"{group.Uuid}\"");
 
-        public void RemoveUser(User user, Vault vault) => Op($"remove user \"{user.Uuid}\" \"{vault.Uuid}\"");
+        public void RemoveUser(User user, Vault vault) => Op($"vault user revoke --vault \"{vault.Uuid}\" --user \"{user.Uuid}\"");
 
-        public void RemoveUser(User user, Group group) => Op($"remove user \"{user.Uuid}\" \"{group.Uuid}\"");
+        public void RemoveUser(User user, Group group) => Op($"group user revoke --group \"{group.Uuid}\" --user \"{user.Uuid}\"");
 
         public void SignIn(string domain, string email, string secretKey, string password, string shorthand = "")
         {
@@ -321,20 +318,25 @@ namespace OnePassword
 
         private void SignIn(string domain, string email, string secretKey, string password, string totp, string shorthand)
         {
-            Regex opDeviceRegex = new Regex("OP_DEVICE=(?<UUID>[a-z0-9]+)");
-
-            string command = $"signin {domain} {email} {secretKey} --raw";
+            string command = $"account add --address {domain} --email {email} --secret-key {secretKey}";
             if (!string.IsNullOrEmpty(shorthand))
                 command += $" --shorthand {shorthand}";
 
             string result = Op(command, new string[] { password, totp }, true);
             if (result.Contains("No saved device ID."))
             {
+                Regex opDeviceRegex = new Regex("OP_DEVICE=(?<UUID>[a-z0-9]+)");
                 string deviceUuid = opDeviceRegex.Match(result).Groups["UUID"].Value;
                 Environment.SetEnvironmentVariable("OP_DEVICE", deviceUuid);
+
                 result = Op(command, new string[] { password, totp });
             }
 
+            if (result.StartsWith("[ERROR]"))
+                throw new Exception(result.Length > 28 ? result.Substring(28).Trim() : result);
+
+            command = $"signin --raw";
+            result = Op(command, new string[] { password, totp }, true);
             if (result.StartsWith("[ERROR]"))
                 throw new Exception(result.Length > 28 ? result.Substring(28).Trim() : result);
 
@@ -352,7 +354,7 @@ namespace OnePassword
 
         public void SuspendUser(User user, bool deauthorizeDevices = false, int deauthorizeDevicesDelay = 0)
         {
-            string command = $"suspend \"{user.Uuid}\"";
+            string command = $"user suspend \"{user.Uuid}\"";
             if (deauthorizeDevices)
             {
                 command += " --deauthorize-devices";
@@ -418,7 +420,7 @@ namespace OnePassword
         {
 
             string arguments = command;
-            if (!string.IsNullOrEmpty(_sessionId))
+            if (!command.StartsWith("signout") && !string.IsNullOrEmpty(_sessionId))
                 arguments += $" --session {_sessionId}";
             if (!string.IsNullOrEmpty(_shorthand))
                 arguments += $" --account {_shorthand}";
@@ -426,7 +428,7 @@ namespace OnePassword
             if (_verbose)
                 Console.WriteLine($"{Path.GetDirectoryName(_opPath)}>op {arguments}");
 
-            ProcessStartInfo processStartInfo = new ProcessStartInfo(_opPath, $"{arguments}")
+            ProcessStartInfo processStartInfo = new ProcessStartInfo(_opPath, $"{arguments} --format json --no-color")
             {
                 CreateNoWindow = true,
                 UseShellExecute = false,
