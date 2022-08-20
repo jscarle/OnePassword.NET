@@ -1,16 +1,13 @@
-﻿using Newtonsoft.Json;
+﻿namespace OnePassword.Items;
 
-namespace OnePassword.Items
+public class InputTraits
 {
-    public class InputTraits
-    {
-        [JsonProperty("autocapitalization")]
-        public string AutoCapitalization { get; set; }
+    [JsonPropertyName("autocapitalization")]
+    public string AutoCapitalization { get; set; } = "";
 
-        [JsonProperty("autocorrection")]
-        public string AutoCorrection { get; set; }
+    [JsonPropertyName("autocorrection")]
+    public string AutoCorrection { get; set; } = "";
 
-        [JsonProperty("keyboard")]
-        public string Keyboard { get; set; }
-    }
+    [JsonPropertyName("keyboard")]
+    public string Keyboard { get; set; } = "";
 }

@@ -1,15 +1,12 @@
-﻿using System;
+﻿namespace OnePassword.Vaults;
 
-namespace OnePassword.Vaults
+[AttributeUsage(AttributeTargets.Field)]
+public class IconAttribute : Attribute
 {
-    [AttributeUsage(AttributeTargets.Field)]
-    public class IconAttribute : Attribute
-    {
-        public string Name { get; }
+    public string Name { get; }
         
-        public IconAttribute(string name)
-        {
-            Name = name;
-        }
+    public IconAttribute(string name)
+    {
+        Name = name;
     }
 }

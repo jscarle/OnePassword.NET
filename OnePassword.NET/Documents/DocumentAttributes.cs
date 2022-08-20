@@ -1,32 +1,30 @@
-﻿using Newtonsoft.Json;
-using OnePassword.Common;
+﻿using OnePassword.Common;
 
-namespace OnePassword.Documents
+namespace OnePassword.Documents;
+
+public class DocumentAttributes
 {
-    public class DocumentAttributes
-    {
-        [JsonProperty("documentId")]
-        public string DocumentId { get; set; }
+    [JsonPropertyName("documentId")]
+    public string DocumentId { get; set; } = "";
 
-        [JsonProperty("fileName")]
-        public string FileName { get; set; }
+    [JsonPropertyName("fileName")]
+    public string FileName { get; set; } = "";
 
-        [JsonProperty("fileName")]
-        public long UnencryptedSize { get; set; }
+    [JsonPropertyName("fileName")]
+    public long UnencryptedSize { get; set; }
 
-        [JsonProperty("fileName")]
-        public string Nonce { get; set; }
+    [JsonPropertyName("fileName")]
+    public string Nonce { get; set; } = "";
 
-        [JsonProperty("fileName")]
-        public JsonWebKey EncryptionKey { get; set; }
+    [JsonPropertyName("fileName")]
+    public JsonWebKey EncryptionKey { get; set; } = new();
 
-        [JsonProperty("fileName")]
-        public long EncryptedSize { get; set; }
+    [JsonPropertyName("fileName")]
+    public long EncryptedSize { get; set; }
 
-        [JsonProperty("signingKey")]
-        public JsonWebKey SigningKey { get; set; }
+    [JsonPropertyName("signingKey")]
+    public JsonWebKey SigningKey { get; set; } = new();
 
-        [JsonProperty("integrityHash")]
-        public string IntegrityHash { get; set; }
-    }
+    [JsonPropertyName("integrityHash")]
+    public string IntegrityHash { get; set; } = "";
 }

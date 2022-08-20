@@ -1,14 +1,22 @@
-﻿using Newtonsoft.Json;
+﻿using System.Runtime.Serialization;
 
-namespace OnePassword.Groups
+namespace OnePassword.Groups;
+
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum GroupType
 {
-    [JsonConverter(typeof(GroupTypeConverter))]
-    public enum GroupType
-    {
-        Owner,
-        Administrator,
-        Recovery,
-        TeamMember,
-        User
-    }
+    [EnumMember(Value = "O")]
+    Owner,
+
+    [EnumMember(Value = "A")]
+    Administrator,
+
+    [EnumMember(Value = "R")]
+    Recovery,
+
+    [EnumMember(Value = "M")]
+    TeamMember,
+
+    [EnumMember(Value = "U")]
+    User
 }

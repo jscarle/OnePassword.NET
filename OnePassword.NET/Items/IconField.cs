@@ -1,10 +1,7 @@
-﻿using Newtonsoft.Json;
+﻿namespace OnePassword.Items;
 
-namespace OnePassword.Items
+public class IconField
 {
-    public class IconField
-    {
-        [JsonProperty("detail")]
-        public IconDetails Details { get; set; }
-    }
+    [JsonPropertyName("detail")]
+    public IconDetails Details { get; set; } = new();
 }

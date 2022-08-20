@@ -1,13 +1,10 @@
-﻿using Newtonsoft.Json;
+﻿namespace OnePassword.Items;
 
-namespace OnePassword.Items
+public class PasswordHistory
 {
-    public class PasswordHistory
-    {
-        [JsonProperty("time")]
-        public int Time { get; set; }
+    [JsonPropertyName("time")]
+    public int Time { get; set; }
 
-        [JsonProperty("value")]
-        public string Value { get; set; }
-    }
+    [JsonPropertyName("value")]
+    public string Value { get; set; } = "";
 }

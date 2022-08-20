@@ -1,18 +1,34 @@
-﻿using Newtonsoft.Json;
+﻿using System.Runtime.Serialization;
 
-namespace OnePassword.Events
+namespace OnePassword.Events;
+
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum EventAction
 {
-    [JsonConverter(typeof(EventActionConverter))]
-    public enum EventAction
-    {
-        Created,
-        Updated,
-        UpdatedAttribute,
-        UpdatedItem,
-        Deleted,
-        Granted,
-        Revoked,
-        Suspended,
-        Reactivated
-    }
+    [EnumMember(Value = "create")]
+    Created,
+
+    [EnumMember(Value = "update")]
+    Updated,
+
+    [EnumMember(Value = "updatea")]
+    UpdatedAttribute,
+
+    [EnumMember(Value = "patch")]
+    UpdatedItem,
+
+    [EnumMember(Value = "delete")]
+    Deleted,
+
+    [EnumMember(Value = "grant")]
+    Granted,
+
+    [EnumMember(Value = "revoke")]
+    Revoked,
+
+    [EnumMember(Value = "suspend")]
+    Suspended,
+
+    [EnumMember(Value = "reactive")]
+    Reactivated
 }

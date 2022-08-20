@@ -1,22 +1,19 @@
-﻿using Newtonsoft.Json;
+﻿namespace OnePassword.Items;
 
-namespace OnePassword.Items
+public class ItemField
 {
-    public class ItemField
-    {
-        [JsonProperty("name")]
-        public string Name { get; set; }
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = "";
 
-        [JsonProperty("designation")]
-        public string Designation { get; set; }
+    [JsonPropertyName("designation")]
+    public string Designation { get; set; } = "";
 
-        [JsonProperty("id")]
-        public string Id { get; set; }
+    [JsonPropertyName("id")]
+    public string Id { get; set; } = "";
 
-        [JsonProperty("type")]
-        public string FieldType { get; set; }
-        
-        [JsonProperty("value")]
-        public object Value { get; set; }
-    }
+    [JsonPropertyName("type")]
+    public string FieldType { get; set; } = "";
+
+    [JsonPropertyName("value")]
+    public object? Value { get; set; }
 }

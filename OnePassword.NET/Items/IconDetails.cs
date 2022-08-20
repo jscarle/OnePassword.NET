@@ -1,20 +1,18 @@
-﻿using Newtonsoft.Json;
-using OnePassword.Common;
+﻿using OnePassword.Common;
 
-namespace OnePassword.Items
+namespace OnePassword.Items;
+
+public class IconDetails
 {
-    public class IconDetails
-    {
-        [JsonProperty("fileId")]
-        public string FileId { get; set; }
+    [JsonPropertyName("fileId")]
+    public string FileId { get; set; } = "";
 
-        [JsonProperty("nonce")]
-        public string Nonce { get; set; }
+    [JsonPropertyName("nonce")]
+    public string Nonce { get; set; } = "";
 
-        [JsonProperty("encryptionKey")]
-        public JsonWebKey EncryptionKey { get; set; }
+    [JsonPropertyName("encryptionKey")]
+    public JsonWebKey EncryptionKey { get; set; } = new();
 
-        [JsonProperty("signingKey")]
-        public JsonWebKey SigningKey { get; set; }
-    }
+    [JsonPropertyName("signingKey")]
+    public JsonWebKey SigningKey { get; set; } = new();
 }

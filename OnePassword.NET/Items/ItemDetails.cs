@@ -1,34 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Newtonsoft.Json;
+﻿using System.Text;
 
-namespace OnePassword.Items
+namespace OnePassword.Items;
+
+public class ItemDetails
 {
-    public class ItemDetails
-    {
-        [JsonProperty("password")]
-        public string Password { get; set; }
+    [JsonPropertyName("password")]
+    public string Password { get; set; } = "";
 
-        [JsonProperty("passwordHistory")]
-        public List<PasswordHistory> PasswordHistory { get; set; }
+    [JsonPropertyName("passwordHistory")]
+    public List<PasswordHistory> PasswordHistory { get; set; } = new();
 
-        [JsonProperty("fields")]
-        public ItemFieldList Fields { get; set; }
+    [JsonPropertyName("fields")]
+    public ItemFieldList Fields { get; set; } = new();
 
-        [JsonProperty("notesPlain")]
-        public string Notes { get; set; }
+    [JsonPropertyName("notesPlain")]
+    public string Notes { get; set; } = "";
 
-        [JsonProperty("sections")]
-        public SectionList Sections { get; set; }
+    [JsonPropertyName("sections")]
+    public SectionList Sections { get; set; } = new();
 
-        public ItemDetails()
-        {
-            PasswordHistory = new List<PasswordHistory>();
-            Fields = new ItemFieldList();
-            Sections = new SectionList();
-        }
-
-        public string ToBase64() => Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(this, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }))).Replace("=", "");
-    }
+    public string ToBase64() => Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(this, new JsonSerializerOptions { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull }))).Replace("=", "");
 }

@@ -1,139 +1,138 @@
-﻿namespace OnePassword.Vaults
+﻿namespace OnePassword.Vaults;
+
+public enum VaultIcon
 {
-    public enum VaultIcon
-    {
-        [Icon("airplane")]
-        Airplane,
+    [Icon("airplane")]
+    Airplane,
 
-        [Icon("application")]
-        Application,
+    [Icon("application")]
+    Application,
 
-        [Icon("art-supplies")]
-        ArtSupplies,
+    [Icon("art-supplies")]
+    ArtSupplies,
 
-        [Icon("bankers-box")]
-        BankersBox,
+    [Icon("bankers-box")]
+    BankersBox,
 
-        [Icon("brown-briefcase")]
-        BrownBriefcase,
+    [Icon("brown-briefcase")]
+    BrownBriefcase,
 
-        [Icon("brown-gate")]
-        BrownGate,
+    [Icon("brown-gate")]
+    BrownGate,
 
-        [Icon("buildings")]
-        Buildings,
+    [Icon("buildings")]
+    Buildings,
 
-        [Icon("cabin")]
-        Cabin,
+    [Icon("cabin")]
+    Cabin,
 
-        [Icon("castle")]
-        Castle,
+    [Icon("castle")]
+    Castle,
 
-        [Icon("circle-of-dots")]
-        CircleOfDots,
+    [Icon("circle-of-dots")]
+    CircleOfDots,
 
-        [Icon("coffee")]
-        Coffee,
+    [Icon("coffee")]
+    Coffee,
 
-        [Icon("color-wheel")]
-        ColorWheel,
+    [Icon("color-wheel")]
+    ColorWheel,
 
-        [Icon("curtained-window")]
-        CurtainedWindow,
+    [Icon("curtained-window")]
+    CurtainedWindow,
 
-        Default,
+    Default,
 
-        [Icon("document")]
-        Document,
+    [Icon("document")]
+    Document,
 
-        [Icon("doughnut")]
-        Doughnut,
+    [Icon("doughnut")]
+    Doughnut,
 
-        [Icon("fence")]
-        Fence,
+    [Icon("fence")]
+    Fence,
 
-        [Icon("galaxy")]
-        Galaxy,
+    [Icon("galaxy")]
+    Galaxy,
 
-        [Icon("gears")]
-        Gears,
+    [Icon("gears")]
+    Gears,
 
-        [Icon("globe")]
-        Globe,
+    [Icon("globe")]
+    Globe,
 
-        [Icon("green-backpack")]
-        GreenBackpack,
+    [Icon("green-backpack")]
+    GreenBackpack,
 
-        [Icon("green-gem")]
-        GreenGem,
+    [Icon("green-gem")]
+    GreenGem,
 
-        [Icon("handshake")]
-        Handshake,
+    [Icon("handshake")]
+    Handshake,
 
-        [Icon("heart-with-monitor")]
-        HeartWithMonitor,
+    [Icon("heart-with-monitor")]
+    HeartWithMonitor,
 
-        [Icon("house")]
-        House,
+    [Icon("house")]
+    House,
 
-        [Icon("id-card")]
-        IdCard,
+    [Icon("id-card")]
+    IdCard,
 
-        [Icon("jet")]
-        Jet,
+    [Icon("jet")]
+    Jet,
 
-        [Icon("large-ship")]
-        LargeShip,
+    [Icon("large-ship")]
+    LargeShip,
 
-        [Icon("luggage")]
-        Luggage,
+    [Icon("luggage")]
+    Luggage,
 
-        [Icon("plant")]
-        Plant,
+    [Icon("plant")]
+    Plant,
 
-        [Icon("porthole")]
-        Porthole,
+    [Icon("porthole")]
+    Porthole,
 
-        [Icon("puzzle")]
-        Puzzle,
+    [Icon("puzzle")]
+    Puzzle,
 
-        [Icon("rainbow")]
-        Rainbow,
+    [Icon("rainbow")]
+    Rainbow,
 
-        [Icon("record")]
-        Record,
+    [Icon("record")]
+    Record,
 
-        [Icon("round-door")]
-        RoundDoor,
+    [Icon("round-door")]
+    RoundDoor,
 
-        [Icon("sandals")]
-        Sandals,
+    [Icon("sandals")]
+    Sandals,
 
-        [Icon("scales")]
-        Scales,
+    [Icon("scales")]
+    Scales,
 
-        [Icon("screwdriver")]
-        Screwdriver,
+    [Icon("screwdriver")]
+    Screwdriver,
 
-        [Icon("shop")]
-        Shop,
+    [Icon("shop")]
+    Shop,
 
-        [Icon("tall-window")]
-        TallWindow,
+    [Icon("tall-window")]
+    TallWindow,
 
-        [Icon("treasure-chest")]
-        TreasureChest,
+    [Icon("treasure-chest")]
+    TreasureChest,
 
-        [Icon("vault-door")]
-        VaultDoor,
+    [Icon("vault-door")]
+    VaultDoor,
 
-        [Icon("vehicle")]
-        Vehicle,
+    [Icon("vehicle")]
+    Vehicle,
 
-        [Icon("wallet")]
-        Wallet,
+    [Icon("wallet")]
+    Wallet,
 
-        [Icon("wrench")]
-        Wrench
-    }
+    [Icon("wrench")]
+    Wrench
 }

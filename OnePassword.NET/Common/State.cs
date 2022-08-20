@@ -1,11 +1,13 @@
-﻿using Newtonsoft.Json;
+﻿using System.Runtime.Serialization;
 
-namespace OnePassword.Common
+namespace OnePassword.Common;
+
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum State
 {
-    [JsonConverter(typeof(StateConverter))]
-    public enum State
-    {
-        Active,
-        Suspended
-    }
+    [EnumMember(Value = "A")]
+    Active,
+
+    [EnumMember(Value = "S")]
+    Suspended
 }

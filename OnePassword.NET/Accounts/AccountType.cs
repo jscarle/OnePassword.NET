@@ -1,11 +1,13 @@
-﻿using Newtonsoft.Json;
+﻿using System.Runtime.Serialization;
 
-namespace OnePassword.Accounts
+namespace OnePassword.Accounts;
+
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum AccountType
 {
-    [JsonConverter(typeof(AccountTypeConverter))]
-    public enum AccountType
-    {
-        Personal,
-        Business
-    }
+    [EnumMember(Value = "P")]
+    Personal,
+
+    [EnumMember(Value = "B")]
+    Business
 }

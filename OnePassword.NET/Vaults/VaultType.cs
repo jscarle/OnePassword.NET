@@ -1,11 +1,13 @@
-﻿using Newtonsoft.Json;
+﻿using System.Runtime.Serialization;
 
-namespace OnePassword.Vaults
+namespace OnePassword.Vaults;
+
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum VaultType
 {
-    [JsonConverter(typeof(VaultTypeConverter))]
-    public enum VaultType
-    {
-        Personal,
-        User
-    }
+    [EnumMember(Value = "P")]
+    Personal,
+
+    [EnumMember(Value = "U")]
+    User
 }

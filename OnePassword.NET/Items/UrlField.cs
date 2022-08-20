@@ -1,13 +1,10 @@
-﻿using Newtonsoft.Json;
+﻿namespace OnePassword.Items;
 
-namespace OnePassword.Items
+public class UrlField
 {
-    public class UrlField
-    {
-        [JsonProperty("l")]
-        public string Label { get; set; }
+    [JsonPropertyName("l")]
+    public string Label { get; set; } = "";
 
-        [JsonProperty("u")]
-        public string Url { get; set; }
-    }
+    [JsonPropertyName("u")]
+    public string Url { get; set; } = "";
 }

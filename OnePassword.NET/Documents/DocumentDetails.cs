@@ -1,11 +1,9 @@
-﻿using Newtonsoft.Json;
-using OnePassword.Items;
+﻿using OnePassword.Items;
 
-namespace OnePassword.Documents
+namespace OnePassword.Documents;
+
+public class DocumentDetails : ItemDetails
 {
-    public class DocumentDetails : ItemDetails
-    {
-        [JsonProperty("documentAttributes")]
-        public DocumentAttributes DocumentAttributes { get; set; }
-    }
+    [JsonPropertyName("documentAttributes")]
+    public DocumentAttributes DocumentAttributes { get; set; } = new();
 }

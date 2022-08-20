@@ -1,44 +1,34 @@
-﻿using System.Collections.Generic;
-using Newtonsoft.Json;
+﻿namespace OnePassword.Items;
 
-namespace OnePassword.Items
+public class ItemOverview
 {
-    public class ItemOverview
-    {
-        [JsonProperty("icons")]
-        public IconField Icon { get; set; }
+    [JsonPropertyName("icons")]
+    public IconField Icon { get; set; } = new();
 
-        [JsonProperty("title")]
-        public string Title { get; set; }
+    [JsonPropertyName("title")]
+    public string Title { get; set; } = "";
 
-        [JsonProperty("ainfo")]
-        public string AdditionalInfo { get; set; }
+    [JsonPropertyName("ainfo")]
+    public string AdditionalInfo { get; set; } = "";
 
-        [JsonProperty("pgrng")]
-        public bool? PasswordGenerated { get; set; }
+    [JsonPropertyName("pgrng")]
+    public bool? PasswordGenerated { get; set; }
 
-        [JsonProperty("pbe")]
-        public double? PasswordEntropy { get; set; }
+    [JsonPropertyName("pbe")]
+    public double? PasswordEntropy { get; set; }
 
-        [JsonProperty("ps")]
-        public double? PasswordStrength { get; set; }
+    [JsonPropertyName("ps")]
+    public double? PasswordStrength { get; set; }
 
-        [JsonProperty("url")]
-        public string Url { get; set; }
+    [JsonPropertyName("url")]
+    public string Url { get; set; } = "";
 
-        [JsonProperty("autosubmit")]
-        public string AutoSubmit { get; set; }
+    [JsonPropertyName("autosubmit")]
+    public string AutoSubmit { get; set; } = "";
 
-        [JsonProperty("URLs")]
-        public UrlFieldList Urls { get; set; }
+    [JsonPropertyName("URLs")]
+    public UrlFieldList Urls { get; set; } = new();
 
-        [JsonProperty("tags")]
-        public List<string> Tags { get; set; }
-
-        public ItemOverview()
-        {
-            Urls = new UrlFieldList();
-            Tags = new List<string>();
-        }
-    }
+    [JsonPropertyName("tags")]
+    public List<string> Tags { get; set; } = new();
 }
