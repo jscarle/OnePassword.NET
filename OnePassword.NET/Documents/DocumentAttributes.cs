@@ -6,7 +6,7 @@ namespace OnePassword.Documents
     public class DocumentAttributes
     {
         [JsonProperty("documentId")]
-        public string DocumentID { get; set; }
+        public string DocumentId { get; set; }
 
         [JsonProperty("fileName")]
         public string FileName { get; set; }

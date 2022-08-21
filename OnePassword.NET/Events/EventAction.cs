@@ -6,9 +6,9 @@ namespace OnePassword.Events
     public enum EventAction
     {
         Created,
-        Modified,
         Updated,
-        UpdatedAccess,
+        UpdatedAttribute,
+        UpdatedItem,
         Deleted,
         Granted,
         Revoked,

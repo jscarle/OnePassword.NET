@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace OnePassword.Items
 {
@@ -12,11 +11,11 @@ namespace OnePassword.Items
         public string Title { get; set; }
 
         [JsonProperty("fields")]
-        public List<SectionField> Fields { get; set; }
+        public SectionFieldList Fields { get; set; }
 
         public Section()
         {
-            Fields = new List<SectionField>();
+            Fields = new SectionFieldList();
         }
     }
 }
