@@ -16,5 +16,7 @@ namespace OnePassword
 
         [JsonProperty("type")]
         public VaultType VaultType { get; set; }
+
+        public VaultIcon Icon { get; set; } = VaultIcon.Default;
     }
 }
