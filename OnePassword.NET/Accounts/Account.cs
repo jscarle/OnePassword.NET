@@ -1,6 +1,6 @@
 ﻿namespace OnePassword.Accounts;
 
-public record Account
+public sealed record Account
 {
     [JsonPropertyName("account_uuid")]
     public string Id { get; init; } = "";

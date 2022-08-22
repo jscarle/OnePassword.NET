@@ -1,44 +1,52 @@
 ﻿using System.Collections.Immutable;
+using System.Security.Principal;
 using System.Text.RegularExpressions;
 using OnePassword.Accounts;
 
 namespace OnePassword;
 
-public partial class OnePasswordManager
+public sealed partial class OnePasswordManager
 {
-    private static readonly Regex ForgetAllAccountsRegex = new(@"""([^""]+)""", RegexOptions.Compiled);
+    private static readonly Regex ForgottenAccountsRegex = new(@"""([^""]+)""", RegexOptions.Compiled);
 
     public ImmutableList<Account> GetAccounts()
     {
         return Op<ImmutableList<Account>>("account list", false, false);
     }
 
-    public AccountDetails GetAccount()
+    public AccountDetails GetAccount(string account)
     {
-        return Op<AccountDetails>("account get");
-    }
+        var trimmedAccount = account.Trim();
 
+        return Op<AccountDetails>(!string.IsNullOrWhiteSpace(trimmedAccount) ? $"account get --account {trimmedAccount}" : "account get");
+    }
+    
     public void AddAccount(string address, string email, string secretKey, string password, string shorthand = "")
     {
-        shorthand = shorthand.Trim();
+        var trimmedAddress = address.Trim();
+        var trimmedEmail = email.Trim();
+        var trimmedSecretKey = secretKey.Trim();
+        var trimmedShorthand = shorthand.Trim();
 
-        var command = $"account add --address {address} --email {email} --secret-key {secretKey}";
-        if (!string.IsNullOrEmpty(shorthand))
-            command += $" --shorthand {shorthand}";
+        var command = $"account add --address {trimmedAddress} --email {trimmedEmail} --secret-key {trimmedSecretKey}";
+        if (!string.IsNullOrEmpty(trimmedShorthand))
+            command += $" --shorthand {trimmedShorthand}";
 
         Op(command, password, false, false);
 
-        _account = !string.IsNullOrEmpty(shorthand) ? shorthand : address;
+        _account = !string.IsNullOrEmpty(trimmedShorthand) ? trimmedShorthand : trimmedAddress;
     }
 
     public void UseAccount(string account)
     {
-        _account = account;
+        var trimmedAccount = account.Trim();
+
+        _account = trimmedAccount;
     }
 
     public void SignIn(string password)
     {
-        _session = Op("signin --raw", password, true, false);
+        _session = Op("sign--raw", password, true, false);
     }
 
     public void SignOut(bool all = false)
@@ -59,7 +67,7 @@ public partial class OnePasswordManager
         var result = Op(command, false, false);
 
         if (all)
-            foreach (var match in ForgetAllAccountsRegex.Matches(result).Cast<Match>())
+            foreach (var match in ForgottenAccountsRegex.Matches(result).Cast<Match>())
                 accounts.Add(match.Groups[1].Value);
         else
             accounts.Add(_account);

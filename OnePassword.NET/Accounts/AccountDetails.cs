@@ -2,7 +2,7 @@
 
 namespace OnePassword.Accounts;
 
-public record AccountDetails
+public sealed record AccountDetails
 {
     [JsonPropertyName("id")]
     public string Id { get; init; } = "";
@@ -11,7 +11,7 @@ public record AccountDetails
     public string Name { get; init; } = "";
 
     [JsonPropertyName("domain")]
-    public string Domain { get; init; } = "";
+    public string Doma{ get; init; } = "";
 
     [JsonPropertyName("type")]
     public AccountType AccountType { get; init; }
@@ -20,5 +20,5 @@ public record AccountDetails
     public State State { get; init; }
 
     [JsonPropertyName("created_at")]
-    public DateTimeOffset CreatedAt { get; init; }
+    public DateTimeOffset Created { get; init; }
 }
