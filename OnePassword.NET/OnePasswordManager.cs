@@ -4,7 +4,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using OnePassword.Accounts;
 using OnePassword.Documents;
-using OnePassword.Events;
 using OnePassword.Groups;
 using OnePassword.Items;
 using OnePassword.Templates;
@@ -240,12 +239,6 @@ public class OnePasswordManager
             command += " --include-trash";
         return Op<DocumentList>(command);
     }
-
-    [Obsolete("The list events command has been removed in version 2 of the 1Password CLI.")]
-    public List<Event> ListEvents() => throw new NotSupportedException("The list events command has been removed in version 2 of the 1Password CLI.");
-
-    [Obsolete("The list events command has been removed in version 2 of the 1Password CLI.")]
-    public List<Event> ListEvents(int eventId, bool older = false) => throw new NotSupportedException("The list events command has been removed in version 2 of the 1Password CLI.");
 
     public GroupList ListGroups() => Op<GroupList>("group list");
 
