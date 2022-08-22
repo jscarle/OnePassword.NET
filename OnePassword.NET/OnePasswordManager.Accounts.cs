@@ -46,7 +46,7 @@ public sealed partial class OnePasswordManager
 
     public void SignIn(string password)
     {
-        _session = Op("sign--raw", password, true, false);
+        _session = Op("signin --raw", password, true, false);
     }
 
     public void SignOut(bool all = false)
