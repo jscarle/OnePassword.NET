@@ -2,7 +2,7 @@
 
 namespace OnePassword.Accounts;
 
-[JsonConverter(typeof(JsonStringEnumConverterEx<>))]
+[JsonConverter(typeof(JsonStringEnumConverterEx<AccountType>))]
 public enum AccountType
 {
     [EnumMember(Value = "PERSONAL")]

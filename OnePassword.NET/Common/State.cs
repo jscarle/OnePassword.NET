@@ -1,6 +1,6 @@
 ﻿namespace OnePassword.Common;
 
-[JsonConverter(typeof(JsonStringEnumConverterEx<>))]
+[JsonConverter(typeof(JsonStringEnumConverterEx<State>))]
 public enum State
 {
     [EnumMember(Value = "ACTIVE")]
