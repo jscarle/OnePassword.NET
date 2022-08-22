@@ -1,8 +1,6 @@
-﻿using System.Runtime.Serialization;
+﻿namespace OnePassword.Common;
 
-namespace OnePassword.Common;
-
-[JsonConverter(typeof(JsonStringEnumConverter))]
+[JsonConverter(typeof(JsonStringEnumConverterEx<>))]
 public enum State
 {
     [EnumMember(Value = "ACTIVE")]
