@@ -1,13 +1,13 @@
-﻿using System.Runtime.Serialization;
+﻿using OnePassword.Common;
 
 namespace OnePassword.Vaults;
 
-[JsonConverter(typeof(JsonStringEnumConverter))]
+[JsonConverter(typeof(JsonStringEnumConverterEx<VaultType>))]
 public enum VaultType
 {
-    [EnumMember(Value = "P")]
+    [EnumMember(Value = "PERSONAL")]
     Personal,
 
-    [EnumMember(Value = "U")]
+    [EnumMember(Value = "USER_CREATED")]
     User
 }

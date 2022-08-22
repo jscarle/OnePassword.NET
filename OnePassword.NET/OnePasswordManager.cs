@@ -12,7 +12,7 @@ using Group = OnePassword.Groups.Group;
 
 namespace OnePassword;
 
-public partial class OnePasswordManager
+public sealed partial class OnePasswordManager
 {
     private readonly string _opPath;
     private readonly bool _verbose;
@@ -23,14 +23,14 @@ public partial class OnePasswordManager
     {
         _opPath = !string.IsNullOrEmpty(path) ? Path.Combine(path, executable) : Path.Combine(Directory.GetCurrentDirectory(), executable);
         if (!File.Exists(_opPath))
-            throw new Exception($"The 1Password CLI executable ({executable}) was not found in folder \"{Path.GetDirectoryName(_opPath)}\".");
+            throw new Exception($"The 1Password CLI executable ({executable}) was not found folder \"{Path.GetDirectoryName(_opPath)}\".");
 
         _verbose = verbose;
     }
 
-    public void AddGroup(Group group, Vault vault, string permission = "allow_editing,allow_viewing,allow_managing") => Op($"vault group grant --vault \"{vault.Uuid}\" --group \"{group.Uuid}\" --permission \"{permission}\"");
+    public void AddGroup(Group group, Vault vault, string permission = "allow_editing,allow_viewing,allow_managing") => Op($"vault group grant --vault \"{vault.Id}\" --group \"{group.Uuid}\" --permission \"{permission}\"");
 
-    public void AddUser(User user, Vault vault, string permission = "allow_editing,allow_viewing,allow_managing") => Op($"vault user grant --vault \"{vault.Uuid}\" --user \"{user.Uuid}\" --permission \"{permission}\"");
+    public void AddUser(User user, Vault vault, string permission = "allow_editing,allow_viewing,allow_managing") => Op($"vault user grant --vault \"{vault.Id}\" --user \"{user.Uuid}\" --permission \"{permission}\"");
 
     public void AddUser(User user, Group group, UserRole userRole = UserRole.Member)
     {
@@ -46,7 +46,7 @@ public partial class OnePasswordManager
     {
         var command = $"document delete \"{document.Uuid}\"";
         if (vault != null)
-            command += $" --vault \"{vault.Uuid}\"";
+            command += $" --vault \"{vault.Id}\"";
         command += " --archive";
         Op(command);
     }
@@ -57,7 +57,7 @@ public partial class OnePasswordManager
     {
         var command = $"item delete \"{item.Uuid}\"";
         if (vault != null)
-            command += $" --vault \"{vault.Uuid}\"";
+            command += $" --vault \"{vault.Id}\"";
         command += " --archive";
         Op(command);
     }
@@ -83,7 +83,7 @@ public partial class OnePasswordManager
         if (template.Tags.Count > 0)
             command += $" --tags \"{string.Join(",", template.Tags.ToArray())}\"";
         if (vault != null)
-            command += $" --vault \"{vault.Uuid}\"";
+            command += $" --vault \"{vault.Id}\"";
         return Op<Document>(command);
     }
 
@@ -107,7 +107,7 @@ public partial class OnePasswordManager
             command += $" --title \"{template.Title}\"";
         else
             command += $" --title \"{template.Name}\"";
-        if (template.PasswordRecipe != null && (template.Uuid == "001" || template.Uuid == "005")) // Login or Password
+        if (template.PasswordRecipe != null && (template.Uuid == "001" || template.Uuid == "005")) // Logor Password
         {
             command += " --generate-password=";
             if (template.PasswordRecipe.Value.Letters)
@@ -123,7 +123,7 @@ public partial class OnePasswordManager
         if (template.Tags.Count > 0)
             command += $" --tags \"{string.Join(",", template.Tags.ToArray())}\"";
         if (vault != null)
-            command += $" --vault \"{vault.Uuid}\"";
+            command += $" --vault \"{vault.Id}\"";
         return Op<Item>(command);
     }
 
@@ -135,25 +135,13 @@ public partial class OnePasswordManager
         return Op<User>(command);
     }
 
-    public Vault CreateVault(string name, string description = "", bool allowAdminsToManage = true, VaultIcon icon = VaultIcon.Default)
-    {
-        var command = $"vault create \"{name}\"";
-        if (!string.IsNullOrEmpty(description))
-            command += $" --description \"{description}\"";
-        if (!allowAdminsToManage)
-            command += " --allow-admins-to-manage \"false\"";
-        if (icon != VaultIcon.Default)
-            command += $" --icon \"{GetIconName(icon)}\"";
-        return Op<Vault>(command);
-    }
-
     public void DeleteDocument(Document document) => DeleteDocument(document, null);
 
     public void DeleteDocument(Document document, Vault? vault)
     {
         var command = $"document delete \"{document.Uuid}\"";
         if (vault != null)
-            command += $" --vault \"{vault.Uuid}\"";
+            command += $" --vault \"{vault.Id}\"";
         Op(command);
     }
 
@@ -165,28 +153,18 @@ public partial class OnePasswordManager
     {
         var command = $"item delete \"{item.Uuid}\"";
         if (vault != null)
-            command += $" --vault \"{vault.Uuid}\"";
+            command += $" --vault \"{vault.Id}\"";
         Op(command);
     }
 
-    [Obsolete("The list events command has been removed in version 2 of the 1Password CLI.")]
-    public void DeleteTrash(Vault vault) => throw new NotSupportedException("The list events command has been removed in version 2 of the 1Password CLI.");
+    [Obsolete("The list events command has been removed version 2 of the 1Password CLI.")]
+    public void DeleteTrash(Vault vault) => throw new NotSupportedException("The list events command has been removed version 2 of the 1Password CLI.");
 
     public void DeleteUser(User user) => Op($"user delete \"{user.Uuid}\"");
-
-    public void DeleteVault(Vault vault) => Op($"vault delete \"{vault.Uuid}\"");
 
     public void EditGroup(Group group) => Op($"group edit \"{group.Uuid}\" --name \"{group.Name}\" --description \"{group.Description}\"");
 
     public void EditUser(User user, bool travelMode = false) => Op($"user edit \"{user.Uuid}\" --name \"{user.Name}\" --travelmode \"{(travelMode ? "on" : "off")}\"");
-
-    public void EditVault(Vault vault)
-    {
-        var command = $"vault edit \"{vault.Uuid}\" --name \"{vault.Name}\" --description \"{vault.Description}\"";
-        if (vault.Icon != VaultIcon.Default)
-            command += $" --icon \"{GetIconName(vault.Icon)}\"";
-        Op(command);
-    }
 
     public void GetDocument(Item document, string path) => GetDocument(document, null, path);
 
@@ -194,7 +172,7 @@ public partial class OnePasswordManager
     {
         var command = $"document get \"{document.Uuid}\"";
         if (vault != null)
-            command += $" --vault \"{vault.Uuid}\"";
+            command += $" --vault \"{vault.Id}\"";
         command += $" --output \"{path}\"";
         Op(command);
     }
@@ -207,7 +185,7 @@ public partial class OnePasswordManager
     {
         var command = $"item get \"{item.Uuid}\"";
         if (vault != null)
-            command += $" --vault \"{vault.Uuid}\"";
+            command += $" --vault \"{vault.Id}\"";
         return Op<Item>(command);
     }
 
@@ -219,15 +197,13 @@ public partial class OnePasswordManager
 
     public User GetUser(User user) => Op<User>($"user get \"{user.Uuid}\"");
 
-    public Vault GetVault(Vault vault) => Op<Vault>($"vault get \"{vault.Uuid}\"");
-
     public DocumentList ListDocuments(bool includeTrash = false) => ListDocuments(null, includeTrash);
 
     public DocumentList ListDocuments(Vault? vault, bool includeTrash = false)
     {
         var command = "document list";
         if (vault != null)
-            command += $" --vault \"{vault.Uuid}\"";
+            command += $" --vault \"{vault.Id}\"";
         if (includeTrash)
             command += " --include-trash";
         return Op<DocumentList>(command);
@@ -237,7 +213,7 @@ public partial class OnePasswordManager
 
     public GroupList ListGroups(User user) => Op<GroupList>($"group list --user \"{user.Uuid}\"");
 
-    public GroupList ListGroups(Vault vault) => Op<GroupList>($"group list --vault \"{vault.Uuid}\"");
+    public GroupList ListGroups(Vault vault) => Op<GroupList>($"group list --vault \"{vault.Id}\"");
 
     public ItemList ListItems(bool includeTrash = false) => ListItems(null, null, "", includeTrash);
 
@@ -257,7 +233,7 @@ public partial class OnePasswordManager
     {
         var command = "item list";
         if (vault != null)
-            command += $" --vault \"{vault.Uuid}\"";
+            command += $" --vault \"{vault.Id}\"";
         if (template != null)
             command += $" --categories \"{template.Name}\"";
         if (!string.IsNullOrEmpty(tag))
@@ -273,19 +249,13 @@ public partial class OnePasswordManager
 
     public UserList ListUsers(Group group) => Op<UserList>($"user list --group \"{group.Uuid}\"");
 
-    public UserList ListUsers(Vault vault) => Op<UserList>($"vault user list \"{vault.Uuid}\"");
-
-    public VaultList ListVaults() => Op<VaultList>("vault list");
-
-    public VaultList ListVaults(User user) => Op<VaultList>($"vault list --user \"{user.Uuid}\"");
-
-    public VaultList ListVaults(Group group) => Op<VaultList>($"vault list --group \"{group.Uuid}\"");
+    public UserList ListUsers(Vault vault) => Op<UserList>($"vault user list \"{vault.Id}\"");
 
     public void ReactivateUser(User user) => Op($"user reactivate \"{user.Uuid}\"");
 
-    public void RemoveGroup(Group group, Vault vault) => Op($"vault group revoke --vault \"{vault.Uuid}\" --group \"{group.Uuid}\"");
+    public void RemoveGroup(Group group, Vault vault) => Op($"vault group revoke --vault \"{vault.Id}\" --group \"{group.Uuid}\"");
 
-    public void RemoveUser(User user, Vault vault) => Op($"vault user revoke --vault \"{vault.Uuid}\" --user \"{user.Uuid}\"");
+    public void RemoveUser(User user, Vault vault) => Op($"vault user revoke --vault \"{vault.Id}\" --user \"{user.Uuid}\"");
 
     public void RemoveUser(User user, Group group) => Op($"group user revoke --group \"{group.Uuid}\" --user \"{user.Uuid}\"");
 
@@ -331,16 +301,6 @@ public partial class OnePasswordManager
     }
 #endif
 
-    private static string GetIconName(VaultIcon vaultIcon)
-    {
-        var field = vaultIcon.GetType().GetField(vaultIcon.ToString());
-        if (field is null)
-            return "";
-
-        var attributes = (IconAttribute[])field.GetCustomAttributes(typeof(IconAttribute), false);
-        return attributes.Length > 0 ? attributes[0].Name : "";
-    }
-
     private static string GetStandardError(Process process)
     {
         var error = new StringBuilder();
@@ -360,7 +320,8 @@ public partial class OnePasswordManager
     private TResult Op<TResult>(string command, bool passAccount = true, bool passSession = true, bool returnError = false)
         where TResult : class
     {
-        return JsonSerializer.Deserialize<TResult>(Op(command, passAccount, passSession, returnError)) ?? throw new Exception("Could not deserialize the command result.");
+        var result = Op(command, passAccount, passSession, returnError);
+        return JsonSerializer.Deserialize<TResult>(result) ?? throw new Exception("Could not deserialize the command result.");
     }
 
     private string Op(string command, bool passAccount = true, bool passSession = true, bool returnError = false)

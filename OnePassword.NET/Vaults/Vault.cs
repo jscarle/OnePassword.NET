@@ -1,18 +1,10 @@
 ﻿namespace OnePassword.Vaults;
 
-public class Vault
+public sealed record Vault : IVault
 {
-    [JsonPropertyName("uuid")]
-    public string Uuid { get; set; } = "";
+    [JsonPropertyName("id")]
+    public string Id { get; init; } = "";
 
     [JsonPropertyName("name")]
-    public string Name { get; set; } = "";
-
-    [JsonPropertyName("desc")]
-    public string Description { get; set; } = "";
-
-    [JsonPropertyName("type")]
-    public VaultType VaultType { get; set; }
-
-    public VaultIcon Icon { get; set; } = VaultIcon.Default;
+    public string Name { get; init; } = "";
 }
