@@ -1,13 +1,11 @@
-﻿using System.Runtime.Serialization;
-
-namespace OnePassword.Accounts;
+﻿namespace OnePassword.Accounts;
 
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum AccountType
 {
-    [EnumMember(Value = "P")]
+    [EnumMember(Value = "PERSONAL")]
     Personal,
 
-    [EnumMember(Value = "B")]
+    [EnumMember(Value = "BUSINESS")]
     Business
 }

@@ -2,7 +2,6 @@
 using System.IO.Compression;
 using System.Text;
 using System.Text.RegularExpressions;
-using OnePassword.Accounts;
 using OnePassword.Documents;
 using OnePassword.Groups;
 using OnePassword.Items;
@@ -13,13 +12,12 @@ using Group = OnePassword.Groups.Group;
 
 namespace OnePassword;
 
-public class OnePasswordManager
+public partial class OnePasswordManager
 {
-    private readonly TimeSpan _totpProcessStartupTimeout = TimeSpan.FromMilliseconds(1000);
     private readonly string _opPath;
     private readonly bool _verbose;
-    private string _shorthand = "";
-    private string _sessionId = "";
+    private string _account = "";
+    private string _session = "";
 
     public OnePasswordManager(string path = "", string executable = "op.exe", bool verbose = false)
     {
@@ -29,7 +27,6 @@ public class OnePasswordManager
 
         _verbose = verbose;
     }
-
 
     public void AddGroup(Group group, Vault vault, string permission = "allow_editing,allow_viewing,allow_managing") => Op($"vault group grant --vault \"{vault.Uuid}\" --group \"{group.Uuid}\" --permission \"{permission}\"");
 
@@ -191,10 +188,6 @@ public class OnePasswordManager
         Op(command);
     }
 
-    public void Forget(string domain) => Op($"account forget {domain}");
-
-    public Account GetAccount() => Op<Account>("account get");
-
     public void GetDocument(Item document, string path) => GetDocument(document, null, path);
 
     public void GetDocument(Item document, Vault? vault, string path)
@@ -296,52 +289,6 @@ public class OnePasswordManager
 
     public void RemoveUser(User user, Group group) => Op($"group user revoke --group \"{group.Uuid}\" --user \"{user.Uuid}\"");
 
-    public void SignIn(string domain, string email, string secretKey, string password, string shorthand = "")
-    {
-        SignIn(domain, email, secretKey, password, "", shorthand);
-    }
-
-    public void SignInTotp(string domain, string email, string secretKey, string password, string totp, string shorthand = "")
-    {
-        SignIn(domain, email, secretKey, password, totp, shorthand);
-    }
-
-    private void SignIn(string domain, string email, string secretKey, string password, string totp, string shorthand)
-    {
-        var command = $"account add --address {domain} --email {email} --secret-key {secretKey}";
-        if (!string.IsNullOrEmpty(shorthand))
-            command += $" --shorthand {shorthand}";
-
-        var result = Op(command, new[] { password, totp }, true);
-        if (result.Contains("No saved device ID."))
-        {
-            var opDeviceRegex = new Regex("OP_DEVICE=(?<UUID>[a-z0-9]+)");
-            var deviceUuid = opDeviceRegex.Match(result).Groups["UUID"].Value;
-            Environment.SetEnvironmentVariable("OP_DEVICE", deviceUuid);
-
-            result = Op(command, new[] { password, totp });
-        }
-
-        if (result.StartsWith("[ERROR]"))
-            throw new Exception(result.Length > 28 ? result[28..].Trim() : result);
-
-        command = "signin --raw";
-        result = Op(command, new[] { password, totp }, true);
-        if (result.StartsWith("[ERROR]"))
-            throw new Exception(result.Length > 28 ? result[28..].Trim() : result);
-
-        _shorthand = shorthand;
-        _sessionId = result.Trim();
-    }
-
-    public void SignOut(bool forget = false)
-    {
-        var command = "signout";
-        if (forget)
-            command += " --forget";
-        Op(command);
-    }
-
     public void SuspendUser(User user, bool deauthorizeDevices = false, int deauthorizeDevicesDelay = 0)
     {
         var command = $"user suspend \"{user.Uuid}\"";
@@ -410,31 +357,39 @@ public class OnePasswordManager
         return output.ToString();
     }
 
-    private TResult Op<TResult>(string command, string input = "", bool returnError = false)
+    private TResult Op<TResult>(string command, bool passAccount = true, bool passSession = true, bool returnError = false)
         where TResult : class
     {
-        return JsonSerializer.Deserialize<TResult>(Op(command, input, returnError)) ?? throw new Exception("Could not deserialize the command result.");
+        return JsonSerializer.Deserialize<TResult>(Op(command, passAccount, passSession, returnError)) ?? throw new Exception("Could not deserialize the command result.");
     }
 
-
-    private string Op(string command, string input = "", bool returnError = false)
+    private string Op(string command, bool passAccount = true, bool passSession = true, bool returnError = false)
     {
-        return Op(command, new[] { input }, returnError);
+        return Op(command, Array.Empty<string>(), passAccount, passSession, returnError);
     }
 
-    private string Op(string command, IReadOnlyCollection<string> input, bool returnError = false)
+    private string Op(string command, string input, bool passAccount = true, bool passSession = true, bool returnError = false)
     {
+        return Op(command, new[] { input }, passAccount, passSession, returnError);
+    }
+
+    private string Op(string command, IEnumerable<string> input, bool passAccount = true, bool passSession = true, bool returnError = false)
+    {
+        if (passAccount && string.IsNullOrWhiteSpace(_account))
+            throw new Exception("Cannot execute command because account has not been set.");
+        if (passSession && string.IsNullOrWhiteSpace(_session))
+            throw new Exception("Cannot execute command because account has not been signed in.");
 
         var arguments = command;
-        if (!command.StartsWith("signout") && !string.IsNullOrEmpty(_sessionId))
-            arguments += $" --session {_sessionId}";
-        if (!string.IsNullOrEmpty(_shorthand))
-            arguments += $" --account {_shorthand}";
+        if (passAccount)
+            arguments += $" --account {_account}";
+        if (passSession)
+            arguments += $" --session {_session}";
 
         if (_verbose)
             Console.WriteLine($"{Path.GetDirectoryName(_opPath)}>op {arguments}");
 
-        var processStartInfo = new ProcessStartInfo(_opPath, $"{arguments} --format json --no-color")
+        var process = Process.Start(new ProcessStartInfo(_opPath, $"{arguments} --format json --no-color")
         {
             CreateNoWindow = true,
             UseShellExecute = false,
@@ -443,22 +398,15 @@ public class OnePasswordManager
             RedirectStandardError = true,
             StandardOutputEncoding = Encoding.UTF8,
             StandardErrorEncoding = Encoding.UTF8
-        };
-        var process = Process.Start(processStartInfo);
+        });
 
         if (process is null)
             throw new Exception($"Could not start process for {_opPath}.");
 
-        if (input.Count > 0)
+        foreach (var inputLine in input)
         {
-            if (input.Count > 1)
-                Thread.Sleep(_totpProcessStartupTimeout);
-
-            foreach (var inputLine in input)
-            {
-                process.StandardInput.WriteLine(inputLine);
-                process.StandardInput.Flush();
-            }
+            process.StandardInput.WriteLine(inputLine);
+            process.StandardInput.Flush();
         }
 
         var output = GetStandardOutput(process);
@@ -469,14 +417,12 @@ public class OnePasswordManager
         if (_verbose)
             Console.WriteLine(error);
 
-        if (error.StartsWith("[ERROR]"))
-        {
-            if (returnError)
-                return error;
+        if (!error.StartsWith("[ERROR]"))
+            return output;
 
-            throw new Exception(error.Length > 28 ? error[28..].Trim() : error);
-        }
+        if (returnError)
+            return error;
 
-        return output;
+        throw new Exception(error.Length > 28 ? error[28..].Trim() : error);
     }
 }

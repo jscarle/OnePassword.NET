@@ -5,9 +5,9 @@ namespace OnePassword.Common;
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum State
 {
-    [EnumMember(Value = "A")]
+    [EnumMember(Value = "ACTIVE")]
     Active,
 
-    [EnumMember(Value = "S")]
+    [EnumMember(Value = "SUSPENDED")]
     Suspended
 }

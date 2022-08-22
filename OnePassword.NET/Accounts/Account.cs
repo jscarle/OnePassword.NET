@@ -1,36 +1,19 @@
-﻿using OnePassword.Common;
+﻿namespace OnePassword.Accounts;
 
-namespace OnePassword.Accounts;
-
-public class Account
+public record Account
 {
-    [JsonPropertyName("uuid")]
-    public string Uuid { get; set; } = "";
+    [JsonPropertyName("account_uuid")]
+    public string Id { get; init; } = "";
 
-    [JsonPropertyName("createdAt")]
-    public DateTime CreatedAt { get; set; }
+    [JsonPropertyName("shorthand")]
+    public string Shorthand { get; init; } = "";
 
-    [JsonPropertyName("name")]
-    public string Name { get; set; } = "";
+    [JsonPropertyName("url")]
+    public string Url { get; init; } = "";
 
-    [JsonPropertyName("type")]
-    public AccountType AccountType { get; set; }
+    [JsonPropertyName("user_uuid")]
+    public string UserId { get; init; } = "";
 
-    [JsonPropertyName("state")]
-    public State State { get; set; }
-
-    [JsonPropertyName("avatar")]
-    public string Avatar { get; set; } = "";
-
-    [JsonPropertyName("domain")]
-    public string Domain { get; set; } = "";
-
-    [JsonPropertyName("baseAvatarURL")]
-    public string BaseAvatarUrl { get; set; } = "";
-
-    [JsonPropertyName("baseAttachmentURL")]
-    public string BaseAttachmentUrl { get; set; } = "";
-
-    [JsonPropertyName("attrVersion")]
-    public int AttributesVersion { get; set; }
+    [JsonPropertyName("email")]
+    public string Email { get; init; } = "";
 }
