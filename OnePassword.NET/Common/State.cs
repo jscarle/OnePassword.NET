@@ -7,5 +7,7 @@ public enum State
     Active,
 
     [EnumMember(Value = "SUSPENDED")]
-    Suspended
+    Suspended,
+
+    Unknown
 }

@@ -1,22 +1,24 @@
-﻿using System.Runtime.Serialization;
+﻿using OnePassword.Common;
 
 namespace OnePassword.Groups;
 
-[JsonConverter(typeof(JsonStringEnumConverter))]
+[JsonConverter(typeof(JsonStringEnumConverterEx<GroupType>))]
 public enum GroupType
 {
-    [EnumMember(Value = "O")]
-    Owner,
+    [EnumMember(Value = "ADMINISTRATORS")]
+    Administrators,
 
-    [EnumMember(Value = "A")]
-    Administrator,
+    [EnumMember(Value = "OWNERS")]
+    Owners,
 
-    [EnumMember(Value = "R")]
+    [EnumMember(Value = "RECOVERY")]
     Recovery,
 
-    [EnumMember(Value = "M")]
-    TeamMember,
+    [EnumMember(Value = "TEAM_MEMBERS")]
+    TeamMembers,
 
-    [EnumMember(Value = "U")]
-    User
+    Unknown,
+
+    [EnumMember(Value = "USER_DEFINED")]
+    UserDefined
 }

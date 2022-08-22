@@ -3,11 +3,11 @@
 public class InputTraits
 {
     [JsonPropertyName("autocapitalization")]
-    public string AutoCapitalization { get; set; } = "";
+    public string AutoCapitalization { get; init; } = "";
 
     [JsonPropertyName("autocorrection")]
-    public string AutoCorrection { get; set; } = "";
+    public string AutoCorrection { get; init; } = "";
 
     [JsonPropertyName("keyboard")]
-    public string Keyboard { get; set; } = "";
+    public string Keyboard { get; init; } = "";
 }

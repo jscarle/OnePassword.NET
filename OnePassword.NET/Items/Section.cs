@@ -3,11 +3,11 @@
 public class Section
 {
     [JsonPropertyName("name")]
-    public string Name { get; set; } = "";
+    public string Name { get; init; } = "";
 
     [JsonPropertyName("title")]
-    public string Title { get; set; } = "";
+    public string Title { get; init; } = "";
 
     [JsonPropertyName("fields")]
-    public SectionFieldList Fields { get; set; } = new();
+    public SectionFieldList Fields { get; init; } = new();
 }

@@ -5,26 +5,26 @@ namespace OnePassword.Documents;
 public class DocumentAttributes
 {
     [JsonPropertyName("documentId")]
-    public string DocumentId { get; set; } = "";
+    public string DocumentId { get; init; } = "";
 
     [JsonPropertyName("fileName")]
-    public string FileName { get; set; } = "";
+    public string FileName { get; init; } = "";
 
     [JsonPropertyName("fileName")]
-    public long UnencryptedSize { get; set; }
+    public long UnencryptedSize { get; init; }
 
     [JsonPropertyName("fileName")]
-    public string Nonce { get; set; } = "";
+    public string Nonce { get; init; } = "";
 
     [JsonPropertyName("fileName")]
-    public JsonWebKey EncryptionKey { get; set; } = new();
+    public JsonWebKey EncryptionKey { get; init; } = new();
 
     [JsonPropertyName("fileName")]
-    public long EncryptedSize { get; set; }
+    public long EncryptedSize { get; init; }
 
     [JsonPropertyName("signingKey")]
-    public JsonWebKey SigningKey { get; set; } = new();
+    public JsonWebKey SigningKey { get; init; } = new();
 
     [JsonPropertyName("integrityHash")]
-    public string IntegrityHash { get; set; } = "";
+    public string IntegrityHash { get; init; } = "";
 }

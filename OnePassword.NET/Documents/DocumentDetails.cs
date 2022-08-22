@@ -5,5 +5,5 @@ namespace OnePassword.Documents;
 public class DocumentDetails : ItemDetails
 {
     [JsonPropertyName("documentAttributes")]
-    public DocumentAttributes DocumentAttributes { get; set; } = new();
+    public DocumentAttributes DocumentAttributes { get; init; } = new();
 }

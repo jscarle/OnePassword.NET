@@ -9,5 +9,5 @@ public enum VaultType
     Personal,
 
     [EnumMember(Value = "USER_CREATED")]
-    User
+    UserDefined
 }

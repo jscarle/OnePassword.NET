@@ -1,39 +1,31 @@
-﻿using OnePassword.Common;
+﻿using System.Collections.Immutable;
+using OnePassword.Common;
 
 namespace OnePassword.Groups;
 
-public class Group
+public sealed record Group: IGroup
 {
-    [JsonPropertyName("uuid")]
-    public string Uuid { get; set; } = "";
-
-    [JsonPropertyName("createdAt")]
-    public DateTime CreatedAt { get; set; }
-
-    [JsonPropertyName("updatedAt")]
-    public DateTime UpdatedAt { get; set; }
+    [JsonPropertyName("id")]
+    public string Id { get; init; } = "";
 
     [JsonPropertyName("name")]
-    public string Name { get; set; } = "";
+    public string Name { get; init; } = "";
 
-    [JsonPropertyName("desc")]
-    public string Description { get; set; } = "";
-
-    [JsonPropertyName("type")]
-    public GroupType GroupType { get; set; }
-
-    [JsonPropertyName("state")]
-    public State State { get; set; }
+    [JsonPropertyName("description")]
+    public string Description { get; init; } = "";
 
     [JsonPropertyName("permissions")]
-    public long Permissions { get; set; }
+    public ImmutableList<Permission> Permissions { get; init; } = ImmutableList<Permission>.Empty;
 
-    [JsonPropertyName("activeKeysetUuid")]
-    public string ActiveKeysetUuid { get; set; } = "";
+    [JsonPropertyName("type")]
+    public GroupType Type { get; init; } = GroupType.Unknown;
 
-    [JsonPropertyName("pubKey")]
-    public JsonWebKey PublicKey { get; set; } = new();
+    [JsonPropertyName("state")]
+    public State State { get; init; } = State.Unknown;
 
-    [JsonPropertyName("attrVersion")]
-    public int AttributesVersion { get; set; }
+    [JsonPropertyName("created_at")]
+    public DateTimeOffset Created { get; init; }
+
+    [JsonPropertyName("updated_at")]
+    public DateTimeOffset Updated { get; init; }
 }

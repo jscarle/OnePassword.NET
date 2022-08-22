@@ -3,20 +3,20 @@
 public class SectionField
 {
     [JsonPropertyName("n")]
-    public string Name { get; set; } = "";
+    public string Name { get; init; } = "";
 
     [JsonPropertyName("t")]
-    public string Title { get; set; } = "";
+    public string Title { get; init; } = "";
 
     [JsonPropertyName("k")]
-    public string FieldType { get; set; } = "";
+    public string FieldType { get; init; } = "";
 
     [JsonPropertyName("v")]
-    public object? Value { get; set; }
+    public object? Value { get; init; }
 
     [JsonPropertyName("a")]
-    public SectionFieldAdditional Additional { get; set; } = new();
+    public SectionFieldAdditional Additional { get; init; } = new();
 
     [JsonPropertyName("inputTraits")]
-    public InputTraits InputTraits { get; set; } = new();
+    public InputTraits InputTraits { get; init; } = new();
 }

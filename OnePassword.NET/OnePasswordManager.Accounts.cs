@@ -1,5 +1,4 @@
 ﻿using System.Collections.Immutable;
-using System.Security.Principal;
 using System.Text.RegularExpressions;
 using OnePassword.Accounts;
 

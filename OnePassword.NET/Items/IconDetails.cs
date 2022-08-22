@@ -5,14 +5,14 @@ namespace OnePassword.Items;
 public class IconDetails
 {
     [JsonPropertyName("fileId")]
-    public string FileId { get; set; } = "";
+    public string FileId { get; init; } = "";
 
     [JsonPropertyName("nonce")]
-    public string Nonce { get; set; } = "";
+    public string Nonce { get; init; } = "";
 
     [JsonPropertyName("encryptionKey")]
-    public JsonWebKey EncryptionKey { get; set; } = new();
+    public JsonWebKey EncryptionKey { get; init; } = new();
 
     [JsonPropertyName("signingKey")]
-    public JsonWebKey SigningKey { get; set; } = new();
+    public JsonWebKey SigningKey { get; init; } = new();
 }

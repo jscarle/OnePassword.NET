@@ -11,10 +11,10 @@ public sealed record AccountDetails
     public string Name { get; init; } = "";
 
     [JsonPropertyName("domain")]
-    public string Doma{ get; init; } = "";
+    public string Domain { get; init; } = "";
 
     [JsonPropertyName("type")]
-    public AccountType AccountType { get; init; }
+    public AccountType Type { get; init; }
 
     [JsonPropertyName("state")]
     public State State { get; init; }

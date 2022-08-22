@@ -3,17 +3,17 @@
 public class ItemField
 {
     [JsonPropertyName("name")]
-    public string Name { get; set; } = "";
+    public string Name { get; init; } = "";
 
     [JsonPropertyName("designation")]
-    public string Designation { get; set; } = "";
+    public string Designation { get; init; } = "";
 
     [JsonPropertyName("id")]
-    public string Id { get; set; } = "";
+    public string Id { get; init; } = "";
 
     [JsonPropertyName("type")]
-    public string FieldType { get; set; } = "";
+    public string FieldType { get; init; } = "";
 
     [JsonPropertyName("value")]
-    public object? Value { get; set; }
+    public object? Value { get; init; }
 }

@@ -3,7 +3,6 @@ using System.IO.Compression;
 using System.Text;
 using System.Text.RegularExpressions;
 using OnePassword.Documents;
-using OnePassword.Groups;
 using OnePassword.Items;
 using OnePassword.Templates;
 using OnePassword.Users;
@@ -28,13 +27,11 @@ public sealed partial class OnePasswordManager
         _verbose = verbose;
     }
 
-    public void AddGroup(Group group, Vault vault, string permission = "allow_editing,allow_viewing,allow_managing") => Op($"vault group grant --vault \"{vault.Id}\" --group \"{group.Uuid}\" --permission \"{permission}\"");
-
     public void AddUser(User user, Vault vault, string permission = "allow_editing,allow_viewing,allow_managing") => Op($"vault user grant --vault \"{vault.Id}\" --user \"{user.Uuid}\" --permission \"{permission}\"");
 
     public void AddUser(User user, Group group, UserRole userRole = UserRole.Member)
     {
-        var command = $"group user grant --group \"{group.Uuid}\" --user \"{user.Uuid}\"";
+        var command = $"group user grant --group \"{group.Id}\" --user \"{user.Uuid}\"";
         if (userRole == UserRole.Manager)
             command += " --role manager";
         Op(command);
@@ -87,14 +84,6 @@ public sealed partial class OnePasswordManager
         return Op<Document>(command);
     }
 
-    public Group CreateGroup(string name, string description = "")
-    {
-        var command = $"group create \"{name}\"";
-        if (description.Length > 0)
-            command += $" --description \"{description}\"";
-        return Op<Group>(command);
-    }
-
     public Item CreateItem(Template template) => CreateItem(template, null);
 
     public Item CreateItem(Template template, Vault? vault)
@@ -145,8 +134,6 @@ public sealed partial class OnePasswordManager
         Op(command);
     }
 
-    public void DeleteGroup(Group group) => Op($"group delete \"{group.Uuid}\"");
-
     public void DeleteItem(Item item) => DeleteItem(item, null);
 
     public void DeleteItem(Item item, Vault? vault)
@@ -162,8 +149,6 @@ public sealed partial class OnePasswordManager
 
     public void DeleteUser(User user) => Op($"user delete \"{user.Uuid}\"");
 
-    public void EditGroup(Group group) => Op($"group edit \"{group.Uuid}\" --name \"{group.Name}\" --description \"{group.Description}\"");
-
     public void EditUser(User user, bool travelMode = false) => Op($"user edit \"{user.Uuid}\" --name \"{user.Name}\" --travelmode \"{(travelMode ? "on" : "off")}\"");
 
     public void GetDocument(Item document, string path) => GetDocument(document, null, path);
@@ -176,8 +161,6 @@ public sealed partial class OnePasswordManager
         command += $" --output \"{path}\"";
         Op(command);
     }
-
-    public Group GetGroup(Group group) => Op<Group>($"group get \"{group.Uuid}\"");
 
     public Item GetItem(Item item) => GetItem(item, null);
 
@@ -208,12 +191,6 @@ public sealed partial class OnePasswordManager
             command += " --include-trash";
         return Op<DocumentList>(command);
     }
-
-    public GroupList ListGroups() => Op<GroupList>("group list");
-
-    public GroupList ListGroups(User user) => Op<GroupList>($"group list --user \"{user.Uuid}\"");
-
-    public GroupList ListGroups(Vault vault) => Op<GroupList>($"group list --vault \"{vault.Id}\"");
 
     public ItemList ListItems(bool includeTrash = false) => ListItems(null, null, "", includeTrash);
 
@@ -247,17 +224,17 @@ public sealed partial class OnePasswordManager
 
     public UserList ListUsers() => Op<UserList>("user list");
 
-    public UserList ListUsers(Group group) => Op<UserList>($"user list --group \"{group.Uuid}\"");
+    public UserList ListUsers(Group group) => Op<UserList>($"user list --group \"{group.Id}\"");
 
     public UserList ListUsers(Vault vault) => Op<UserList>($"vault user list \"{vault.Id}\"");
 
     public void ReactivateUser(User user) => Op($"user reactivate \"{user.Uuid}\"");
 
-    public void RemoveGroup(Group group, Vault vault) => Op($"vault group revoke --vault \"{vault.Id}\" --group \"{group.Uuid}\"");
+    public void RemoveGroup(Group group, Vault vault) => Op($"vault group revoke --vault \"{vault.Id}\" --group \"{group.Id}\"");
 
     public void RemoveUser(User user, Vault vault) => Op($"vault user revoke --vault \"{vault.Id}\" --user \"{user.Uuid}\"");
 
-    public void RemoveUser(User user, Group group) => Op($"group user revoke --group \"{group.Uuid}\" --user \"{user.Uuid}\"");
+    public void RemoveUser(User user, Group group) => Op($"group user revoke --group \"{group.Id}\" --user \"{user.Uuid}\"");
 
     public void SuspendUser(User user, bool deauthorizeDevices = false, int deauthorizeDevicesDelay = 0)
     {

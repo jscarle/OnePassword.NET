@@ -3,8 +3,8 @@
 public class PasswordHistory
 {
     [JsonPropertyName("time")]
-    public int Time { get; set; }
+    public int Time { get; init; }
 
     [JsonPropertyName("value")]
-    public string Value { get; set; } = "";
+    public string Value { get; init; } = "";
 }
