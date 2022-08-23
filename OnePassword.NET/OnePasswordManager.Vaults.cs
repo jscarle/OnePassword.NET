@@ -46,8 +46,6 @@ public sealed partial class OnePasswordManager
 
     public void DeleteVault(IVault vault) => Op($"vault delete {vault.Id}");
 
-    public ImmutableList<Group> GetVaultGroups(IVault vault) => Op<ImmutableList<Group>>($"vault group list {vault.Id}");
-
     public void GrantVaultPermissions(IVault vault, IGroup group, IEnumerable<Permission> permissions)
     {
         var permissionValues = new StringBuilder();

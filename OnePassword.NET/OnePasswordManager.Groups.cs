@@ -11,7 +11,7 @@ public sealed partial class OnePasswordManager
 
     public ImmutableList<Group> GetGroups(User user) => Op<ImmutableList<Group>>($"group list --user {user.Uuid}");
 
-    public ImmutableList<Group> GetGroups(IVault vault) => Op<ImmutableList<Group>>($"group list --vault {vault.Id}");
+    public ImmutableList<Group> GetGroups(IVault vault) => Op<ImmutableList<Group>>($"vault group list {vault.Id}");
 
     public Group GetGroup(IGroup group) => Op<Group>($"group get {group.Id}");
 

@@ -15,7 +15,7 @@ public sealed record Group: IGroup
     public string Description { get; init; } = "";
 
     [JsonPropertyName("permissions")]
-    public ImmutableList<Permission> Permissions { get; init; } = ImmutableList<Permission>.Empty;
+    public ImmutableList<Permission>? Permissions { get; init; } = null;
 
     [JsonPropertyName("type")]
     public GroupType Type { get; init; } = GroupType.Unknown;
@@ -27,5 +27,5 @@ public sealed record Group: IGroup
     public DateTimeOffset Created { get; init; }
 
     [JsonPropertyName("updated_at")]
-    public DateTimeOffset Updated { get; init; }
+    public DateTimeOffset? Updated { get; init; }
 }
