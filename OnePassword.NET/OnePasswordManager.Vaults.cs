@@ -51,7 +51,7 @@ public sealed partial class OnePasswordManager
         if (trimmedDescription is not null)
             command += $" --description \"{trimmedDescription}\"";
         if (icon != VaultIcon.Default)
-            command += $" --icon {GetIconStringValue(icon)}";
+            command += $" --icon {icon.ToStringEnum()}";
         if (allowAdminsToManage.HasValue)
             command += $" --allow-admins-to-manage {(allowAdminsToManage.Value ? "true" : "false")}";
         return Op<Vault>(command);
@@ -74,7 +74,7 @@ public sealed partial class OnePasswordManager
         if (trimmedDescription is not null)
             command += $" --description \"{trimmedDescription}\"";
         if (icon != VaultIcon.Default)
-            command += $" --icon {GetIconStringValue(icon)}";
+            command += $" --icon {icon.ToStringEnum()}";
         if (travelMode.HasValue)
             command += $" --travel-mode {(travelMode.Value ? "on" : "off")}";
         Op(command);
@@ -146,22 +146,5 @@ public sealed partial class OnePasswordManager
 
         var permissionsList = string.Join(",", permissionValues);
         Op($"vault group revoke --vault {vault.Id} --group {group.Id} --permissions {permissionsList}");
-    }
-
-    private static string GetIconStringValue(VaultIcon vaultIcon)
-    {
-        var field = vaultIcon.GetType().GetField(vaultIcon.ToString());
-        if (field is null)
-            throw new Exception("Could not find icon enum.");
-
-        var attributes = (EnumMemberAttribute[])field.GetCustomAttributes(typeof(EnumMemberAttribute), false);
-        if (attributes.Length == 0)
-            throw new NotImplementedException("Icon string value attribute has not been defined for this icon.");
-
-        var iconName = attributes[0].Value;
-        if (iconName is null)
-            throw new NotImplementedException("Icon string value attribute value has not been defined for this icon.");
-
-        return iconName;
     }
 }
