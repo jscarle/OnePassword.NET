@@ -1,7 +1,6 @@
 ﻿using System.Collections.Immutable;
 using OnePassword.Common;
 using OnePassword.Items;
-using OnePassword.Templates;
 using OnePassword.Vaults;
 
 namespace OnePassword;

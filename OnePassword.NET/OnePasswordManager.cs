@@ -7,6 +7,8 @@ namespace OnePassword;
 
 public sealed partial class OnePasswordManager
 {
+    public string Version { get; private set; }
+
     private readonly string _opPath;
     private readonly bool _verbose;
     private string _account = "";
@@ -19,6 +21,8 @@ public sealed partial class OnePasswordManager
             throw new Exception($"The 1Password CLI executable ({executable}) was not found folder \"{Path.GetDirectoryName(_opPath)}\".");
 
         _verbose = verbose;
+
+        Version = GetVersion();
     }
 
 #if !NET40 && !NET35 && !NET20
@@ -32,7 +36,9 @@ public sealed partial class OnePasswordManager
         var command = $"update --directory \"{tempDirectory}\"";
         var result = Op(command, false, false);
 
-        if (Regex.Match(result, @"Version ([^\s]+) is now available\.").Success)
+        var match = Regex.Match(result, @"Version ([^\s]+) is now available\.");
+        if (match.Success)
+        {
             foreach (var file in Directory.GetFiles(tempDirectory, "*.zip"))
             {
                 using var zipArchive = ZipFile.Open(file, ZipArchiveMode.Read);
@@ -42,14 +48,22 @@ public sealed partial class OnePasswordManager
                     continue;
                 entry.ExtractToFile(_opPath, true);
 
+                Version = GetVersion();
                 updated = true;
             }
+        }
 
         Directory.Delete(tempDirectory, true);
 
         return updated;
     }
 #endif
+
+    private string GetVersion()
+    {
+        var command = "--version";
+        return Op(command, false, false);
+    }
 
     private static string GetStandardError(Process process)
     {
@@ -106,6 +120,8 @@ public sealed partial class OnePasswordManager
             throw new Exception("Cannot execute command because account has not been signed in.");
 
         var arguments = command;
+        if (command != "--version")
+            arguments += " --format json --no-color";
         if (passAccount)
             arguments += $" --account {_account}";
         if (passSession)
@@ -114,7 +130,7 @@ public sealed partial class OnePasswordManager
         if (_verbose)
             Console.WriteLine($"{Path.GetDirectoryName(_opPath)}>op {arguments}");
 
-        var process = Process.Start(new ProcessStartInfo(_opPath, $"{arguments} --format json --no-color")
+        var process = Process.Start(new ProcessStartInfo(_opPath, arguments)
         {
             CreateNoWindow = true,
             UseShellExecute = false,
