@@ -15,7 +15,7 @@ public sealed partial class OnePasswordManager
     public ImmutableList<Group> GetGroups(IUser user)
     {
         if (user.Id.Length == 0)
-            throw new Exception($"{nameof(user.Id)} cannot be empty.");
+            throw new ArgumentException($"{nameof(user.Id)} cannot be empty.", nameof(user));
 
         return Op<ImmutableList<Group>>($"group list --user {user.Id}");
     }
@@ -23,7 +23,7 @@ public sealed partial class OnePasswordManager
     public ImmutableList<Group> GetGroups(IVault vault)
     {
         if (vault.Id.Length == 0)
-            throw new Exception($"{nameof(vault.Id)} cannot be empty.");
+            throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
 
         return Op<ImmutableList<Group>>($"vault group list {vault.Id}");
     }
@@ -31,7 +31,7 @@ public sealed partial class OnePasswordManager
     public Group GetGroup(IGroup group)
     {
         if (group.Id.Length == 0)
-            throw new Exception($"{nameof(group.Id)} cannot be empty.");
+            throw new ArgumentException($"{nameof(group.Id)} cannot be empty.", nameof(group));
 
         return Op<Group>($"group get {group.Id}");
     }

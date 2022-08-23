@@ -13,39 +13,57 @@ public sealed partial class OnePasswordManager
         return Op<ImmutableList<Account>>("account list", false, false);
     }
 
-    public AccountDetails GetAccount(string account)
+    public AccountDetails GetAccount(string account = "")
     {
         var trimmedAccount = account.Trim();
 
-        return Op<AccountDetails>(!string.IsNullOrWhiteSpace(trimmedAccount) ? $"account get --account {trimmedAccount}" : "account get");
+        return Op<AccountDetails>(trimmedAccount.Length > 0 ? $"account get --account {trimmedAccount}" : "account get");
     }
     
     public void AddAccount(string address, string email, string secretKey, string password, string shorthand = "")
     {
         var trimmedAddress = address.Trim();
+        if (trimmedAddress.Length == 0)
+            throw new ArgumentException($"{nameof(address)} cannot be empty.", nameof(address));
+
         var trimmedEmail = email.Trim();
+        if (trimmedEmail.Length == 0)
+            throw new ArgumentException($"{nameof(email)} cannot be empty.", nameof(email));
+
         var trimmedSecretKey = secretKey.Trim();
+        if (trimmedSecretKey.Length == 0)
+            throw new ArgumentException($"{nameof(secretKey)} cannot be empty.", nameof(secretKey));
+
+        if (password.Length == 0)
+            throw new ArgumentException($"{nameof(password)} cannot be empty.", nameof(password));
+
         var trimmedShorthand = shorthand.Trim();
 
         var command = $"account add --address {trimmedAddress} --email {trimmedEmail} --secret-key {trimmedSecretKey}";
-        if (!string.IsNullOrEmpty(trimmedShorthand))
+        if (trimmedShorthand.Length > 0)
             command += $" --shorthand {trimmedShorthand}";
 
         Op(command, password, false, false);
 
-        _account = !string.IsNullOrEmpty(trimmedShorthand) ? trimmedShorthand : trimmedAddress;
+        _account = trimmedShorthand.Length > 0 ? trimmedShorthand : trimmedAddress;
     }
 
     public void UseAccount(string account)
     {
         var trimmedAccount = account.Trim();
+        if (trimmedAccount.Length == 0)
+            throw new ArgumentException($"{nameof(account)} cannot be empty.", nameof(account));
 
         _account = trimmedAccount;
     }
 
     public void SignIn(string password)
     {
-        _session = Op("signin --raw", password, true, false);
+        if (password.Length == 0)
+            throw new ArgumentException($"{nameof(password)} cannot be empty.", nameof(password));
+
+        var result = Op("signin --raw", password, true, false);
+        _session = result.Trim();
     }
 
     public void SignOut(bool all = false)

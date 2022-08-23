@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Text;
 using OnePassword.Common;
 using OnePassword.Groups;
@@ -18,7 +17,7 @@ public sealed partial class OnePasswordManager
     public ImmutableList<Vault> GetVaults(IUser user)
     {
         if (user.Id.Length == 0)
-            throw new Exception($"{nameof(user.Id)} cannot be empty.");
+            throw new ArgumentException($"{nameof(user.Id)} cannot be empty.", nameof(user));
 
         return Op<ImmutableList<Vault>>($"vault list --user {user.Id}");
     }
@@ -26,7 +25,7 @@ public sealed partial class OnePasswordManager
     public ImmutableList<Vault> GetVaults(IGroup group)
     {
         if (group.Id.Length == 0)
-            throw new Exception($"{nameof(group.Id)} cannot be empty.");
+            throw new ArgumentException($"{nameof(group.Id)} cannot be empty.", nameof(group));
 
         return Op<ImmutableList<Vault>>($"vault list --group {group.Id}");
     }
@@ -34,7 +33,7 @@ public sealed partial class OnePasswordManager
     public Vault GetVault(IVault vault)
     {
         if (vault.Id.Length == 0)
-            throw new Exception($"{nameof(vault.Id)} cannot be empty.");
+            throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
 
         return Op<Vault>($"vault get {vault.Id}");
     }
@@ -60,7 +59,7 @@ public sealed partial class OnePasswordManager
     public void EditVault(IVault vault, string? name = null, string? description = null, VaultIcon icon = VaultIcon.Default, bool? travelMode = null)
     {
         if (vault.Id.Length == 0)
-            throw new Exception($"{nameof(vault.Id)} cannot be empty.");
+            throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
 
         var trimmedName = name?.Trim();
         if (trimmedName is not null && trimmedName.Length == 0)
@@ -83,7 +82,7 @@ public sealed partial class OnePasswordManager
     public void DeleteVault(IVault vault)
     {
         if (vault.Id.Length == 0)
-            throw new Exception($"{nameof(vault.Id)} cannot be empty.");
+            throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
 
         Op($"vault delete {vault.Id}");
     }
@@ -91,11 +90,11 @@ public sealed partial class OnePasswordManager
     public void GrantPermissions(IVault vault, IGroup group, ICollection<Permission> permissions)
     {
         if (vault.Id.Length == 0)
-            throw new Exception($"{nameof(vault.Id)} cannot be empty.");
+            throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
         if (group.Id.Length == 0)
-            throw new Exception($"{nameof(group.Id)} cannot be empty.");
+            throw new ArgumentException($"{nameof(group.Id)} cannot be empty.", nameof(group));
         if (permissions.Count == 0)
-            throw new Exception($"{nameof(permissions)} cannot be empty.");
+            throw new ArgumentException($"{nameof(permissions)} cannot be empty.", nameof(permissions));
 
         var permissionValues = new StringBuilder();
 
@@ -121,11 +120,11 @@ public sealed partial class OnePasswordManager
     public void RevokePermissions(IVault vault, IGroup group, ICollection<Permission> permissions)
     {
         if (vault.Id.Length == 0)
-            throw new Exception($"{nameof(vault.Id)} cannot be empty.");
+            throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
         if (group.Id.Length == 0)
-            throw new Exception($"{nameof(group.Id)} cannot be empty.");
+            throw new ArgumentException($"{nameof(group.Id)} cannot be empty.", nameof(group));
         if (permissions.Count == 0)
-            throw new Exception($"{nameof(permissions)} cannot be empty.");
+            throw new ArgumentException($"{nameof(permissions)} cannot be empty.", nameof(permissions));
 
         var permissionValues = new StringBuilder();
 

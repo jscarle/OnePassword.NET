@@ -7,7 +7,7 @@ internal static class CommonExtensions
     {
         var field = typeof(TEnum).GetField(enumField.ToString());
         if (field is null)
-            throw new Exception("Could not find enum field.");
+            throw new ArgumentException("Could not find enum field.", nameof(enumField));
 
         var attributes = (EnumMemberAttribute[])field.GetCustomAttributes(typeof(EnumMemberAttribute), false);
         if (attributes.Length == 0)
