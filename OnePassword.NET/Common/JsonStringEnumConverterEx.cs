@@ -5,7 +5,8 @@
 /// </summary>
 /// <typeparam name="TEnum">The enum type.</typeparam>
 /// <remarks>Originally authored by JasonBodley (https://github.com/JasonBodley) [https://github.com/dotnet/runtime/issues/31081#issuecomment-848697673]</remarks>
-internal class JsonStringEnumConverterEx<TEnum> : JsonConverter<TEnum> where TEnum : struct, System.Enum
+internal class JsonStringEnumConverterEx<TEnum> : JsonConverter<TEnum>
+    where TEnum : struct, Enum
 {
     private readonly Dictionary<TEnum, string> _enumToString = new();
     private readonly Dictionary<string, TEnum> _stringToEnum = new();

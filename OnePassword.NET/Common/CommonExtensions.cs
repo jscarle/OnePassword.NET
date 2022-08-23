@@ -2,14 +2,14 @@
 
 internal static class CommonExtensions
 {
-    internal static string ToStringEnum<TEnum>(this TEnum enumField)
-        where TEnum : struct, Enum
+    internal static string ToEnumString<TField>(this TField field)
+        where TField : Enum
     {
-        var field = typeof(TEnum).GetField(enumField.ToString());
-        if (field is null)
-            throw new ArgumentException("Could not find enum field.", nameof(enumField));
+        var fieldInfo = typeof(TField).GetField(field.ToString());
+        if (fieldInfo is null)
+            throw new ArgumentException("Could not find enum field.", nameof(field));
 
-        var attributes = (EnumMemberAttribute[])field.GetCustomAttributes(typeof(EnumMemberAttribute), false);
+        var attributes = (EnumMemberAttribute[])fieldInfo.GetCustomAttributes(typeof(EnumMemberAttribute), false);
         if (attributes.Length == 0)
             throw new NotImplementedException($"{nameof(EnumMemberAttribute)} has not been defined for this field.");
 

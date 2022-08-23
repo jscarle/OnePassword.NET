@@ -1,7 +1,8 @@
-﻿namespace OnePassword.Vaults;
+﻿using OnePassword.Common;
 
-public interface IVault
+namespace OnePassword.Vaults;
+
+public interface IVault : IIdentifiable
 {
-    string Id { get; init; }
     string Name { get; init; }
 }

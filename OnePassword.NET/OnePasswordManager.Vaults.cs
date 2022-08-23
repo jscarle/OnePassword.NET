@@ -11,23 +11,8 @@ public sealed partial class OnePasswordManager
 {
     public ImmutableList<Vault> GetVaults()
     {
-        return Op<ImmutableList<Vault>>("vault list");
-    }
-
-    public ImmutableList<Vault> GetVaults(IUser user)
-    {
-        if (user.Id.Length == 0)
-            throw new ArgumentException($"{nameof(user.Id)} cannot be empty.", nameof(user));
-
-        return Op<ImmutableList<Vault>>($"vault list --user {user.Id}");
-    }
-
-    public ImmutableList<Vault> GetVaults(IGroup group)
-    {
-        if (group.Id.Length == 0)
-            throw new ArgumentException($"{nameof(group.Id)} cannot be empty.", nameof(group));
-
-        return Op<ImmutableList<Vault>>($"vault list --group {group.Id}");
+        var command = "vault list";
+        return Op<ImmutableList<Vault>>(command);
     }
 
     public Vault GetVault(IVault vault)
@@ -35,7 +20,8 @@ public sealed partial class OnePasswordManager
         if (vault.Id.Length == 0)
             throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
 
-        return Op<Vault>($"vault get {vault.Id}");
+        var command = $"vault get {vault.Id}";
+        return Op<Vault>(command);
     }
 
     public Vault CreateVault(string name, string? description = null, VaultIcon icon = VaultIcon.Default, bool? allowAdminsToManage = null)
@@ -49,8 +35,8 @@ public sealed partial class OnePasswordManager
         var command = $"vault create \"{trimmedName}\"";
         if (trimmedDescription is not null)
             command += $" --description \"{trimmedDescription}\"";
-        if (icon != VaultIcon.Default)
-            command += $" --icon {icon.ToStringEnum()}";
+        if (icon != VaultIcon.Default && icon != VaultIcon.Unknown)
+            command += $" --icon {icon.ToEnumString()}";
         if (allowAdminsToManage.HasValue)
             command += $" --allow-admins-to-manage {(allowAdminsToManage.Value ? "true" : "false")}";
         return Op<Vault>(command);
@@ -67,13 +53,16 @@ public sealed partial class OnePasswordManager
 
         var trimmedDescription = description?.Trim();
 
+        if (name is null && description is null && icon is VaultIcon.Default or VaultIcon.Unknown && travelMode is null)
+            throw new InvalidOperationException("Nothing to edit.");
+
         var command = $"vault edit {vault.Id}";
         if (trimmedName is not null)
             command += $" --name \"{trimmedName}\"";
         if (trimmedDescription is not null)
             command += $" --description \"{trimmedDescription}\"";
-        if (icon != VaultIcon.Default)
-            command += $" --icon {icon.ToStringEnum()}";
+        if (icon != VaultIcon.Default && icon != VaultIcon.Unknown)
+            command += $" --icon {icon.ToEnumString()}";
         if (travelMode.HasValue)
             command += $" --travel-mode {(travelMode.Value ? "on" : "off")}";
         Op(command);
@@ -84,7 +73,8 @@ public sealed partial class OnePasswordManager
         if (vault.Id.Length == 0)
             throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
 
-        Op($"vault delete {vault.Id}");
+        var command = $"vault delete {vault.Id}";
+        Op(command);
     }
 
     public void GrantPermissions(IVault vault, IGroup group, ICollection<Permission> permissions)
@@ -96,25 +86,35 @@ public sealed partial class OnePasswordManager
         if (permissions.Count == 0)
             throw new ArgumentException($"{nameof(permissions)} cannot be empty.", nameof(permissions));
 
+        GrantVaultPermissions(vault, group, permissions);
+    }
+
+    public void GrantPermissions(IVault vault, IUser user, ICollection<Permission> permissions)
+    {
+        if (vault.Id.Length == 0)
+            throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
+        if (user.Id.Length == 0)
+            throw new ArgumentException($"{nameof(user.Id)} cannot be empty.", nameof(user));
+        if (permissions.Count == 0)
+            throw new ArgumentException($"{nameof(permissions)} cannot be empty.", nameof(permissions));
+
+        GrantVaultPermissions(vault, user, permissions);
+    }
+
+    private void GrantVaultPermissions(IIdentifiable vault, IIdentifiable target, IEnumerable<Permission> permissions)
+    {
         var permissionValues = new StringBuilder();
-
-        var type = typeof(Permission);
         foreach (var permission in permissions)
-        {
-            var enumMember = type.GetMember(permission.ToString())[0];
-            var attr = enumMember.GetCustomAttributes(typeof(EnumMemberAttribute), false).Cast<EnumMemberAttribute>().FirstOrDefault();
-            if (attr is null)
-                throw new NotImplementedException("Permission string attribute has not been defined for this permission.");
-
-            var value = attr.Value;
-            if (value is null)
-                throw new NotImplementedException("Permission string attribute value has not been defined for this icon.");
-
-            permissionValues.Append(value);
-        }
-
+            permissionValues.Append(permission.ToEnumString());
         var permissionsList = string.Join(",", permissionValues);
-        Op($"vault group grant --vault {vault.Id} --group {group.Id} --permissions {permissionsList}");
+
+        var command = target switch
+        {
+            IGroup => $"vault group grant --vault {vault.Id} --group {target.Id} --permissions {permissionsList}",
+            IUser => $"vault user grant --vault {vault.Id} --user {target.Id} --permissions {permissionsList}",
+            _ => throw new NotImplementedException("Permissions target has not been implemented.")
+        };
+        Op(command);
     }
 
     public void RevokePermissions(IVault vault, IGroup group, ICollection<Permission> permissions)
@@ -126,24 +126,52 @@ public sealed partial class OnePasswordManager
         if (permissions.Count == 0)
             throw new ArgumentException($"{nameof(permissions)} cannot be empty.", nameof(permissions));
 
+        RevokeVaultPermissions(vault, group, permissions);
+    }
+
+    public void RevokePermissions(IVault vault, IUser user, ICollection<Permission> permissions)
+    {
+        if (vault.Id.Length == 0)
+            throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
+        if (user.Id.Length == 0)
+            throw new ArgumentException($"{nameof(user.Id)} cannot be empty.", nameof(user));
+        if (permissions.Count == 0)
+            throw new ArgumentException($"{nameof(permissions)} cannot be empty.", nameof(permissions));
+
+        RevokeVaultPermissions(vault, user, permissions);
+    }
+
+    private void RevokeVaultPermissions(IIdentifiable vault, IIdentifiable target, IEnumerable<Permission> permissions)
+    {
         var permissionValues = new StringBuilder();
-
-        var type = typeof(Permission);
         foreach (var permission in permissions)
-        {
-            var enumMember = type.GetMember(permission.ToString())[0];
-            var attr = enumMember.GetCustomAttributes(typeof(EnumMemberAttribute), false).Cast<EnumMemberAttribute>().FirstOrDefault();
-            if (attr is null)
-                throw new NotImplementedException("Permission string attribute has not been defined for this permission.");
-
-            var value = attr.Value;
-            if (value is null)
-                throw new NotImplementedException("Permission string attribute value has not been defined for this icon.");
-
-            permissionValues.Append(value);
-        }
-
+            permissionValues.Append(permission.ToEnumString());
         var permissionsList = string.Join(",", permissionValues);
-        Op($"vault group revoke --vault {vault.Id} --group {group.Id} --permissions {permissionsList}");
+
+        var command = target switch
+        {
+            IGroup => $"vault group revoke --vault {vault.Id} --group {target.Id} --permissions {permissionsList}",
+            IUser => $"vault user revoke --vault {vault.Id} --user {target.Id} --permissions {permissionsList}",
+            _ => throw new NotImplementedException("Permissions target has not been implemented.")
+        };
+        Op(command);
+    }
+
+    public ImmutableList<Group> GetGroups(IVault vault)
+    {
+        if (vault.Id.Length == 0)
+            throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
+
+        var command = $"vault group list {vault.Id}";
+        return Op<ImmutableList<Group>>(command);
+    }
+
+    public ImmutableList<User> GetUsers(IVault vault)
+    {
+        if (vault.Id.Length == 0)
+            throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
+
+        var command = $"vault user list {vault.Id}";
+        return Op<ImmutableList<User>>(command);
     }
 }

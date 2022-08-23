@@ -5,9 +5,7 @@ using System.Text.RegularExpressions;
 using OnePassword.Documents;
 using OnePassword.Items;
 using OnePassword.Templates;
-using OnePassword.Users;
 using OnePassword.Vaults;
-using Group = OnePassword.Groups.Group;
 
 namespace OnePassword;
 
@@ -20,21 +18,11 @@ public sealed partial class OnePasswordManager
 
     public OnePasswordManager(string path = "", string executable = "op.exe", bool verbose = false)
     {
-        _opPath = !string.IsNullOrEmpty(path) ? Path.Combine(path, executable) : Path.Combine(Directory.GetCurrentDirectory(), executable);
+        _opPath = path.Length > 0 ? Path.Combine(path, executable) : Path.Combine(Directory.GetCurrentDirectory(), executable);
         if (!File.Exists(_opPath))
             throw new Exception($"The 1Password CLI executable ({executable}) was not found folder \"{Path.GetDirectoryName(_opPath)}\".");
 
         _verbose = verbose;
-    }
-
-    public void AddUser(User user, Vault vault, string permission = "allow_editing,allow_viewing,allow_managing") => Op($"vault user grant --vault \"{vault.Id}\" --user \"{user.Uuid}\" --permission \"{permission}\"");
-
-    public void AddUser(User user, Group group, UserRole userRole = UserRole.Member)
-    {
-        var command = $"group user grant --group \"{group.Id}\" --user \"{user.Uuid}\"";
-        if (userRole == UserRole.Manager)
-            command += " --role manager";
-        Op(command);
     }
 
     public void ArchiveDocument(Document document) => ArchiveDocument(document, null);
@@ -58,10 +46,6 @@ public sealed partial class OnePasswordManager
         command += " --archive";
         Op(command);
     }
-
-    public void ConfirmUser(User user) => Op($"user confirm \"{user.Uuid}\"");
-
-    public void ConfirmAll() => Op("user confirm --all");
 
     public Document CreateDocument(Template template, string path) => CreateDocument(template, null, path);
 
@@ -116,14 +100,6 @@ public sealed partial class OnePasswordManager
         return Op<Item>(command);
     }
 
-    public User CreateUser(string emailAddress, string name, string language = "en")
-    {
-        var command = $"user provision \"{emailAddress}\" \"{name}\"";
-        if (language.Length > 0)
-            command += $" --language \"{language}\"";
-        return Op<User>(command);
-    }
-
     public void DeleteDocument(Document document) => DeleteDocument(document, null);
 
     public void DeleteDocument(Document document, Vault? vault)
@@ -143,13 +119,6 @@ public sealed partial class OnePasswordManager
             command += $" --vault \"{vault.Id}\"";
         Op(command);
     }
-
-    [Obsolete("The list events command has been removed version 2 of the 1Password CLI.")]
-    public void DeleteTrash(Vault vault) => throw new NotSupportedException("The list events command has been removed version 2 of the 1Password CLI.");
-
-    public void DeleteUser(User user) => Op($"user delete \"{user.Uuid}\"");
-
-    public void EditUser(User user, bool travelMode = false) => Op($"user edit \"{user.Uuid}\" --name \"{user.Name}\" --travelmode \"{(travelMode ? "on" : "off")}\"");
 
     public void GetDocument(Item document, string path) => GetDocument(document, null, path);
 
@@ -174,11 +143,10 @@ public sealed partial class OnePasswordManager
 
     public Template GetTemplate(Template template)
     {
-        template.Details = Op<ItemDetails>($"item template gate \"{template.Name}\"");
+        var command = $"item template gate \"{template.Name}\"";
+        template.Details = Op<ItemDetails>(command);
         return template;
     }
-
-    public User GetUser(User user) => Op<User>($"user get \"{user.Uuid}\"");
 
     public DocumentList ListDocuments(bool includeTrash = false) => ListDocuments(null, includeTrash);
 
@@ -220,32 +188,10 @@ public sealed partial class OnePasswordManager
         return Op<ItemList>(command);
     }
 
-    public TemplateList ListTemplates() => Op<TemplateList>("item template list");
-
-    public UserList ListUsers() => Op<UserList>("user list");
-
-    public UserList ListUsers(Group group) => Op<UserList>($"user list --group \"{group.Id}\"");
-
-    public UserList ListUsers(Vault vault) => Op<UserList>($"vault user list \"{vault.Id}\"");
-
-    public void ReactivateUser(User user) => Op($"user reactivate \"{user.Uuid}\"");
-
-    public void RemoveGroup(Group group, Vault vault) => Op($"vault group revoke --vault \"{vault.Id}\" --group \"{group.Id}\"");
-
-    public void RemoveUser(User user, Vault vault) => Op($"vault user revoke --vault \"{vault.Id}\" --user \"{user.Uuid}\"");
-
-    public void RemoveUser(User user, Group group) => Op($"group user revoke --group \"{group.Id}\" --user \"{user.Uuid}\"");
-
-    public void SuspendUser(User user, bool deauthorizeDevices = false, int deauthorizeDevicesDelay = 0)
+    public TemplateList ListTemplates()
     {
-        var command = $"user suspend \"{user.Uuid}\"";
-        if (deauthorizeDevices)
-        {
-            command += " --deauthorize-devices";
-            if (deauthorizeDevicesDelay > 0)
-                command += $" {deauthorizeDevicesDelay}";
-        }
-        Op(command);
+        var command = "item template list";
+        return Op<TemplateList>(command);
     }
 
 #if !NET40 && !NET35 && !NET20
@@ -313,9 +259,9 @@ public sealed partial class OnePasswordManager
 
     private string Op(string command, IEnumerable<string> input, bool passAccount = true, bool passSession = true, bool returnError = false)
     {
-        if (passAccount && string.IsNullOrWhiteSpace(_account))
+        if (passAccount && _account.Length == 0)
             throw new Exception("Cannot execute command because account has not been set.");
-        if (passSession && string.IsNullOrWhiteSpace(_session))
+        if (passSession && _session.Length == 0)
             throw new Exception("Cannot execute command because account has not been signed in.");
 
         var arguments = command;

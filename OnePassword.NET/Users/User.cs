@@ -2,56 +2,29 @@
 
 namespace OnePassword.Users;
 
-public class User
+public sealed record User : IUser
 {
-    [JsonPropertyName("uuid")]
-    public string Uuid { get; init; } = "";
-
-    [JsonPropertyName("createdAt")]
-    public DateTime CreatedAt { get; init; }
-
-    [JsonPropertyName("updatedAt")]
-    public DateTime UpdatedAt { get; init; }
-
-    [JsonPropertyName("lastAuthAt")]
-    public DateTime LastAuthenticationAt { get; init; }
-
-    [JsonPropertyName("email")]
-    public string Email { get; init; } = "";
-
-    [JsonPropertyName("firstName")]
-    public string FirstName { get; init; } = "";
-
-    [JsonPropertyName("lastName")]
-    public string LastName { get; init; } = "";
+    [JsonPropertyName("id")]
+    public string Id { get; init; } = "";
 
     [JsonPropertyName("name")]
     public string Name { get; init; } = "";
 
-    [JsonPropertyName("state")]
-    public State State { get; init; }
+    [JsonPropertyName("email")]
+    public string Email { get; init; } = "";
 
     [JsonPropertyName("type")]
-    public UserType UserType { get; init; }
+    public UserType Type { get; init; } = UserType.Unknown;
 
-    [JsonPropertyName("avatar")]
-    public string Avatar { get; init; } = "";
+    [JsonPropertyName("state")]
+    public State State { get; init; } = State.Unknown;
 
-    [JsonPropertyName("language")]
-    public string Language { get; init; } = "";
+    [JsonPropertyName("created_at")]
+    public DateTimeOffset? Created { get; init; }
 
-    [JsonPropertyName("accountKeyFormat")]
-    public string AccountKeyFormat { get; init; } = "";
+    [JsonPropertyName("updated_at")]
+    public DateTimeOffset? Updated { get; init; }
 
-    [JsonPropertyName("accountKeyUuid")]
-    public string AccountKeyUuid { get; init; } = "";
-
-    [JsonPropertyName("attrVersion")]
-    public int AttributesVersion { get; init; }
-
-    [JsonPropertyName("keysetVersion")]
-    public int KeysetVersion { get; init; }
-
-    [JsonPropertyName("combinedPermissions")]
-    public long CombinedPermissions { get; init; }
+    [JsonPropertyName("last_auth_at")]
+    public DateTimeOffset? LastAuthentication { get; init; }
 }

@@ -10,14 +10,16 @@ public sealed partial class OnePasswordManager
 
     public ImmutableList<Account> GetAccounts()
     {
-        return Op<ImmutableList<Account>>("account list", false, false);
+        var command = "account list";
+        return Op<ImmutableList<Account>>(command, false, false);
     }
 
     public AccountDetails GetAccount(string account = "")
     {
         var trimmedAccount = account.Trim();
 
-        return Op<AccountDetails>(trimmedAccount.Length > 0 ? $"account get --account {trimmedAccount}" : "account get");
+        var command = trimmedAccount.Length > 0 ? $"account get --account {trimmedAccount}" : "account get";
+        return Op<AccountDetails>(command);
     }
     
     public void AddAccount(string address, string email, string secretKey, string password, string shorthand = "")
@@ -62,7 +64,8 @@ public sealed partial class OnePasswordManager
         if (password.Length == 0)
             throw new ArgumentException($"{nameof(password)} cannot be empty.", nameof(password));
 
-        var result = Op("signin --raw", password, true, false);
+        var command = "signin --raw";
+        var result = Op(command, password, true, false);
         _session = result.Trim();
     }
 
