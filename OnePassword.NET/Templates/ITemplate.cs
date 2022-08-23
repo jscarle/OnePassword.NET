@@ -1,6 +1,6 @@
-﻿namespace OnePassword.Vaults;
+﻿namespace OnePassword.Templates;
 
-public interface IVault
+public interface ITemplate
 {
     string Id { get; init; }
 

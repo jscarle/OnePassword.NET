@@ -1,40 +1,45 @@
-﻿using OnePassword.Common;
+﻿using OnePassword.Vaults;
 
 namespace OnePassword.Items;
 
-public class Item
+public sealed record Item : IItem
 {
-    [JsonPropertyName("uuid")]
-    public string Uuid { get; init; } = "";
+    [JsonPropertyName("id")]
+    public string? Id { get; init; }
 
-    [JsonPropertyName("createdAt")]
-    public DateTime? CreatedAt { get; init; }
+    [JsonPropertyName("title")]
+    public string Title { get; set; } = "";
 
-    [JsonPropertyName("updatedAt")]
-    public DateTime? UpdatedAt { get; init; }
+    [JsonPropertyName("category")]
+    public Category Category { get; init; } = Category.Unknown;
 
-    [JsonPropertyName("templateUuid")]
-    public string TemplateUuid { get; init; } = "";
+    [JsonPropertyName("sections")]
+    public List<Section> Sections { get; init; } = new();
 
-    [JsonPropertyName("changerUuid")]
-    public string ChangerUuid { get; init; } = "";
+    [JsonPropertyName("fields")]
+    public List<Field> Fields { get; init; } = new();
 
-    [JsonPropertyName("itemVersion")]
-    public int? ItemVersion { get; init; }
+    [JsonPropertyName("urls")]
+    public List<Url> Urls { get; init; } = new();
 
-    [JsonPropertyName("vaultUuid")]
-    public string VaultUuid { get; init; } = "";
+    [JsonPropertyName("tags")]
+    public List<string> Tags { get; init; } = new();
 
-    [JsonPropertyName("overview")]
-    public ItemOverview Overview { get; init; } = new();
+    [JsonPropertyName("vault")]
+    public Vault? Vault { get; init; }
 
-    [JsonPropertyName("details")]
-    public ItemDetails Details { get; init; } = new();
+    [JsonPropertyName("additional_information")]
+    public string? AdditionalInformation { get; init; }
 
-    [JsonPropertyName("faveIndex")]
-    public int? FavoriteIndex { get; init; }
+    [JsonPropertyName("version")]
+    public int? Version { get; init; }
 
-    [JsonConverter(typeof(YesNoJsonConverter))]
-    [JsonPropertyName("trashed")]
-    public bool? Trashed { get; init; }
+    [JsonPropertyName("last_edited_by")]
+    public string? LastEditedUserId { get; init; }
+
+    [JsonPropertyName("created_at")]
+    public DateTimeOffset? Created { get; init; }
+
+    [JsonPropertyName("updated_at")]
+    public DateTimeOffset? Updated { get; init; }
 }

@@ -1,13 +1,10 @@
 ﻿namespace OnePassword.Items;
 
-public class Section
+public sealed record Section
 {
-    [JsonPropertyName("name")]
-    public string Name { get; init; } = "";
+    [JsonPropertyName("id")]
+    public string Id { get; init; } = "";
 
-    [JsonPropertyName("title")]
-    public string Title { get; init; } = "";
-
-    [JsonPropertyName("fields")]
-    public SectionFieldList Fields { get; init; } = new();
+    [JsonPropertyName("label")]
+    public string Label { get; init; } = "";
 }

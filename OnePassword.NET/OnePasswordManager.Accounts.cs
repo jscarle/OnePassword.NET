@@ -18,7 +18,7 @@ public sealed partial class OnePasswordManager
     {
         var trimmedAccount = account.Trim();
 
-        var command = trimmedAccount.Length > 0 ? $"account get --account {trimmedAccount}" : "account get";
+        var command = trimmedAccount.Length > 0 ? $"account get --account \"{trimmedAccount}\"" : "account get";
         return Op<AccountDetails>(command);
     }
     
@@ -41,9 +41,9 @@ public sealed partial class OnePasswordManager
 
         var trimmedShorthand = shorthand.Trim();
 
-        var command = $"account add --address {trimmedAddress} --email {trimmedEmail} --secret-key {trimmedSecretKey}";
+        var command = $"account add --address \"{trimmedAddress}\" --email \"{trimmedEmail}\" --secret-key \"{trimmedSecretKey}\"";
         if (trimmedShorthand.Length > 0)
-            command += $" --shorthand {trimmedShorthand}";
+            command += $" --shorthand \"{trimmedShorthand}\"";
 
         Op(command, password, false, false);
 
@@ -64,7 +64,7 @@ public sealed partial class OnePasswordManager
         if (password.Length == 0)
             throw new ArgumentException($"{nameof(password)} cannot be empty.", nameof(password));
 
-        var command = "signin --raw";
+        var command = "signin --force --raw";
         var result = Op(command, password, true, false);
         _session = result.Trim();
     }
@@ -82,7 +82,7 @@ public sealed partial class OnePasswordManager
         var accounts = ImmutableList.CreateBuilder<string>();
 
         var command = "account forget";
-        command += all ? " --all" : $" {_account}";
+        command += all ? " --all" : $" \"{_account}\"";
 
         var result = Op(command, false, false);
 

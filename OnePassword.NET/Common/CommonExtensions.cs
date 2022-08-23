@@ -19,4 +19,18 @@ internal static class CommonExtensions
 
         return iconName;
     }
+
+    internal static string ToCommaSeparated<TField>(this IEnumerable<TField> items, bool replaceUnderscoresWithSpaces = false)
+        where TField : struct, Enum
+    {
+        var values = items.Select(item => item.ToEnumString()).ToList();
+        var commaSeparated = string.Join(",", values);
+        return replaceUnderscoresWithSpaces ? commaSeparated.Replace("_", " ") : commaSeparated;
+    }
+
+    internal static string ToCommaSeparated(this IEnumerable<string> items, bool replaceUnderscoresWithSpaces = false)
+    {
+        var commaSeparated = string.Join(",", items);
+        return replaceUnderscoresWithSpaces ? commaSeparated.Replace("_", " ") : commaSeparated;
+    }
 }

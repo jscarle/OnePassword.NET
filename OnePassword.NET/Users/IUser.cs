@@ -1,8 +1,8 @@
-﻿using OnePassword.Common;
+﻿namespace OnePassword.Users;
 
-namespace OnePassword.Users;
-
-public interface IUser : IIdentifiable
+public interface IUser
 {
+    string Id { get; init; }
+
     string Name { get; init; }
 }

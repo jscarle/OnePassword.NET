@@ -77,7 +77,7 @@ public sealed partial class OnePasswordManager
         if (userRole != UserRole.Member && userRole != UserRole.Manager)
             throw new ArgumentException($"{nameof(userRole)} must be {nameof(UserRole.Member)} or {nameof(UserRole.Manager)}.", nameof(userRole));
 
-        var command = $"group user grant --group {group.Id} --user {user.Id} --role {userRole.ToEnumString()}";
+        var command = $"group user grant --group {group.Id} --user {user.Id} --role \"{userRole.ToEnumString()}\"";
         Op(command);
     }
 

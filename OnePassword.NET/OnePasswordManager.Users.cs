@@ -33,7 +33,7 @@ public sealed partial class OnePasswordManager
         if (trimmedEmailAddress.Length == 0)
             throw new ArgumentException($"{nameof(name)} cannot be empty.", nameof(name));
 
-        var command = $"user provision --name \"{trimmedName}\" --email {trimmedEmailAddress}";
+        var command = $"user provision --name \"{trimmedName}\" --email \"{trimmedEmailAddress}\"";
         if (language != Language.Default)
             command += $" --language \"{language.ToEnumString()}\"";
         return Op<User>(command);

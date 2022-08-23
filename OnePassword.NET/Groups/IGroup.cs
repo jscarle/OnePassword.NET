@@ -1,8 +1,8 @@
-﻿using OnePassword.Common;
+﻿namespace OnePassword.Groups;
 
-namespace OnePassword.Groups;
-
-public interface IGroup : IIdentifiable
+public interface IGroup
 {
+    string Id { get; init; }
+
     string Name { get; init; }
 }
