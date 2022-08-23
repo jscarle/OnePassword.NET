@@ -10,44 +10,93 @@ namespace OnePassword;
 
 public sealed partial class OnePasswordManager
 {
-    public ImmutableList<Vault> GetVaults() => Op<ImmutableList<Vault>>("vault list");
-
-    public ImmutableList<Vault> GetVaults(User user) => Op<ImmutableList<Vault>>($"vault list --user {user.Uuid}");
-
-    public ImmutableList<Vault> GetVaults(IGroup group) => Op<ImmutableList<Vault>>($"vault list --group {group.Id}");
-
-    public VaultDetails GetVault(IVault vault) => Op<VaultDetails>($"vault get {vault.Id}");
-
-    public VaultDetails CreateVault(string name, string description = "", VaultIcon icon = VaultIcon.Default, bool allowAdminsToManage = false)
+    public ImmutableList<Vault> GetVaults()
     {
-        var command = $"vault create \"{name}\"";
-        if (!string.IsNullOrEmpty(description))
-            command += $" --description \"{description}\"";
-        if (icon != VaultIcon.Default)
-            command += $" --icon \"{GetIconName(icon)}\"";
-        if (!allowAdminsToManage)
-            command += " --allow-admins-to-manage \"false\"";
-        return Op<VaultDetails>(command);
+        return Op<ImmutableList<Vault>>("vault list");
     }
 
-    public void EditVault(IVault vault, string name = "", string description = "", VaultIcon icon = VaultIcon.Default, bool? travelMode = null)
+    public ImmutableList<Vault> GetVaults(IUser user)
     {
-        var command = $"vault edit {vault.Id}";
-        if (!string.IsNullOrEmpty(name))
-            command += $" --name \"{name}\"";
-        if (!string.IsNullOrEmpty(description))
-            command += $" --description \"{description}\"";
+        if (user.Id.Length == 0)
+            throw new Exception($"{nameof(user.Id)} cannot be empty.");
+
+        return Op<ImmutableList<Vault>>($"vault list --user {user.Id}");
+    }
+
+    public ImmutableList<Vault> GetVaults(IGroup group)
+    {
+        if (group.Id.Length == 0)
+            throw new Exception($"{nameof(group.Id)} cannot be empty.");
+
+        return Op<ImmutableList<Vault>>($"vault list --group {group.Id}");
+    }
+
+    public Vault GetVault(IVault vault)
+    {
+        if (vault.Id.Length == 0)
+            throw new Exception($"{nameof(vault.Id)} cannot be empty.");
+
+        return Op<Vault>($"vault get {vault.Id}");
+    }
+
+    public Vault CreateVault(string name, string? description = null, VaultIcon icon = VaultIcon.Default, bool? allowAdminsToManage = null)
+    {
+        var trimmedName = name.Trim();
+        if (trimmedName.Length == 0)
+            throw new ArgumentException($"{nameof(name)} cannot be empty.", nameof(name));
+
+        var trimmedDescription = description?.Trim();
+
+        var command = $"vault create \"{trimmedName}\"";
+        if (trimmedDescription is not null)
+            command += $" --description \"{trimmedDescription}\"";
         if (icon != VaultIcon.Default)
-            command += $" --icon {GetIconName(icon)}";
+            command += $" --icon {GetIconStringValue(icon)}";
+        if (allowAdminsToManage.HasValue)
+            command += $" --allow-admins-to-manage {(allowAdminsToManage.Value ? "true" : "false")}";
+        return Op<Vault>(command);
+    }
+
+    public void EditVault(IVault vault, string? name = null, string? description = null, VaultIcon icon = VaultIcon.Default, bool? travelMode = null)
+    {
+        if (vault.Id.Length == 0)
+            throw new Exception($"{nameof(vault.Id)} cannot be empty.");
+
+        var trimmedName = name?.Trim();
+        if (trimmedName is not null && trimmedName.Length == 0)
+            throw new ArgumentException($"{nameof(name)} cannot be empty.", nameof(name));
+
+        var trimmedDescription = description?.Trim();
+
+        var command = $"vault edit {vault.Id}";
+        if (trimmedName is not null)
+            command += $" --name \"{trimmedName}\"";
+        if (trimmedDescription is not null)
+            command += $" --description \"{trimmedDescription}\"";
+        if (icon != VaultIcon.Default)
+            command += $" --icon {GetIconStringValue(icon)}";
         if (travelMode.HasValue)
             command += $" --travel-mode {(travelMode.Value ? "on" : "off")}";
         Op(command);
     }
 
-    public void DeleteVault(IVault vault) => Op($"vault delete {vault.Id}");
-
-    public void GrantVaultPermissions(IVault vault, IGroup group, IEnumerable<Permission> permissions)
+    public void DeleteVault(IVault vault)
     {
+        if (vault.Id.Length == 0)
+            throw new Exception($"{nameof(vault.Id)} cannot be empty.");
+
+        Op($"vault delete {vault.Id}");
+    }
+
+    public void GrantPermissions(IVault vault, IGroup group, ICollection<Permission> permissions)
+    {
+        if (vault.Id.Length == 0)
+            throw new Exception($"{nameof(vault.Id)} cannot be empty.");
+        if (group.Id.Length == 0)
+            throw new Exception($"{nameof(group.Id)} cannot be empty.");
+        if (permissions.Count == 0)
+            throw new Exception($"{nameof(permissions)} cannot be empty.");
+
         var permissionValues = new StringBuilder();
 
         var type = typeof(Permission);
@@ -69,8 +118,15 @@ public sealed partial class OnePasswordManager
         Op($"vault group grant --vault {vault.Id} --group {group.Id} --permissions {permissionsList}");
     }
 
-    public void RevokeVaultPermissions(IVault vault, IGroup group, IEnumerable<Permission> permissions)
+    public void RevokePermissions(IVault vault, IGroup group, ICollection<Permission> permissions)
     {
+        if (vault.Id.Length == 0)
+            throw new Exception($"{nameof(vault.Id)} cannot be empty.");
+        if (group.Id.Length == 0)
+            throw new Exception($"{nameof(group.Id)} cannot be empty.");
+        if (permissions.Count == 0)
+            throw new Exception($"{nameof(permissions)} cannot be empty.");
+
         var permissionValues = new StringBuilder();
 
         var type = typeof(Permission);
@@ -92,19 +148,19 @@ public sealed partial class OnePasswordManager
         Op($"vault group revoke --vault {vault.Id} --group {group.Id} --permissions {permissionsList}");
     }
 
-    private static string GetIconName(VaultIcon vaultIcon)
+    private static string GetIconStringValue(VaultIcon vaultIcon)
     {
         var field = vaultIcon.GetType().GetField(vaultIcon.ToString());
         if (field is null)
-            throw new Exception("Could not find enum value.");
+            throw new Exception("Could not find icon enum.");
 
         var attributes = (EnumMemberAttribute[])field.GetCustomAttributes(typeof(EnumMemberAttribute), false);
         if (attributes.Length == 0)
-            throw new NotImplementedException("Icon string attribute has not been defined for this icon.");
+            throw new NotImplementedException("Icon string value attribute has not been defined for this icon.");
 
         var iconName = attributes[0].Value;
         if (iconName is null)
-            throw new NotImplementedException("Icon string attribute value has not been defined for this icon.");
+            throw new NotImplementedException("Icon string value attribute value has not been defined for this icon.");
 
         return iconName;
     }

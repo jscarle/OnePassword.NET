@@ -24,7 +24,7 @@ public sealed record Group: IGroup
     public State State { get; init; } = State.Unknown;
 
     [JsonPropertyName("created_at")]
-    public DateTimeOffset Created { get; init; }
+    public DateTimeOffset? Created { get; init; }
 
     [JsonPropertyName("updated_at")]
     public DateTimeOffset? Updated { get; init; }

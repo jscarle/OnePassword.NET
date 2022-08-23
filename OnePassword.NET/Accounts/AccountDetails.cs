@@ -14,11 +14,11 @@ public sealed record AccountDetails
     public string Domain { get; init; } = "";
 
     [JsonPropertyName("type")]
-    public AccountType Type { get; init; }
+    public AccountType Type { get; init; } = AccountType.Unknown;
 
     [JsonPropertyName("state")]
-    public State State { get; init; }
+    public State State { get; init; } = State.Unknown;
 
     [JsonPropertyName("created_at")]
-    public DateTimeOffset Created { get; init; }
+    public DateTimeOffset? Created { get; init; }
 }

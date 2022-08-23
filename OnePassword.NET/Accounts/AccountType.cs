@@ -5,9 +5,11 @@ namespace OnePassword.Accounts;
 [JsonConverter(typeof(JsonStringEnumConverterEx<AccountType>))]
 public enum AccountType
 {
+    [EnumMember(Value = "BUSINESS")]
+    Business,
+
     [EnumMember(Value = "PERSONAL")]
     Personal,
 
-    [EnumMember(Value = "BUSINESS")]
-    Business
+    Unknown
 }

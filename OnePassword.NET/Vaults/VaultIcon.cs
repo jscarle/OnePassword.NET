@@ -133,6 +133,8 @@ public enum VaultIcon
     [EnumMember(Value = "vehicle")]
     Vehicle,
 
+    Unknown,
+
     [EnumMember(Value = "wallet")]
     Wallet,
 
