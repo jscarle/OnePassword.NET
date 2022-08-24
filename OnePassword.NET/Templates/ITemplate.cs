@@ -1,8 +1,6 @@
 ﻿namespace OnePassword.Templates;
 
-public interface ITemplate
+public interface ITemplate : IEquatable<ITemplate>, IComparable<ITemplate>, IComparable
 {
-    string Id { get; init; }
-
-    string Name { get; init; }
+    string Name { get; }
 }

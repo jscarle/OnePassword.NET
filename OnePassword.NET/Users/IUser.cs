@@ -1,8 +1,7 @@
-﻿namespace OnePassword.Users;
+﻿using OnePassword.Common;
 
-public interface IUser
+namespace OnePassword.Users;
+
+public interface IUser : IResultBase<IUser>
 {
-    string Id { get; init; }
-
-    string Name { get; init; }
 }

@@ -2,6 +2,6 @@
 
 namespace OnePassword.Vaults;
 
-public interface IVault : IResultBase<IVault>
+public abstract class VaultBase : ResultBase<IVault>, IVault
 {
 }

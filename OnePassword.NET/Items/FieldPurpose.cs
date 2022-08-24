@@ -11,6 +11,8 @@ public enum FieldPurpose
     [EnumMember(Value = "PASSWORD")]
     Password,
 
+    Unknown,
+
     [EnumMember(Value = "USERNAME")]
     Username
 }

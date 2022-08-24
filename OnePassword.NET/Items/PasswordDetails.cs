@@ -1,7 +1,8 @@
 ﻿namespace OnePassword.Items;
 
-public sealed record PasswordDetails
+public sealed class PasswordDetails
 {
+    [JsonInclude]
     [JsonPropertyName("strength")]
-    public string Strength { get; init; } = "";
+    public string Strength { get; internal init; } = "";
 }

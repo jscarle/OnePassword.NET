@@ -1,6 +1,7 @@
 ﻿using System.Collections.Immutable;
 using OnePassword.Common;
 using OnePassword.Items;
+using OnePassword.Templates;
 using OnePassword.Vaults;
 
 namespace OnePassword;
@@ -61,14 +62,12 @@ public sealed partial class OnePasswordManager
         return Op<Item>(command);
     }
 
-    public Item CreateItem(Item item, IVault vault)
+    public Item CreateItem(Template template, IVault vault)
     {
-        if (item.Id is not null)
-            throw new ArgumentException($"{nameof(item.Id)} must be null.", nameof(item));
         if (vault.Id.Length == 0)
             throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
 
-        var json = JsonSerializer.Serialize(item) + "\x04";
+        var json = JsonSerializer.Serialize(template) + "\x04";
 
         var command = $"item create - --vault {vault.Id}";
         return Op<Item>(command, json);

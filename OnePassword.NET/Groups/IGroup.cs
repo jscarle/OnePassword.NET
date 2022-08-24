@@ -1,8 +1,7 @@
-﻿namespace OnePassword.Groups;
+﻿using OnePassword.Common;
 
-public interface IGroup
+namespace OnePassword.Groups;
+
+public interface IGroup : IResultBase<IGroup>
 {
-    string Id { get; init; }
-
-    string Name { get; init; }
 }

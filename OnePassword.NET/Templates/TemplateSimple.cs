@@ -1,8 +1,6 @@
-﻿using OnePassword.Items;
+﻿namespace OnePassword.Templates;
 
-namespace OnePassword.Templates;
-
-public sealed class Template : ItemBase, ITemplate
+public sealed class TemplateSimple : ITemplate
 {
     [JsonInclude]
     [JsonPropertyName("name")]
@@ -13,8 +11,8 @@ public sealed class Template : ItemBase, ITemplate
         return Name;
     }
 
-    public static bool operator ==(Template a, ITemplate b) => a.Equals(b);
-    public static bool operator !=(Template a, ITemplate b) => !a.Equals(b);
+    public static bool operator ==(TemplateSimple a, ITemplate b) => a.Equals(b);
+    public static bool operator !=(TemplateSimple a, ITemplate b) => !a.Equals(b);
 
     public override bool Equals(object? obj)
     {
