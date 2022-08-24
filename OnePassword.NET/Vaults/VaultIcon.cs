@@ -1,139 +1,143 @@
-﻿namespace OnePassword.Vaults
+﻿using OnePassword.Common;
+
+namespace OnePassword.Vaults;
+
+[JsonConverter(typeof(JsonStringEnumConverterEx<VaultIcon>))]
+public enum VaultIcon
 {
-    public enum VaultIcon
-    {
-        [Icon("airplane")]
-        Airplane,
+    [EnumMember(Value = "airplane")]
+    Airplane,
 
-        [Icon("application")]
-        Application,
+    [EnumMember(Value = "application")]
+    Application,
 
-        [Icon("art-supplies")]
-        ArtSupplies,
+    [EnumMember(Value = "art-supplies")]
+    ArtSupplies,
 
-        [Icon("bankers-box")]
-        BankersBox,
+    [EnumMember(Value = "bankers-box")]
+    BankersBox,
 
-        [Icon("brown-briefcase")]
-        BrownBriefcase,
+    [EnumMember(Value = "brown-briefcase")]
+    BrownBriefcase,
 
-        [Icon("brown-gate")]
-        BrownGate,
+    [EnumMember(Value = "brown-gate")]
+    BrownGate,
 
-        [Icon("buildings")]
-        Buildings,
+    [EnumMember(Value = "buildings")]
+    Buildings,
 
-        [Icon("cabin")]
-        Cabin,
+    [EnumMember(Value = "cabin")]
+    Cabin,
 
-        [Icon("castle")]
-        Castle,
+    [EnumMember(Value = "castle")]
+    Castle,
 
-        [Icon("circle-of-dots")]
-        CircleOfDots,
+    [EnumMember(Value = "circle-of-dots")]
+    CircleOfDots,
 
-        [Icon("coffee")]
-        Coffee,
+    [EnumMember(Value = "coffee")]
+    Coffee,
 
-        [Icon("color-wheel")]
-        ColorWheel,
+    [EnumMember(Value = "color-wheel")]
+    ColorWheel,
 
-        [Icon("curtained-window")]
-        CurtainedWindow,
+    [EnumMember(Value = "curtained-window")]
+    CurtainedWindow,
 
-        Default,
+    Default,
 
-        [Icon("document")]
-        Document,
+    [EnumMember(Value = "document")]
+    Document,
 
-        [Icon("doughnut")]
-        Doughnut,
+    [EnumMember(Value = "doughnut")]
+    Doughnut,
 
-        [Icon("fence")]
-        Fence,
+    [EnumMember(Value = "fence")]
+    Fence,
 
-        [Icon("galaxy")]
-        Galaxy,
+    [EnumMember(Value = "galaxy")]
+    Galaxy,
 
-        [Icon("gears")]
-        Gears,
+    [EnumMember(Value = "gears")]
+    Gears,
 
-        [Icon("globe")]
-        Globe,
+    [EnumMember(Value = "globe")]
+    Globe,
 
-        [Icon("green-backpack")]
-        GreenBackpack,
+    [EnumMember(Value = "green-backpack")]
+    GreenBackpack,
 
-        [Icon("green-gem")]
-        GreenGem,
+    [EnumMember(Value = "green-gem")]
+    GreenGem,
 
-        [Icon("handshake")]
-        Handshake,
+    [EnumMember(Value = "handshake")]
+    Handshake,
 
-        [Icon("heart-with-monitor")]
-        HeartWithMonitor,
+    [EnumMember(Value = "heart-with-monitor")]
+    HeartWithMonitor,
 
-        [Icon("house")]
-        House,
+    [EnumMember(Value = "house")]
+    House,
 
-        [Icon("id-card")]
-        IdCard,
+    [EnumMember(Value = "id-card")]
+    IdCard,
 
-        [Icon("jet")]
-        Jet,
+    [EnumMember(Value = "jet")]
+    Jet,
 
-        [Icon("large-ship")]
-        LargeShip,
+    [EnumMember(Value = "large-ship")]
+    LargeShip,
 
-        [Icon("luggage")]
-        Luggage,
+    [EnumMember(Value = "luggage")]
+    Luggage,
 
-        [Icon("plant")]
-        Plant,
+    [EnumMember(Value = "plant")]
+    Plant,
 
-        [Icon("porthole")]
-        Porthole,
+    [EnumMember(Value = "porthole")]
+    Porthole,
 
-        [Icon("puzzle")]
-        Puzzle,
+    [EnumMember(Value = "puzzle")]
+    Puzzle,
 
-        [Icon("rainbow")]
-        Rainbow,
+    [EnumMember(Value = "rainbow")]
+    Rainbow,
 
-        [Icon("record")]
-        Record,
+    [EnumMember(Value = "record")]
+    Record,
 
-        [Icon("round-door")]
-        RoundDoor,
+    [EnumMember(Value = "round-door")]
+    RoundDoor,
 
-        [Icon("sandals")]
-        Sandals,
+    [EnumMember(Value = "sandals")]
+    Sandals,
 
-        [Icon("scales")]
-        Scales,
+    [EnumMember(Value = "scales")]
+    Scales,
 
-        [Icon("screwdriver")]
-        Screwdriver,
+    [EnumMember(Value = "screwdriver")]
+    Screwdriver,
 
-        [Icon("shop")]
-        Shop,
+    [EnumMember(Value = "shop")]
+    Shop,
 
-        [Icon("tall-window")]
-        TallWindow,
+    [EnumMember(Value = "tall-window")]
+    TallWindow,
 
-        [Icon("treasure-chest")]
-        TreasureChest,
+    [EnumMember(Value = "treasure-chest")]
+    TreasureChest,
 
-        [Icon("vault-door")]
-        VaultDoor,
+    [EnumMember(Value = "vault-door")]
+    VaultDoor,
 
-        [Icon("vehicle")]
-        Vehicle,
+    [EnumMember(Value = "vehicle")]
+    Vehicle,
 
-        [Icon("wallet")]
-        Wallet,
+    Unknown,
 
-        [Icon("wrench")]
-        Wrench
-    }
+    [EnumMember(Value = "wallet")]
+    Wallet,
+
+    [EnumMember(Value = "wrench")]
+    Wrench
 }

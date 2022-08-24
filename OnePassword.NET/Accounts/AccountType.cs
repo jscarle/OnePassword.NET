@@ -1,11 +1,15 @@
-﻿using Newtonsoft.Json;
+﻿using OnePassword.Common;
 
-namespace OnePassword.Accounts
+namespace OnePassword.Accounts;
+
+[JsonConverter(typeof(JsonStringEnumConverterEx<AccountType>))]
+public enum AccountType
 {
-    [JsonConverter(typeof(AccountTypeConverter))]
-    public enum AccountType
-    {
-        Personal,
-        Business
-    }
+    [EnumMember(Value = "BUSINESS")]
+    Business,
+
+    [EnumMember(Value = "PERSONAL")]
+    Personal,
+
+    Unknown
 }
