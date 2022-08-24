@@ -32,8 +32,12 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
-      run: dotnet build --no-restore /p:UseSharedCompilation=false
+      run: dotnet build -c Release --no-restore /p:UseSharedCompilation=false
     - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test -c Release --no-build --verbosity normal
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2     
+    - name: Pack
+      run: dotnet pack -c Release --no-build --output .
+    - name: Push to NuGet
+      run: dotnet nuget push "*.nupkg" --api-key ${{secrets.nuget_api_key}} --source https://api.nuget.org/v3/index.json
