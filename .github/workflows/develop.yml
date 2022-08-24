@@ -1,4 +1,4 @@
-name: Build and Analyze Development
+name: Development
 
 on:
   push:
@@ -7,15 +7,14 @@ on:
     branches: [ "develop" ]
 
 jobs:
-
-  analyze:
-    name: Analyze
+  build:
+    name: Build
     runs-on: ubuntu-latest
     permissions:
       actions: read
       contents: read
       security-events: write
-
+    
     strategy:
       fail-fast: false
 
@@ -26,18 +25,8 @@ jobs:
       uses: github/codeql-action/init@v2
       with:
         languages: 'csharp'
-    - name: Autobuild
-      uses: github/codeql-action/autobuild@v2
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
-  
-  build:
-    name: Build
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
     - name: Setup .NET
       uses: actions/setup-dotnet@v2
       with:
