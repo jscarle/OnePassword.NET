@@ -61,7 +61,7 @@ public sealed partial class OnePasswordManager
         return Op<Item>(command);
     }
 
-    public Item CreateItem(IItem item, IVault vault)
+    public Item CreateItem(Item item, IVault vault)
     {
         if (item.Id is not null)
             throw new ArgumentException($"{nameof(item.Id)} must be null.", nameof(item));
@@ -76,8 +76,8 @@ public sealed partial class OnePasswordManager
 
     public void ArchiveItem(IItem item, IVault vault)
     {
-        if (item.Id is not null)
-            throw new ArgumentException($"{nameof(item.Id)} must be null.", nameof(item));
+        if (item.Id is null || item.Id.Length == 0)
+            throw new ArgumentException($"{nameof(item.Id)} cannot be empty.", nameof(item));
         if (vault.Id.Length == 0)
             throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
 
@@ -87,8 +87,8 @@ public sealed partial class OnePasswordManager
 
     public void DeleteItem(IItem item, IVault vault)
     {
-        if (item.Id is not null)
-            throw new ArgumentException($"{nameof(item.Id)} must be null.", nameof(item));
+        if (item.Id is null || item.Id.Length == 0)
+            throw new ArgumentException($"{nameof(item.Id)} cannot be empty.", nameof(item));
         if (vault.Id.Length == 0)
             throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
 
