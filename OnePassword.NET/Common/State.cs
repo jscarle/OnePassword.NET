@@ -1,11 +1,25 @@
-﻿using Newtonsoft.Json;
+﻿namespace OnePassword.Common;
 
-namespace OnePassword.Common
+[JsonConverter(typeof(JsonStringEnumConverterEx<State>))]
+public enum State
 {
-    [JsonConverter(typeof(StateConverter))]
-    public enum State
-    {
-        Active,
-        Suspended
-    }
+    [EnumMember(Value = "Active")]
+    Active,
+
+    [EnumMember(Value = "Inactive")]
+    Inactive,
+
+    [EnumMember(Value = "Suspended")]
+    Suspended,
+
+    [EnumMember(Value = "Transfer Accepted")]
+    TransferAccepted,
+
+    [EnumMember(Value = "Transfer Pending")]
+    TransferPending,
+
+    [EnumMember(Value = "Transfer Started")]
+    TransferStarted,
+
+    Unknown
 }

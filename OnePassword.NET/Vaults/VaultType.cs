@@ -1,11 +1,15 @@
-﻿using Newtonsoft.Json;
+﻿using OnePassword.Common;
 
-namespace OnePassword.Vaults
+namespace OnePassword.Vaults;
+
+[JsonConverter(typeof(JsonStringEnumConverterEx<VaultType>))]
+public enum VaultType
 {
-    [JsonConverter(typeof(VaultTypeConverter))]
-    public enum VaultType
-    {
-        Personal,
-        User
-    }
+    [EnumMember(Value = "Personal")]
+    Personal,
+
+    Unknown,
+
+    [EnumMember(Value = "User Created")]
+    User
 }

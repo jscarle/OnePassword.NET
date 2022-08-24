@@ -1,11 +1,15 @@
-﻿using Newtonsoft.Json;
+﻿using OnePassword.Common;
 
-namespace OnePassword.Users
+namespace OnePassword.Users;
+
+[JsonConverter(typeof(JsonStringEnumConverterEx<UserType>))]
+public enum UserType
 {
-    [JsonConverter(typeof(UserTypeConverter))]
-    public enum UserType
-    {
-        Regular,
-        Guest
-    }
+    [EnumMember(Value = "Guest")]
+    Guest,
+
+    [EnumMember(Value = "Member")]
+    Member,
+
+    Unknown
 }

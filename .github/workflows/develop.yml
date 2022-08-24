@@ -1,0 +1,44 @@
+name: Development
+
+on:
+  push:
+    branches: [ "develop" ]
+  pull_request:
+    branches: [ "develop" ]
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    
+    strategy:
+      fail-fast: false
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: |
+          5.0.x
+          6.0.x
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --no-restore
+    - name: Test
+      env:
+        OPT_ACCOUNT_ADDRESS: ${{ secrets.OPT_ACCOUNT_ADDRESS }}
+        OPT_ACCOUNT_EMAIL: ${{ secrets.OPT_ACCOUNT_EMAIL }}
+        OPT_ACCOUNT_NAME: ${{ secrets.OPT_ACCOUNT_NAME }}
+        OPT_ACCOUNT_PASSWORD: ${{ secrets.OPT_ACCOUNT_PASSWORD }}
+        OPT_ACCOUNT_SECRET_KEY: ${{ secrets.OPT_ACCOUNT_SECRET_KEY }}
+        OPT_CREATE_TEST_USER: ${{ secrets.OPT_CREATE_TEST_USER }}
+        OPT_RUN_LIVE_TESTS: ${{ secrets.OPT_RUN_LIVE_TESTS }}
+        OPT_TEST_USER_EMAIL: ${{ secrets.OPT_TEST_USER_EMAIL }}
+      run: dotnet test --no-build --verbosity normal

@@ -1,51 +1,78 @@
 # OnePassword.NET - 1Password CLI Wrapper
-This library serves as a .NET wrapper for the [1Password](https://1password.com/) command-line tool op.exe ( [Download](https://app-updates.agilebits.com/product_history/CLI) | [Documentation](https://support.1password.com/command-line-reference/) ).
+This library serves as a .NET wrapper for the [1Password](https://1password.com/) command-line tool op.exe ( [Download](https://app-updates.agilebits.com/product_history/CLI2) | [Documentation](https://developer.1password.com/docs/cli/reference) ).
+
+![master](https://github.com/jscarle/OnePassword.NET/actions/workflows/master.yml/badge.svg)
+![develop](https://github.com/jscarle/OnePassword.NET/actions/workflows/develop.yml/badge.svg)
 
 ## References
-This library targets .NET Framework 2.0, 3.5, 4.0, 4.5, .NET 5.0, and .NET Standard 2.0.
+This library targets .NET 5.0 and .NET 6.0.
 
 ## Dependencies
-[Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json) is a required dependency.
+This library has no dependencies.
 
 ## Quick Start
 
-### Creating an instance of the manager and signing in
+### Creating an instance of the manager
 ```csharp
-string domain = "my.1password.com";
-string email = "your@email.com";
-string secretKey = "A3-YOUR-SECRET-KEY";
-string password = "yourpassword";
-
-OnePasswordManager onePassword = new OnePasswordManager();
-
-onePassword.SignIn(domain, email, secretKey, password);
+var onePassword = new OnePasswordManager();
 ```
 
-### Listing all items
+### Adding your account and signing in for the first time
 ```csharp
-ItemList items = onePassword.ListItems();
+var domain = "my.1password.com";
+var email = "your@email.com";
+var secretKey = "A3-YOUR-SECRET-KEY";
+var password = "yourpassword";
+
+onePassword.AddAccount(domain, email, secretKey, password);
+onePassword.SignIn(password);
 ```
 
-### Finding a specific item
+### Signing in for subsequent connections
 ```csharp
-Item item = items["Your Item's Title"];
+onePassword.UseAccount(domain);
+onePassword.SignIn(password);
 ```
 
-### Listing all templates
+### Getting all vaults
 ```csharp
-TemplateList templates = onePassword.ListTemplates();
+var vaults = onePassword.GetVaults();
+```
+
+### Selecting a specific vault
+```csharp
+var vault = vaults.First(x => x.Name == "Private");
 ```
 
 ### Creating an item using a template
 ```csharp
-Template loginTemplate = onePassword.GetTemplate(templates["Login"]);
+var serverTemplate = onePassword.GetTemplate(Category.Server);
 
-loginTemplate.Title = "Your Item's Title";
-loginTemplate.Details.Fields["username"].Value = "theitemusername";
-loginTemplate.Details.Fields["password"].Value = "theitempassword";
-loginTemplate.Url = "https://the.item.url/";
+serverTemplate.Title = "Your Item's Title";
+serverTemplate.Fields.First(x => x.Label == "username").Value = "secretuser";
+serverTemplate.Fields.First(x => x.Label == "password").Value = "secretpass";
 
-onePassword.CreateItem(loginTemplate);
+var serverItem = onePassword.CreateItem(serverTemplate, vault);
+```
+
+### Getting all items in a vault
+```csharp
+var items = onePassword.GetItems(vault);
+```
+
+### Selecting a specific item
+```csharp
+var item = items.First(x => x.Title == "Your Item's Title");
+```
+
+### Archiving an item
+```csharp
+onePassword.ArchiveItem(item, vault);
+```
+
+### Deleting an item
+```csharp
+onePassword.DeleteItem(item, vault);
 ```
 
 ### Signing out

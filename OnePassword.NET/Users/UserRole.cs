@@ -1,11 +1,15 @@
-﻿using Newtonsoft.Json;
+﻿using OnePassword.Common;
 
-namespace OnePassword.Users
+namespace OnePassword.Users;
+
+[JsonConverter(typeof(JsonStringEnumConverterEx<UserRole>))]
+public enum UserRole
 {
-    [JsonConverter(typeof(UserRoleConverter))]
-    public enum UserRole
-    {
-        Member,
-        Manager
-    }
+    [EnumMember(Value = "Manager")]
+    Manager,
+
+    [EnumMember(Value = "Member")]
+    Member,
+
+    Unknown
 }
