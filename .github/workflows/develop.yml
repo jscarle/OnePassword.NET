@@ -21,10 +21,6 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
-    - name: Initialize CodeQL
-      uses: github/codeql-action/init@v2
-      with:
-        languages: 'csharp'
     - name: Setup .NET
       uses: actions/setup-dotnet@v2
       with:
@@ -34,8 +30,6 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
-      run: dotnet build --no-restore /p:UseSharedCompilation=false
-    - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v2
+      run: dotnet build --no-restore
     - name: Test
       run: dotnet test --no-build --verbosity normal
