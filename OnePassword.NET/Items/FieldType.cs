@@ -5,53 +5,53 @@ namespace OnePassword.Items;
 [JsonConverter(typeof(JsonStringEnumConverterEx<FieldType>))]
 public enum FieldType
 {
-    [EnumMember(Value = "ADDRESS")]
+    [EnumMember(Value = "Address")]
     Address,
 
-    [EnumMember(Value = "CONCEALED")]
+    [EnumMember(Value = "Concealed")]
     Concealed,
 
-    [EnumMember(Value = "CREDIT_CARD_NUMBER")]
+    [EnumMember(Value = "Credit Card Number")]
     CreditCardNumber,
 
-    [EnumMember(Value = "CREDIT_CARD_TYPE")]
+    [EnumMember(Value = "Credit Card Type")]
     CreditCardType,
 
-    [EnumMember(Value = "DATE")]
+    [EnumMember(Value = "Date")]
     Date,
 
-    [EnumMember(Value = "EMAIL")]
+    [EnumMember(Value = "Email")]
     Email,
 
-    [EnumMember(Value = "FILE")]
+    [EnumMember(Value = "File")]
     File,
 
-    [EnumMember(Value = "GENDER")]
+    [EnumMember(Value = "Gender")]
     Gender,
 
-    [EnumMember(Value = "MENU")]
+    [EnumMember(Value = "Menu")]
     Menu,
 
-    [EnumMember(Value = "MONTH_YEAR")]
+    [EnumMember(Value = "Month Year")]
     MonthYear,
 
-    [EnumMember(Value = "OTP")]
+    [EnumMember(Value = "Otp")]
     Otp,
 
-    [EnumMember(Value = "PHONE")]
+    [EnumMember(Value = "Phone")]
     Phone,
 
-    [EnumMember(Value = "REFERENCE")]
+    [EnumMember(Value = "Reference")]
     Reference,
 
-    [EnumMember(Value = "SSHKEY")]
-    Sshkey,
+    [EnumMember(Value = "SSHKey")]
+    SshKey,
 
-    [EnumMember(Value = "STRING")]
+    [EnumMember(Value = "String")]
     String,
 
     Unknown,
 
-    [EnumMember(Value = "URL")]
+    [EnumMember(Value = "Url")]
     Url
 }

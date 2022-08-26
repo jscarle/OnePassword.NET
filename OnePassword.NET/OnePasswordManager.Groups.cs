@@ -23,7 +23,7 @@ public sealed partial class OnePasswordManager
         return Op<GroupDetails>(command);
     }
 
-    public Group CreateGroup(string name, string? description = null)
+    public GroupDetails CreateGroup(string name, string? description = null)
     {
         var trimmedName = name.Trim();
         if (trimmedName.Length == 0)
@@ -34,7 +34,7 @@ public sealed partial class OnePasswordManager
         var command = $"group create \"{trimmedName}\"";
         if (trimmedDescription is not null)
             command += $" --description \"{trimmedDescription}\"";
-        return Op<Group>(command);
+        return Op<GroupDetails>(command);
     }
 
     public void EditGroup(IGroup group, string? name = null, string? description = null)

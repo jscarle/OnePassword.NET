@@ -5,69 +5,69 @@ namespace OnePassword.Groups;
 [JsonConverter(typeof(JsonStringEnumConverterEx<GroupPermission>))]
 public enum GroupPermission
 {
-    [EnumMember(Value = "ADD_PERSON")]
+    [EnumMember(Value = "Add Person")]
     AddPerson,
 
-    [EnumMember(Value = "CHANGE_PERSON_NAME")]
+    [EnumMember(Value = "Change Person Name")]
     ChangePersonName,
 
-    [EnumMember(Value = "CHANGE_TEAM_ATTRIBUTES")]
+    [EnumMember(Value = "Change Team Attributes")]
     ChangeTeamAttributes,
 
-    [EnumMember(Value = "CHANGE_TEAM_DOMAIN")]
+    [EnumMember(Value = "Change Team Domain")]
     ChangeTeamDomain,
 
-    [EnumMember(Value = "CHANGE_TEAM_SETTINGS")]
+    [EnumMember(Value = "Change Team Settings")]
     ChangeTeamSettings,
 
-    [EnumMember(Value = "CREATE_VAULTS")]
+    [EnumMember(Value = "Create Vaults")]
     CreateVaults,
 
-    [EnumMember(Value = "DELETE_PERSON")]
+    [EnumMember(Value = "Delete Person")]
     DeletePerson,
 
-    [EnumMember(Value = "DELETE_TEAM")]
+    [EnumMember(Value = "Delete Team")]
     DeleteTeam,
 
-    [EnumMember(Value = "MANAGE_BILLING")]
+    [EnumMember(Value = "Manage Billing")]
     ManageBilling,
 
-    [EnumMember(Value = "MANAGE_GROUPS")]
+    [EnumMember(Value = "Manage Groups")]
     ManageGroups,
 
-    [EnumMember(Value = "MANAGE_TEMPLATES")]
+    [EnumMember(Value = "Manage Templates")]
     ManageTemplates,
 
-    [EnumMember(Value = "MANAGE_VAULTS")]
+    [EnumMember(Value = "Manage Vaults")]
     ManageVaults,
 
-    [EnumMember(Value = "RECOVER_ACCOUNTS")]
+    [EnumMember(Value = "Recover Accounts")]
     RecoverAccounts,
 
-    [EnumMember(Value = "SUSPEND_PERSON")]
+    [EnumMember(Value = "Suspend Person")]
     SuspendPerson,
 
-    [EnumMember(Value = "SUSPEND_TEAM")]
+    [EnumMember(Value = "Suspend Team")]
     SuspendTeam,
 
-    [EnumMember(Value = "VIEW_ACTIVITIES_LOG")]
+    [EnumMember(Value = "View Activities Log")]
     ViewActivitiesLog,
 
-    [EnumMember(Value = "VIEW_ADMINISTRATIVE_SIDEBAR")]
+    [EnumMember(Value = "View AdministrativeSidebar")]
     ViewAdministrativeSidebar,
 
-    [EnumMember(Value = "VIEW_BILLING")]
+    [EnumMember(Value = "View Billing")]
     ViewBilling,
 
-    [EnumMember(Value = "VIEW_PEOPLE")]
+    [EnumMember(Value = "View People")]
     ViewPeople,
 
-    [EnumMember(Value = "VIEW_TEAM_SETTINGS")]
+    [EnumMember(Value = "View Team Settings")]
     ViewTeamSettings,
 
-    [EnumMember(Value = "VIEW_TEMPLATES")]
+    [EnumMember(Value = "View Templates")]
     ViewTemplates,
 
-    [EnumMember(Value = "VIEW_VAULTS")]
+    [EnumMember(Value = "View Vaults")]
     ViewVaults
 }

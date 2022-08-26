@@ -5,48 +5,48 @@ namespace OnePassword.Vaults;
 [JsonConverter(typeof(JsonStringEnumConverterEx<VaultPermission>))]
 public enum VaultPermission
 {
-    [EnumMember(Value = "allow_editing")]
+    [EnumMember(Value = "Allow Editing")]
     AllowEditing,
 
-    [EnumMember(Value = "allow_managing")]
+    [EnumMember(Value = "Allow Managing")]
     AllowManaging,
 
-    [EnumMember(Value = "allow_viewing")]
+    [EnumMember(Value = "Allow Viewing")]
     AllowViewing,
 
-    [EnumMember(Value = "archive_items")]
+    [EnumMember(Value = "Archive Items")]
     ArchiveItems,
 
-    [EnumMember(Value = "copy_and_share_items")]
+    [EnumMember(Value = "Copy And Share Items")]
     CopyAndShareItems,
 
-    [EnumMember(Value = "create_items")]
+    [EnumMember(Value = "Create Items")]
     CreateItems,
 
-    [EnumMember(Value = "delete_items")]
+    [EnumMember(Value = "Delete Items")]
     DeleteItems,
 
-    [EnumMember(Value = "edit_items")]
+    [EnumMember(Value = "Edit Items")]
     EditItems,
 
-    [EnumMember(Value = "export_items")]
+    [EnumMember(Value = "Export Items")]
     ExportItems,
 
-    [EnumMember(Value = "import_items")]
+    [EnumMember(Value = "Import Items")]
     ImportItems,
 
-    [EnumMember(Value = "manage_vault")]
+    [EnumMember(Value = "Manage Vault")]
     ManageVault,
 
-    [EnumMember(Value = "print_items")]
+    [EnumMember(Value = "Print Items")]
     PrintItems,
 
-    [EnumMember(Value = "view_and_copy_passwords")]
+    [EnumMember(Value = "View And Copy Passwords")]
     ViewAndCopyPasswords,
 
-    [EnumMember(Value = "view_item_history")]
+    [EnumMember(Value = "View Item History")]
     ViewItemHistory,
 
-    [EnumMember(Value = "view_items")]
+    [EnumMember(Value = "View Items")]
     ViewItems
 }

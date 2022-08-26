@@ -23,7 +23,7 @@ public sealed partial class OnePasswordManager
         return Op<UserDetails>(command);
     }
 
-    public User ProvisionUser(string name, string emailAddress, Language language = Language.Default)
+    public UserDetails ProvisionUser(string name, string emailAddress, Language language = Language.Default)
     {
         var trimmedName = name.Trim();
         if (trimmedName.Length == 0)
@@ -36,7 +36,7 @@ public sealed partial class OnePasswordManager
         var command = $"user provision --name \"{trimmedName}\" --email \"{trimmedEmailAddress}\"";
         if (language != Language.Default)
             command += $" --language \"{language.ToEnumString()}\"";
-        return Op<User>(command);
+        return Op<UserDetails>(command);
     }
 
     public void ConfirmUser(IUser user)
@@ -90,7 +90,7 @@ public sealed partial class OnePasswordManager
 
         var command = $"user suspend {user.Id}";
         if (deauthorizeDevicesDelay is not null)
-            command += $" --deauthorize-devices-after {deauthorizeDevicesDelay.Value}";
+            command += $" --deauthorize-devices-after {deauthorizeDevicesDelay.Value}s";
         Op(command);
     }
 
