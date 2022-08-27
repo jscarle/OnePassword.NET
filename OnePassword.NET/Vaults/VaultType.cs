@@ -5,11 +5,11 @@ namespace OnePassword.Vaults;
 [JsonConverter(typeof(JsonStringEnumConverterEx<VaultType>))]
 public enum VaultType
 {
-    [EnumMember(Value = "PERSONAL")]
+    [EnumMember(Value = "Personal")]
     Personal,
 
     Unknown,
 
-    [EnumMember(Value = "USER_CREATED")]
-    UserDefined
+    [EnumMember(Value = "User Created")]
+    User
 }

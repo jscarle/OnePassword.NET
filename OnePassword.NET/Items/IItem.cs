@@ -2,7 +2,5 @@
 
 public interface IItem
 {
-    string? Id { get; init; }
-
-    string Title { get; set; }
+    string Id { get; }
 }

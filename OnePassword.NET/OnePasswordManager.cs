@@ -18,7 +18,7 @@ public sealed partial class OnePasswordManager
     {
         _opPath = path.Length > 0 ? Path.Combine(path, executable) : Path.Combine(Directory.GetCurrentDirectory(), executable);
         if (!File.Exists(_opPath))
-            throw new Exception($"The 1Password CLI executable ({executable}) was not found folder \"{Path.GetDirectoryName(_opPath)}\".");
+            throw new Exception($"The 1Password CLI executable ({executable}) was not found in folder \"{Path.GetDirectoryName(_opPath)}\".");
 
         _verbose = verbose;
 
@@ -34,7 +34,7 @@ public sealed partial class OnePasswordManager
         Directory.CreateDirectory(tempDirectory);
 
         var command = $"update --directory \"{tempDirectory}\"";
-        var result = Op(command, false, false);
+        var result = Op(command);
 
         var match = Regex.Match(result, @"Version ([^\s]+) is now available\.");
         if (match.Success)
@@ -62,7 +62,7 @@ public sealed partial class OnePasswordManager
     private string GetVersion()
     {
         var command = "--version";
-        return Op(command, false, false);
+        return Op(command);
     }
 
     private static string GetStandardError(Process process)
@@ -81,41 +81,36 @@ public sealed partial class OnePasswordManager
         return output.ToString();
     }
 
-    private TResult Op<TResult>(string command, bool passAccount = true, bool passSession = true, bool returnError = false)
+    private TResult Op<TResult>(string command, string? input = null)
         where TResult : class
     {
-        var result = Op(command, Array.Empty<string>(), passAccount, passSession, returnError);
+        var result = Op(command, input is null ? Array.Empty<string>() : new[] { input });
         return JsonSerializer.Deserialize<TResult>(result) ?? throw new Exception("Could not deserialize the command result.");
     }
 
-    private string Op(string command, bool passAccount = true, bool passSession = true, bool returnError = false)
+    private string Op(string command, string? input = null)
     {
-        return Op(command, Array.Empty<string>(), passAccount, passSession, returnError);
+        return Op(command, input is null ? Array.Empty<string>() : new[] { input });
     }
 
-    private TResult Op<TResult>(string command, string input, bool passAccount = true, bool passSession = true, bool returnError = false)
-        where TResult : class
+    private string Op(string command, IEnumerable<string> input)
     {
-        var result = Op(command, new[] { input }, passAccount, passSession, returnError);
-        return JsonSerializer.Deserialize<TResult>(result) ?? throw new Exception("Could not deserialize the command result.");
-    }
-
-    private string Op(string command, string input, bool passAccount = true, bool passSession = true, bool returnError = false)
-    {
-        return Op(command, new[] { input }, passAccount, passSession, returnError);
-    }
-
-    private TResult Op<TResult>(string command, IEnumerable<string> input, bool passAccount = true, bool passSession = true, bool returnError = false)
-        where TResult : class
-    {
-        var result = Op(command, input, passAccount, passSession, returnError);
-        return JsonSerializer.Deserialize<TResult>(result) ?? throw new Exception("Could not deserialize the command result.");
-    }
-
-    private string Op(string command, IEnumerable<string> input, bool passAccount = true, bool passSession = true, bool returnError = false)
-    {
+        var passAccount = !(command.StartsWith("--version", StringComparison.Ordinal) ||
+                        command.StartsWith("update", StringComparison.Ordinal) ||
+                        command.StartsWith("account list", StringComparison.Ordinal) ||
+                        command.StartsWith("account add", StringComparison.Ordinal) ||
+                        command.StartsWith("account forget", StringComparison.Ordinal) ||
+                        command.StartsWith("signout --all", StringComparison.Ordinal));
         if (passAccount && _account.Length == 0)
             throw new Exception("Cannot execute command because account has not been set.");
+
+        var passSession = !(command.StartsWith("--version", StringComparison.Ordinal) ||
+                        command.StartsWith("update", StringComparison.Ordinal) ||
+                        command.StartsWith("account list", StringComparison.Ordinal) ||
+                        command.StartsWith("account add", StringComparison.Ordinal) ||
+                        command.StartsWith("account forget", StringComparison.Ordinal) ||
+                        command.StartsWith("signin", StringComparison.Ordinal) ||
+                        command.StartsWith("signout --all", StringComparison.Ordinal));
         if (passSession && _session.Length == 0)
             throw new Exception("Cannot execute command because account has not been signed in.");
 
@@ -170,9 +165,6 @@ public sealed partial class OnePasswordManager
 
         if (!error.StartsWith("[ERROR]"))
             return output;
-
-        if (returnError)
-            return error;
 
         throw new Exception(error.Length > 28 ? error[28..].Trim() : error);
     }
