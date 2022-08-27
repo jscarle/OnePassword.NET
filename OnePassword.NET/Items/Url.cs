@@ -1,13 +1,16 @@
 ﻿namespace OnePassword.Items;
 
-public sealed record Url
+public sealed class Url
 {
+    [JsonInclude]
     [JsonPropertyName("label")]
-    public string Label { get; init; } = "";
+    public string Label { get; internal init; } = "";
 
+    [JsonInclude]
     [JsonPropertyName("href")]
-    public string Href { get; init; } = "";
+    public string Href { get; internal init; } = "";
 
+    [JsonInclude]
     [JsonPropertyName("primary")]
-    public bool Primary { get; init; }
+    public bool Primary { get; internal init; }
 }

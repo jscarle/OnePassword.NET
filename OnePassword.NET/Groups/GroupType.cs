@@ -5,20 +5,20 @@ namespace OnePassword.Groups;
 [JsonConverter(typeof(JsonStringEnumConverterEx<GroupType>))]
 public enum GroupType
 {
-    [EnumMember(Value = "ADMINISTRATORS")]
+    [EnumMember(Value = "Administrators")]
     Administrators,
 
-    [EnumMember(Value = "OWNERS")]
+    [EnumMember(Value = "Owners")]
     Owners,
 
-    [EnumMember(Value = "RECOVERY")]
+    [EnumMember(Value = "Recovery")]
     Recovery,
 
-    [EnumMember(Value = "TEAM_MEMBERS")]
+    [EnumMember(Value = "Team Members")]
     TeamMembers,
 
     Unknown,
 
-    [EnumMember(Value = "USER_DEFINED")]
-    UserDefined
+    [EnumMember(Value = "User Defined")]
+    User
 }

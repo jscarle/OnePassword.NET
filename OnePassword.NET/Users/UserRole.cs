@@ -5,10 +5,10 @@ namespace OnePassword.Users;
 [JsonConverter(typeof(JsonStringEnumConverterEx<UserRole>))]
 public enum UserRole
 {
-    [EnumMember(Value = "MANAGER")]
+    [EnumMember(Value = "Manager")]
     Manager,
 
-    [EnumMember(Value = "MEMBER")]
+    [EnumMember(Value = "Member")]
     Member,
 
     Unknown

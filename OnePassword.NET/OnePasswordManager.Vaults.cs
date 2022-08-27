@@ -14,16 +14,16 @@ public sealed partial class OnePasswordManager
         return Op<ImmutableList<Vault>>(command);
     }
 
-    public Vault GetVault(IVault vault)
+    public VaultDetails GetVault(IVault vault)
     {
         if (vault.Id.Length == 0)
             throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
 
         var command = $"vault get {vault.Id}";
-        return Op<Vault>(command);
+        return Op<VaultDetails>(command);
     }
 
-    public Vault CreateVault(string name, string? description = null, VaultIcon icon = VaultIcon.Default, bool? allowAdminsToManage = null)
+    public VaultDetails CreateVault(string name, string? description = null, VaultIcon icon = VaultIcon.Default, bool? allowAdminsToManage = null)
     {
         var trimmedName = name.Trim();
         if (trimmedName.Length == 0)
@@ -38,7 +38,7 @@ public sealed partial class OnePasswordManager
             command += $" --icon \"{icon.ToEnumString()}\"";
         if (allowAdminsToManage.HasValue)
             command += $" --allow-admins-to-manage {(allowAdminsToManage.Value ? "true" : "false")}";
-        return Op<Vault>(command);
+        return Op<VaultDetails>(command);
     }
 
     public void EditVault(IVault vault, string? name = null, string? description = null, VaultIcon icon = VaultIcon.Default, bool? travelMode = null)
@@ -76,73 +76,73 @@ public sealed partial class OnePasswordManager
         Op(command);
     }
 
-    public void GrantPermissions(IVault vault, IGroup group, IReadOnlyCollection<Permission> permissions)
+    public void GrantPermissions(IVault vault, IReadOnlyCollection<VaultPermission> permissions, IGroup group)
     {
         if (vault.Id.Length == 0)
             throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
-        if (group.Id.Length == 0)
-            throw new ArgumentException($"{nameof(group.Id)} cannot be empty.", nameof(group));
         if (permissions.Count == 0)
             throw new ArgumentException($"{nameof(permissions)} cannot be empty.", nameof(permissions));
+        if (group.Id.Length == 0)
+            throw new ArgumentException($"{nameof(group.Id)} cannot be empty.", nameof(group));
 
         var command = $"vault group grant --vault {vault.Id} --group {group.Id} --permissions \"{permissions.ToCommaSeparated()}\"";
         Op(command);
     }
 
-    public void GrantPermissions(IVault vault, IUser user, IReadOnlyCollection<Permission> permissions)
+    public void GrantPermissions(IVault vault, IReadOnlyCollection<VaultPermission> permissions, IUser user)
     {
         if (vault.Id.Length == 0)
             throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
-        if (user.Id.Length == 0)
-            throw new ArgumentException($"{nameof(user.Id)} cannot be empty.", nameof(user));
         if (permissions.Count == 0)
             throw new ArgumentException($"{nameof(permissions)} cannot be empty.", nameof(permissions));
+        if (user.Id.Length == 0)
+            throw new ArgumentException($"{nameof(user.Id)} cannot be empty.", nameof(user));
 
         var command = $"vault user grant --vault {vault.Id} --user {user.Id} --permissions \"{permissions.ToCommaSeparated()}\"";
         Op(command);
     }
 
-    public void RevokePermissions(IVault vault, IGroup group, IReadOnlyCollection<Permission> permissions)
+    public void RevokePermissions(IVault vault, IReadOnlyCollection<VaultPermission> permissions, IGroup group)
     {
         if (vault.Id.Length == 0)
             throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
-        if (group.Id.Length == 0)
-            throw new ArgumentException($"{nameof(group.Id)} cannot be empty.", nameof(group));
         if (permissions.Count == 0)
             throw new ArgumentException($"{nameof(permissions)} cannot be empty.", nameof(permissions));
+        if (group.Id.Length == 0)
+            throw new ArgumentException($"{nameof(group.Id)} cannot be empty.", nameof(group));
 
         var command = $"vault user revoke --vault {vault.Id} --group {group.Id} --permissions \"{permissions.ToCommaSeparated()}\"";
         Op(command);
     }
 
-    public void RevokePermissions(IVault vault, IUser user, IReadOnlyCollection<Permission> permissions)
+    public void RevokePermissions(IVault vault, IReadOnlyCollection<VaultPermission> permissions, IUser user)
     {
         if (vault.Id.Length == 0)
             throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
-        if (user.Id.Length == 0)
-            throw new ArgumentException($"{nameof(user.Id)} cannot be empty.", nameof(user));
         if (permissions.Count == 0)
             throw new ArgumentException($"{nameof(permissions)} cannot be empty.", nameof(permissions));
+        if (user.Id.Length == 0)
+            throw new ArgumentException($"{nameof(user.Id)} cannot be empty.", nameof(user));
 
         var command = $"vault user revoke --vault {vault.Id} --user {user.Id} --permissions \"{permissions.ToCommaSeparated()}\"";
         Op(command);
     }
 
-    public ImmutableList<Group> GetGroups(IVault vault)
+    public ImmutableList<Vault> GetVaults(IGroup group)
     {
-        if (vault.Id.Length == 0)
-            throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
+        if (group.Id.Length == 0)
+            throw new ArgumentException($"{nameof(group.Id)} cannot be empty.", nameof(group));
 
-        var command = $"vault group list {vault.Id}";
-        return Op<ImmutableList<Group>>(command);
+        var command = $"vault list --group {group.Id}";
+        return Op<ImmutableList<Vault>>(command);
     }
 
-    public ImmutableList<User> GetUsers(IVault vault)
+    public ImmutableList<Vault> GetVaults(IUser user)
     {
-        if (vault.Id.Length == 0)
-            throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
+        if (user.Id.Length == 0)
+            throw new ArgumentException($"{nameof(user.Id)} cannot be empty.", nameof(user));
 
-        var command = $"vault user list {vault.Id}";
-        return Op<ImmutableList<User>>(command);
+        var command = $"vault list --user {user.Id}";
+        return Op<ImmutableList<Vault>>(command);
     }
 }
