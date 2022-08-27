@@ -1,4 +1,5 @@
 using System.IO.Compression;
+using System.Runtime.InteropServices;
 using OnePassword.Groups;
 using OnePassword.Users;
 using OnePassword.Vaults;
@@ -24,9 +25,11 @@ public class TestsBase
     private protected static IGroup TestGroup = null!;
     private protected static IVault TestVault = null!;
     private protected static bool DoFinalTearDown = false;
-    private const string ExecutableName = "op.exe";
+    private static readonly Uri DownloadSource = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ?
+        new Uri("https://cache.agilebits.com/dist/1P/op2/pkg/v2.6.2/op_linux_amd64_v2.6.2.zip") :
+        new Uri("https://cache.agilebits.com/dist/1P/op2/pkg/v2.6.2/op_windows_amd64_v2.6.2.zip");
+    private static readonly string ExecutableName = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? "op" : "op.exe";
     private static readonly string WorkingDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
-    private static readonly Uri DownloadSource = new("https://cache.agilebits.com/dist/1P/op2/pkg/v2.6.2/op_windows_amd64_v2.6.2.zip");
     private static bool _initialSetupDone;
 
     private static string? GetEnv(string name)
