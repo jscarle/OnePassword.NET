@@ -8,6 +8,9 @@ public class TearDownGroup : TestsBase
     [Test, Order(1)]
     public void DeleteGroup()
     {
+        if (!RunLiveTests)
+            Assert.Ignore();
+
         SemaphoreSlim.Wait(CommandTimeout, TearDownCancellationTokenSource.Token);
         try
         {

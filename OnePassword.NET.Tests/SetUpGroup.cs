@@ -16,6 +16,9 @@ public class SetUpGroup : TestsBase
     [Test, Order(1)]
     public void CreateGroup()
     {
+        if (!RunLiveTests)
+            Assert.Ignore();
+
         SemaphoreSlim.Wait(CommandTimeout, SetUpCancellationTokenSource.Token);
         try
         {
@@ -47,6 +50,9 @@ public class SetUpGroup : TestsBase
     [Test, Order(2)]
     public void EditGroup()
     {
+        if (!RunLiveTests)
+            Assert.Ignore();
+
         SemaphoreSlim.Wait(CommandTimeout, SetUpCancellationTokenSource.Token);
         try
         {
@@ -67,6 +73,9 @@ public class SetUpGroup : TestsBase
     [Test, Order(3)]
     public void GetGroups()
     {
+        if (!RunLiveTests)
+            Assert.Ignore();
+
         SemaphoreSlim.Wait(CommandTimeout, SetUpCancellationTokenSource.Token);
         try
         {
@@ -97,6 +106,9 @@ public class SetUpGroup : TestsBase
     [Test, Order(4)]
     public void GetGroup()
     {
+        if (!RunLiveTests)
+            Assert.Ignore();
+
         SemaphoreSlim.Wait(CommandTimeout, SetUpCancellationTokenSource.Token);
         try
         {

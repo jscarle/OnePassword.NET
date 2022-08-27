@@ -8,6 +8,9 @@ public class TearDownAccount : TestsBase
     [Test, Order(1)]
     public void SignOut()
     {
+        if (!RunLiveTests)
+            Assert.Ignore();
+
         SemaphoreSlim.Wait(CommandTimeout, TearDownCancellationTokenSource.Token);
         try
         {
@@ -28,6 +31,9 @@ public class TearDownAccount : TestsBase
     [Test, Order(2)]
     public void ForgetAccount()
     {
+        if (!RunLiveTests)
+            Assert.Ignore();
+
         SemaphoreSlim.Wait(CommandTimeout, TearDownCancellationTokenSource.Token);
         try
         {

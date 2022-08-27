@@ -12,6 +12,9 @@ public class TestTemplates : TestsBase
     [Test, Order(1)]
     public void GetTemplates()
     {
+        if (!RunLiveTests)
+            Assert.Ignore();
+
         SemaphoreSlim.Wait(CommandTimeout, SetUpCancellationTokenSource.Token);
         try
         {
@@ -35,6 +38,9 @@ public class TestTemplates : TestsBase
     [Test, Order(2)]
     public void GetTemplatesName()
     {
+        if (!RunLiveTests)
+            Assert.Ignore();
+
         SemaphoreSlim.Wait(CommandTimeout, SetUpCancellationTokenSource.Token);
         try
         {
@@ -60,6 +66,9 @@ public class TestTemplates : TestsBase
     [Test, Order(3)]
     public void GetTemplatesByEnum()
     {
+        if (!RunLiveTests)
+            Assert.Ignore();
+
         SemaphoreSlim.Wait(CommandTimeout, SetUpCancellationTokenSource.Token);
         try
         {

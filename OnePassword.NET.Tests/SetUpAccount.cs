@@ -10,6 +10,9 @@ public class SetUpAccount : TestsBase
     [Test, Order(1)]
     public void AddAccount()
     {
+        if (!RunLiveTests)
+            Assert.Ignore();
+
         SemaphoreSlim.Wait(CommandTimeout, SetUpCancellationTokenSource.Token);
         try
         {
@@ -30,6 +33,9 @@ public class SetUpAccount : TestsBase
     [Test, Order(2)]
     public void SignIn()
     {
+        if (!RunLiveTests)
+            Assert.Ignore();
+
         SemaphoreSlim.Wait(CommandTimeout, SetUpCancellationTokenSource.Token);
         try
         {
@@ -50,6 +56,9 @@ public class SetUpAccount : TestsBase
     [Test, Order(3)]
     public void GetAccounts()
     {
+        if (!RunLiveTests)
+            Assert.Ignore();
+
         SemaphoreSlim.Wait(CommandTimeout, SetUpCancellationTokenSource.Token);
         try
         {
@@ -81,6 +90,9 @@ public class SetUpAccount : TestsBase
     [Test, Order(4)]
     public void GetAccount()
     {
+        if (!RunLiveTests)
+            Assert.Ignore();
+
         SemaphoreSlim.Wait(CommandTimeout, SetUpCancellationTokenSource.Token);
         try
         {

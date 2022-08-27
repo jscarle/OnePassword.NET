@@ -17,6 +17,9 @@ public class SetUpVault : TestsBase
     [Test, Order(1)]
     public void CreateVault()
     {
+        if (!RunLiveTests)
+            Assert.Ignore();
+
         SemaphoreSlim.Wait(CommandTimeout, SetUpCancellationTokenSource.Token);
         try
         {
@@ -45,6 +48,9 @@ public class SetUpVault : TestsBase
     [Test, Order(2)]
     public void EditVault()
     {
+        if (!RunLiveTests)
+            Assert.Ignore();
+
         SemaphoreSlim.Wait(CommandTimeout, SetUpCancellationTokenSource.Token);
         try
         {
@@ -65,6 +71,9 @@ public class SetUpVault : TestsBase
     [Test, Order(3)]
     public void GetVaults()
     {
+        if (!RunLiveTests)
+            Assert.Ignore();
+
         SemaphoreSlim.Wait(CommandTimeout, SetUpCancellationTokenSource.Token);
         try
         {
@@ -95,6 +104,9 @@ public class SetUpVault : TestsBase
     [Test, Order(4)]
     public void GetVault()
     {
+        if (!RunLiveTests)
+            Assert.Ignore();
+
         SemaphoreSlim.Wait(CommandTimeout, SetUpCancellationTokenSource.Token);
         try
         {

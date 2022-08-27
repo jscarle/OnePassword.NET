@@ -8,6 +8,9 @@ public class TearDownVault : TestsBase
     [Test, Order(1)]
     public void DeleteVault()
     {
+        if (!RunLiveTests)
+            Assert.Ignore();
+
         SemaphoreSlim.Wait(CommandTimeout, TearDownCancellationTokenSource.Token);
         try
         {

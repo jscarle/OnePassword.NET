@@ -8,8 +8,8 @@ public class TearDownUser : TestsBase
     [Test, Order(1)]
     public void DeleteUser()
     {
-        if (!CreateTestUser)
-            Assert.Inconclusive();
+        if (!RunLiveTests || !CreateTestUser)
+            Assert.Ignore();
 
         SemaphoreSlim.Wait(CommandTimeout, TearDownCancellationTokenSource.Token);
         try
