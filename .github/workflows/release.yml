@@ -34,6 +34,14 @@ jobs:
     - name: Build
       run: dotnet build --no-restore /p:UseSharedCompilation=false
     - name: Test
+      env:
+        OPT_ACCOUNT_ADDRESS: ${{ secrets.OPT_ACCOUNT_ADDRESS }}
+        OPT_ACCOUNT_EMAIL: ${{ secrets.OPT_ACCOUNT_EMAIL }}
+        OPT_ACCOUNT_NAME: ${{ secrets.OPT_ACCOUNT_NAME }}
+        OPT_ACCOUNT_PASSWORD: ${{ secrets.OPT_ACCOUNT_PASSWORD }}
+        OPT_ACCOUNT_SECRET_KEY: ${{ secrets.OPT_ACCOUNT_SECRET_KEY }}
+        OPT_TEST_USER_CREATE: ${{ secrets.OPT_TEST_USER_CREATE }}
+        OPT_TEST_USER_EMAIL: ${{ secrets.OPT_TEST_USER_EMAIL }}
       run: dotnet test --no-build --verbosity normal
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2     
