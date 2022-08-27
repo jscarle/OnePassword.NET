@@ -8,12 +8,12 @@ namespace OnePassword.NET.Tests.Common;
 
 public class TestsBase
 {
-    private protected static readonly string AccountAddress = GetEnv("OPT_ACCOUNT_ADDRESS") ?? "";
-    private protected static readonly string AccountEmail = GetEnv("OPT_ACCOUNT_EMAIL") ?? "";
-    private protected static readonly string AccountName = GetEnv("OPT_ACCOUNT_NAME") ?? "";
-    private protected static readonly string AccountPassword = GetEnv("OPT_ACCOUNT_PASSWORD") ?? "";
-    private protected static readonly string AccountSecretKey = GetEnv("OPT_ACCOUNT_SECRET_KEY") ?? "";
-    private protected static readonly bool CreateTestUser = bool.Parse(GetEnv("OPT_TEST_USER_CREATE") ?? "false");
+    private protected static readonly string AccountAddress = GetEnv("OPT_ACCOUNT_ADDRESS");
+    private protected static readonly string AccountEmail = GetEnv("OPT_ACCOUNT_EMAIL");
+    private protected static readonly string AccountName = GetEnv("OPT_ACCOUNT_NAME");
+    private protected static readonly string AccountPassword = GetEnv("OPT_ACCOUNT_PASSWORD");
+    private protected static readonly string AccountSecretKey = GetEnv("OPT_ACCOUNT_SECRET_KEY");
+    private protected static readonly bool CreateTestUser = bool.Parse(GetEnv("OPT_TEST_USER_CREATE"));
     private protected static readonly string TestEmail = GetEnv("OPT_TEST_USER_EMAIL") ?? "";
     private protected const int CommandTimeout = 2 * 60 * 1000;
     private protected const int RateLimit = 250;
@@ -36,7 +36,8 @@ public class TestsBase
     {
         return Environment.GetEnvironmentVariable(name, EnvironmentVariableTarget.Machine) ??
                Environment.GetEnvironmentVariable(name, EnvironmentVariableTarget.User) ??
-               Environment.GetEnvironmentVariable(name, EnvironmentVariableTarget.Process);
+               Environment.GetEnvironmentVariable(name, EnvironmentVariableTarget.Process) ??
+               throw new Exception($"Environment variable {name} not found.");
     }
 
     [OneTimeSetUp]
