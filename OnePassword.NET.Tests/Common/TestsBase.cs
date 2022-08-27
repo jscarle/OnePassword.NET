@@ -44,7 +44,7 @@ public class TestsBase
     [OneTimeSetUp]
     public async Task Setup()
     {
-        if (_initialSetupDone)
+        if (!RunLiveTests || _initialSetupDone)
             return;
 
         Directory.CreateDirectory(WorkingDirectory);
@@ -72,7 +72,7 @@ public class TestsBase
     [OneTimeTearDown]
     public void TearDown()
     {
-        if (!DoFinalTearDown)
+        if (!RunLiveTests || !DoFinalTearDown)
             return;
 
         Directory.Delete(WorkingDirectory, true);
