@@ -13,33 +13,32 @@ internal class JsonStringEnumConverterEx<TEnum> : JsonConverter<TEnum>
 
     public JsonStringEnumConverterEx()
     {
-        var type = typeof(TEnum);
-        var values = Enum.GetValues<TEnum>();
-
-        foreach (var value in values)
+        foreach (var enumMemberValue in Enum.GetValues<TEnum>())
         {
-            var enumMember = type.GetMember(value.ToString())[0];
-            var attr = enumMember.GetCustomAttributes(typeof(EnumMemberAttribute), false).Cast<EnumMemberAttribute>().FirstOrDefault();
+            var enumMemberName = enumMemberValue.ToString();
+            var enumMemberAttribute = typeof(TEnum).GetMember(enumMemberName).FirstOrDefault()?.GetCustomAttributes(typeof(EnumMemberAttribute), false).Cast<EnumMemberAttribute>().FirstOrDefault();
 
-            _stringToEnum.Add(value.ToString(), value);
-
-            if (attr is { Value: not null })
+            if (enumMemberAttribute is { Value: not null })
             {
-                _enumToString.Add(value, attr.Value.ToUpper());
-                _stringToEnum.Add(attr.Value.ToUpper(), value);
+                var enumMemberString = enumMemberAttribute.Value.ToUpper().Replace(" ", "_");
+                _enumToString.Add(enumMemberValue, enumMemberString);
+                _stringToEnum.Add(enumMemberString, enumMemberValue);
             }
             else
             {
-                _enumToString.Add(value, value.ToString());
+                var enumMemberString = enumMemberName.ToUpper();
+                _enumToString.Add(enumMemberValue, enumMemberString);
+                _stringToEnum.Add(enumMemberString, enumMemberValue);
             }
         }
     }
 
     public override TEnum Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        var stringValue = reader.GetString();
+        var stringValue = reader.GetString() ?? "Unknown";
 
-        if (stringValue is not null && _stringToEnum.TryGetValue(stringValue.ToUpper(), out var enumValue))
+        var enumMemberString = stringValue.ToUpper().Replace(" ", "_");
+        if (_stringToEnum.TryGetValue(enumMemberString, out var enumValue))
             return enumValue;
 
         throw new NotImplementedException("Could not convert string value to its enum representation.");

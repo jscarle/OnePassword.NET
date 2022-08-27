@@ -7,27 +7,37 @@ namespace OnePassword;
 
 public sealed partial class OnePasswordManager
 {
-    public ImmutableList<Template> GetTemplates()
+    public ImmutableList<TemplateSimple> GetTemplates()
     {
         var command = "item template list";
-        return Op<ImmutableList<Template>>(command);
+        return Op<ImmutableList<TemplateSimple>>(command);
     }
 
-    public Item GetTemplate(ITemplate template)
+    public Template GetTemplate(ITemplate template)
     {
-        if (template.Id.Length == 0)
-            throw new ArgumentException($"{nameof(template.Id)} cannot be empty.", nameof(template));
+        if (template.Name.Length == 0)
+            throw new ArgumentException($"{nameof(template.Name)} cannot be empty.", nameof(template));
 
         var command = $"item template get \"{template.Name}\"";
-        return Op<Item>(command);
+        var result = Op<Template>(command);
+
+        result.Name = template.Name;
+
+        return result;
     }
 
-    public Item GetTemplate(Category category)
+    public Template GetTemplate(Category category)
     {
         if (category is Category.Unknown or Category.Custom)
             throw new ArgumentException($"{nameof(category)} cannot be {nameof(Category.Unknown)} or {nameof(Category.Custom)}.", nameof(category));
 
-        var command = $"item template get \"{category.ToEnumString().Replace("_", " ")}\"";
-        return Op<Item>(command);
+        var templateName = category.ToEnumString();
+
+        var command = $"item template get \"{templateName}\"";
+        var result = Op<Template>(command);
+
+        result.Name = templateName;
+
+        return result;
     }
 }

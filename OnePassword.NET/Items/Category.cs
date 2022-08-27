@@ -5,71 +5,71 @@ namespace OnePassword.Items;
 [JsonConverter(typeof(JsonStringEnumConverterEx<Category>))]
 public enum Category
 {
-    [EnumMember(Value = "API_CREDENTIAL")]
+    [EnumMember(Value = "API Credential")]
     ApiCredential,
 
-    [EnumMember(Value = "BANK_ACCOUNT")]
+    [EnumMember(Value = "Bank Account")]
     BankAccount,
 
-    [EnumMember(Value = "CREDIT_CARD")]
+    [EnumMember(Value = "Credit Card")]
     CreditCard,
 
-    [EnumMember(Value = "CUSTOM")]
+    [EnumMember(Value = "Custom")]
     Custom,
 
-    [EnumMember(Value = "DATABASE")]
+    [EnumMember(Value = "Database")]
     Database,
 
-    [EnumMember(Value = "DOCUMENT")]
+    [EnumMember(Value = "Document")]
     Document,
 
-    [EnumMember(Value = "DRIVER_LICENSE")]
+    [EnumMember(Value = "Driver License")]
     DriverLicense,
 
-    [EnumMember(Value = "EMAIL_ACCOUNT")]
+    [EnumMember(Value = "Email Account")]
     EmailAccount,
 
-    [EnumMember(Value = "IDENTITY")]
+    [EnumMember(Value = "Identity")]
     Identity,
 
-    [EnumMember(Value = "LOGIN")]
+    [EnumMember(Value = "Login")]
     Login,
 
-    [EnumMember(Value = "MEDICAL_RECORD")]
+    [EnumMember(Value = "Medical Record")]
     MedicalRecord,
 
-    [EnumMember(Value = "MEMBERSHIP")]
+    [EnumMember(Value = "Membership")]
     Membership,
 
-    [EnumMember(Value = "OUTDOOR_LICENSE")]
+    [EnumMember(Value = "Outdoor License")]
     OutdoorLicense,
 
-    [EnumMember(Value = "PASSPORT")]
+    [EnumMember(Value = "Passport")]
     Passport,
 
-    [EnumMember(Value = "PASSWORD")]
+    [EnumMember(Value = "Password")]
     Password,
 
-    [EnumMember(Value = "REWARD_PROGRAM")]
+    [EnumMember(Value = "Reward Program")]
     RewardProgram,
 
-    [EnumMember(Value = "SECURE_NOTE")]
+    [EnumMember(Value = "Secure Note")]
     SecureNote,
 
-    [EnumMember(Value = "SERVER")]
+    [EnumMember(Value = "Server")]
     Server,
 
-    [EnumMember(Value = "SOCIAL_SECURITY_NUMBER")]
+    [EnumMember(Value = "Social Security Number")]
     SocialSecurityNumber,
 
-    [EnumMember(Value = "SOFTWARE_LICENSE")]
+    [EnumMember(Value = "Software License")]
     SoftwareLicense,
 
-    [EnumMember(Value = "SSH_KEY")]
+    [EnumMember(Value = "SSH Key")]
     SshKey,
 
     Unknown,
 
-    [EnumMember(Value = "WIRELESS_ROUTER")]
+    [EnumMember(Value = "Wireless Router")]
     WirelessRouter
 }

@@ -5,12 +5,14 @@ namespace OnePassword.Items;
 [JsonConverter(typeof(JsonStringEnumConverterEx<FieldPurpose>))]
 public enum FieldPurpose
 {
-    [EnumMember(Value = "NOTES")]
+    [EnumMember(Value = "Notes")]
     Notes,
 
-    [EnumMember(Value = "PASSWORD")]
+    [EnumMember(Value = "Password")]
     Password,
 
-    [EnumMember(Value = "USERNAME")]
+    Unknown,
+
+    [EnumMember(Value = "Username")]
     Username
 }

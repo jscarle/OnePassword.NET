@@ -14,16 +14,16 @@ public sealed partial class OnePasswordManager
         return Op<ImmutableList<User>>(command);
     }
 
-    public User GetUser(IUser user)
+    public UserDetails GetUser(IUser user)
     {
         if (user.Id.Length == 0)
             throw new ArgumentException($"{nameof(user.Id)} cannot be empty.", nameof(user));
         
         var command = $"user get {user.Id}";
-        return Op<User>(command);
+        return Op<UserDetails>(command);
     }
 
-    public User ProvisionUser(string name, string emailAddress, Language language = Language.Default)
+    public UserDetails ProvisionUser(string name, string emailAddress, Language language = Language.Default)
     {
         var trimmedName = name.Trim();
         if (trimmedName.Length == 0)
@@ -36,7 +36,7 @@ public sealed partial class OnePasswordManager
         var command = $"user provision --name \"{trimmedName}\" --email \"{trimmedEmailAddress}\"";
         if (language != Language.Default)
             command += $" --language \"{language.ToEnumString()}\"";
-        return Op<User>(command);
+        return Op<UserDetails>(command);
     }
 
     public void ConfirmUser(IUser user)
@@ -90,7 +90,7 @@ public sealed partial class OnePasswordManager
 
         var command = $"user suspend {user.Id}";
         if (deauthorizeDevicesDelay is not null)
-            command += $" --deauthorize-devices-after {deauthorizeDevicesDelay.Value}";
+            command += $" --deauthorize-devices-after {deauthorizeDevicesDelay.Value}s";
         Op(command);
     }
 
@@ -103,21 +103,21 @@ public sealed partial class OnePasswordManager
         Op(command);
     }
 
-    public ImmutableList<Group> GetGroups(IUser user)
+    public ImmutableList<VaultUser> GetUsers(IVault vault)
     {
-        if (user.Id.Length == 0)
-            throw new ArgumentException($"{nameof(user.Id)} cannot be empty.", nameof(user));
+        if (vault.Id.Length == 0)
+            throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
 
-        var command = $"group list --user {user.Id}";
-        return Op<ImmutableList<Group>>(command);
+        var command = $"vault user list {vault.Id}";
+        return Op<ImmutableList<VaultUser>>(command);
     }
 
-    public ImmutableList<Vault> GetVaults(IUser user)
+    public ImmutableList<GroupUser> GetUsers(IGroup group)
     {
-        if (user.Id.Length == 0)
-            throw new ArgumentException($"{nameof(user.Id)} cannot be empty.", nameof(user));
+        if (group.Id.Length == 0)
+            throw new ArgumentException($"{nameof(group.Id)} cannot be empty.", nameof(group));
 
-        var command = $"vault list --user {user.Id}";
-        return Op<ImmutableList<Vault>>(command);
+        var command = $"group user list {group.Id}";
+        return Op<ImmutableList<GroupUser>>(command);
     }
 }

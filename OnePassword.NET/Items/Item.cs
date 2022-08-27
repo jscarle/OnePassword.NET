@@ -2,44 +2,25 @@
 
 namespace OnePassword.Items;
 
-public sealed record Item : IItem
+public sealed class Item : ItemBase, IItem
 {
+    [JsonInclude]
     [JsonPropertyName("id")]
-    public string? Id { get; init; }
+    public string Id { get; internal init; } = "";
 
-    [JsonPropertyName("title")]
-    public string Title { get; set; } = "";
-
-    [JsonPropertyName("category")]
-    public Category Category { get; init; } = Category.Unknown;
-
-    [JsonPropertyName("sections")]
-    public List<Section> Sections { get; init; } = new();
-
-    [JsonPropertyName("fields")]
-    public List<Field> Fields { get; init; } = new();
-
-    [JsonPropertyName("urls")]
-    public List<Url> Urls { get; init; } = new();
-
-    [JsonPropertyName("tags")]
-    public List<string> Tags { get; init; } = new();
-
+    [JsonInclude]
     [JsonPropertyName("vault")]
-    public Vault? Vault { get; init; }
+    public Vault? Vault { get; internal init; }
 
-    [JsonPropertyName("additional_information")]
-    public string? AdditionalInformation { get; init; }
-
-    [JsonPropertyName("version")]
-    public int? Version { get; init; }
-
+    [JsonInclude]
     [JsonPropertyName("last_edited_by")]
-    public string? LastEditedUserId { get; init; }
+    public string? LastEditedUserId { get; internal init; }
 
+    [JsonInclude]
     [JsonPropertyName("created_at")]
-    public DateTimeOffset? Created { get; init; }
+    public DateTimeOffset? Created { get; internal init; }
 
+    [JsonInclude]
     [JsonPropertyName("updated_at")]
-    public DateTimeOffset? Updated { get; init; }
+    public DateTimeOffset? Updated { get; internal init; }
 }
