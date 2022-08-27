@@ -7,10 +7,10 @@ namespace OnePassword;
 
 public sealed partial class OnePasswordManager
 {
-    public ImmutableList<TemplateSimple> GetTemplates()
+    public ImmutableList<TemplateInfo> GetTemplates()
     {
         var command = "item template list";
-        return Op<ImmutableList<TemplateSimple>>(command);
+        return Op<ImmutableList<TemplateInfo>>(command);
     }
 
     public Template GetTemplate(ITemplate template)
