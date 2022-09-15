@@ -8,14 +8,14 @@ namespace OnePassword.NET.Tests.Common;
 
 public class TestsBase
 {
-    private protected static readonly bool RunLiveTests = bool.Parse(GetEnv("OPT_RUN_LIVE_TESTS"));
-    private protected static readonly bool CreateTestUser = bool.Parse(GetEnv("OPT_CREATE_TEST_USER"));
-    private protected static readonly string AccountAddress = GetEnv("OPT_ACCOUNT_ADDRESS");
-    private protected static readonly string AccountEmail = GetEnv("OPT_ACCOUNT_EMAIL");
-    private protected static readonly string AccountName = GetEnv("OPT_ACCOUNT_NAME");
-    private protected static readonly string AccountPassword = GetEnv("OPT_ACCOUNT_PASSWORD");
-    private protected static readonly string AccountSecretKey = GetEnv("OPT_ACCOUNT_SECRET_KEY");
-    private protected static readonly string TestUserEmail = GetEnv("OPT_TEST_USER_EMAIL");
+    private protected static readonly bool RunLiveTests = bool.Parse(GetEnv("OPT_RUN_LIVE_TESTS", "false"));
+    private protected static readonly bool CreateTestUser = bool.Parse(GetEnv("OPT_CREATE_TEST_USER", "false"));
+    private protected static readonly string AccountAddress = GetEnv("OPT_ACCOUNT_ADDRESS", "");
+    private protected static readonly string AccountEmail = GetEnv("OPT_ACCOUNT_EMAIL", "");
+    private protected static readonly string AccountName = GetEnv("OPT_ACCOUNT_NAME", "");
+    private protected static readonly string AccountPassword = GetEnv("OPT_ACCOUNT_PASSWORD", "");
+    private protected static readonly string AccountSecretKey = GetEnv("OPT_ACCOUNT_SECRET_KEY", "");
+    private protected static readonly string TestUserEmail = GetEnv("OPT_TEST_USER_EMAIL", "");
     private protected const int CommandTimeout = 2 * 60 * 1000;
     private protected const int RateLimit = 250;
     private protected static readonly SemaphoreSlim SemaphoreSlim = new(1, 1);
@@ -33,12 +33,12 @@ public class TestsBase
     private static readonly string WorkingDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
     private static bool _initialSetupDone;
 
-    private static string GetEnv(string name)
+    private static string GetEnv(string name, string value)
     {
         return Environment.GetEnvironmentVariable(name, EnvironmentVariableTarget.Machine) ??
                Environment.GetEnvironmentVariable(name, EnvironmentVariableTarget.User) ??
                Environment.GetEnvironmentVariable(name, EnvironmentVariableTarget.Process) ??
-               throw new Exception($"Environment variable {name} not found.");
+               value;
     }
 
     [OneTimeSetUp]
