@@ -1,5 +1,4 @@
-﻿using System.Collections.Immutable;
-using OnePassword.Common;
+﻿using OnePassword.Common;
 using OnePassword.Groups;
 using OnePassword.Users;
 using OnePassword.Vaults;
@@ -10,7 +9,7 @@ public sealed partial class OnePasswordManager
 {
     public ImmutableList<User> GetUsers()
     {
-        var command = "user list";
+        const string command = "user list";
         return Op<ImmutableList<User>>(command);
     }
 
@@ -50,7 +49,7 @@ public sealed partial class OnePasswordManager
 
     public void ConfirmAllUsers()
     {
-        var command = "user confirm --all";
+        const string command = "user confirm --all";
         Op(command);
     }
 

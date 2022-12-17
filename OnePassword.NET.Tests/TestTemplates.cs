@@ -1,8 +1,8 @@
+using OnePassword.Common;
 using OnePassword.Items;
-using OnePassword.NET.Tests.Common;
 using OnePassword.Templates;
 
-namespace OnePassword.NET.Tests;
+namespace OnePassword;
 
 [TestFixture, Order(5)]
 public class TestTemplates : TestsBase
@@ -19,9 +19,10 @@ public class TestTemplates : TestsBase
         try
         {
             var templates = OnePassword.GetTemplates();
-            Assert.That(templates, Has.Count.GreaterThan(0));
 
-            _template = templates.First();
+            Assert.That(templates, Has.Count.EqualTo(22));
+
+            _template = templates.First(x => x.Name == "Login");
         }
         catch (Exception)
         {
@@ -44,11 +45,12 @@ public class TestTemplates : TestsBase
         SemaphoreSlim.Wait(CommandTimeout, SetUpCancellationTokenSource.Token);
         try
         {
-            var template = OnePassword.GetTemplate(_template);
+            TestTemplate = OnePassword.GetTemplate(_template);
+
             Assert.Multiple(() =>
             {
-                Assert.That(template.Name, Is.EqualTo(_template.Name));
-                Assert.That(template.Category, Is.Not.EqualTo(Category.Unknown));
+                Assert.That(TestTemplate.Name, Is.EqualTo(_template.Name));
+                Assert.That(TestTemplate.Category, Is.Not.EqualTo(Category.Unknown));
             });
         }
         catch (Exception)
@@ -81,6 +83,7 @@ public class TestTemplates : TestsBase
                 var enumMemberString = enumMember.ToEnumString();
 
                 var template = OnePassword.GetTemplate(enumMember);
+
                 Assert.Multiple(() =>
                 {
                     Assert.That(template.Name, Is.EqualTo(enumMemberString));

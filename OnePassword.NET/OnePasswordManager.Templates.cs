@@ -1,5 +1,4 @@
-﻿using System.Collections.Immutable;
-using OnePassword.Common;
+﻿using OnePassword.Common;
 using OnePassword.Items;
 using OnePassword.Templates;
 
@@ -9,7 +8,7 @@ public sealed partial class OnePasswordManager
 {
     public ImmutableList<TemplateInfo> GetTemplates()
     {
-        var command = "item template list";
+        const string command = "item template list";
         return Op<ImmutableList<TemplateInfo>>(command);
     }
 

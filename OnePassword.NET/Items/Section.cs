@@ -1,4 +1,6 @@
-﻿namespace OnePassword.Items;
+﻿using System.Globalization;
+
+namespace OnePassword.Items;
 
 public sealed class Section
 {
@@ -9,4 +11,14 @@ public sealed class Section
     [JsonInclude]
     [JsonPropertyName("label")]
     public string Label { get; internal init; } = "";
+
+    public Section()
+    {
+    }
+
+    public Section(string label)
+    {
+        Id = label.ToLower(CultureInfo.InvariantCulture).Replace(" ", "_", StringComparison.InvariantCulture);
+        Label = label;
+    }
 }

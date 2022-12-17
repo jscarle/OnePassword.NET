@@ -2,12 +2,16 @@
 using System.IO.Compression;
 using System.Text;
 using System.Text.RegularExpressions;
+using OnePassword.Common;
 
 namespace OnePassword;
 
 public sealed partial class OnePasswordManager
 {
     public string Version { get; private set; }
+
+    private readonly string[] _excludedAccountCommands = { "--version", "update", "account list", "account add", "account forget", "signout --all" };
+    private readonly string[] _excludedSessionCommands = { "--version", "update", "account list", "account add", "account forget", "signin", "signout --all" };
 
     private readonly string _opPath;
     private readonly bool _verbose;
@@ -18,14 +22,13 @@ public sealed partial class OnePasswordManager
     {
         _opPath = path.Length > 0 ? Path.Combine(path, executable) : Path.Combine(Directory.GetCurrentDirectory(), executable);
         if (!File.Exists(_opPath))
-            throw new Exception($"The 1Password CLI executable ({executable}) was not found in folder \"{Path.GetDirectoryName(_opPath)}\".");
+            throw new ArgumentException($"The 1Password CLI executable ({executable}) was not found in folder \"{Path.GetDirectoryName(_opPath)}\".");
 
         _verbose = verbose;
 
         Version = GetVersion();
     }
 
-#if !NET40 && !NET35 && !NET20
     public bool Update()
     {
         var updated = false;
@@ -57,11 +60,10 @@ public sealed partial class OnePasswordManager
 
         return updated;
     }
-#endif
 
     private string GetVersion()
     {
-        var command = "--version";
+        const string command = "--version";
         return Op(command);
     }
 
@@ -85,7 +87,10 @@ public sealed partial class OnePasswordManager
         where TResult : class
     {
         var result = Op(command, input is null ? Array.Empty<string>() : new[] { input }, returnError);
-        return JsonSerializer.Deserialize<TResult>(result) ?? throw new Exception("Could not deserialize the command result.");
+        var obj = JsonSerializer.Deserialize<TResult>(result) ?? throw new SerializationException("Could not deserialize the command result.");
+        if (obj is ITracked item)
+            item.AcceptChanges();
+        return obj;
     }
 
     private string Op(string command, string? input = null, bool returnError = false)
@@ -95,24 +100,13 @@ public sealed partial class OnePasswordManager
 
     private string Op(string command, IEnumerable<string> input, bool returnError)
     {
-        var passAccount = !(command.StartsWith("--version", StringComparison.Ordinal) ||
-                        command.StartsWith("update", StringComparison.Ordinal) ||
-                        command.StartsWith("account list", StringComparison.Ordinal) ||
-                        command.StartsWith("account add", StringComparison.Ordinal) ||
-                        command.StartsWith("account forget", StringComparison.Ordinal) ||
-                        command.StartsWith("signout --all", StringComparison.Ordinal));
+        var passAccount = !IsExcludedCommand(command, _excludedAccountCommands);
         if (passAccount && _account.Length == 0)
-            throw new Exception("Cannot execute command because account has not been set.");
+            throw new InvalidOperationException("Cannot execute command because account has not been set.");
 
-        var passSession = !(command.StartsWith("--version", StringComparison.Ordinal) ||
-                        command.StartsWith("update", StringComparison.Ordinal) ||
-                        command.StartsWith("account list", StringComparison.Ordinal) ||
-                        command.StartsWith("account add", StringComparison.Ordinal) ||
-                        command.StartsWith("account forget", StringComparison.Ordinal) ||
-                        command.StartsWith("signin", StringComparison.Ordinal) ||
-                        command.StartsWith("signout --all", StringComparison.Ordinal));
+        var passSession = !IsExcludedCommand(command, _excludedSessionCommands);
         if (passSession && _session.Length == 0)
-            throw new Exception("Cannot execute command because account has not been signed in.");
+            throw new InvalidOperationException("Cannot execute command because account has not been signed in.");
 
         var arguments = command;
         if (command != "--version")
@@ -137,7 +131,7 @@ public sealed partial class OnePasswordManager
         });
 
         if (process is null)
-            throw new Exception($"Could not start process for {_opPath}.");
+            throw new InvalidOperationException($"Could not start process for {_opPath}.");
 
         foreach (var inputLine in input)
         {
@@ -163,13 +157,17 @@ public sealed partial class OnePasswordManager
         if (_verbose)
             Console.WriteLine(error);
 
-        if (!error.StartsWith("[ERROR]"))
+        if (!error.StartsWith("[ERROR]", StringComparison.InvariantCulture))
             return output;
 
         if (returnError)
             return error;
 
-        throw new Exception(error.Length > 28 ? error[28..].Trim() : error);
+        throw new InvalidOperationException(error.Length > 28 ? error[28..].Trim() : error);
+    }
 
+    private static bool IsExcludedCommand(string command, IEnumerable<string> excludedCommands)
+    {
+        return excludedCommands.Any(x => command.StartsWith(x, StringComparison.InvariantCulture));
     }
 }

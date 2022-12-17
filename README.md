@@ -6,7 +6,7 @@ This library serves as a .NET wrapper for the [1Password](https://1password.com/
 [![develop](https://github.com/jscarle/OnePassword.NET/actions/workflows/develop.yml/badge.svg)](https://github.com/jscarle/OnePassword.NET/actions/workflows/develop.yml)
 
 ## References
-This library targets .NET 5.0 and .NET 6.0.
+This library targets .NET 6.0 and .NET 7.0.
 
 ## Dependencies
 This library has no dependencies.
@@ -64,6 +64,12 @@ var items = onePassword.GetItems(vault);
 ### Selecting a specific item
 ```csharp
 var item = items.First(x => x.Title == "Your Item's Title");
+```
+
+### Editing a specific item
+```csharp
+item.Fields.First(x => x.Label == "password").Value = "newpass";
+onePassword.EditItem(item, vault);
 ```
 
 ### Archiving an item

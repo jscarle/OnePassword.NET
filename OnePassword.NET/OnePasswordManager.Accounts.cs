@@ -1,5 +1,4 @@
-﻿using System.Collections.Immutable;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using OnePassword.Accounts;
 
 namespace OnePassword;
@@ -12,7 +11,7 @@ public sealed partial class OnePasswordManager
 
     public ImmutableList<Account> GetAccounts()
     {
-        var command = "account list";
+        const string command = "account list";
         return Op<ImmutableList<Account>>(command);
     }
 
@@ -72,7 +71,7 @@ public sealed partial class OnePasswordManager
         if (password.Length == 0)
             throw new ArgumentException($"{nameof(password)} cannot be empty.", nameof(password));
 
-        var command = "signin --force --raw";
+        const string command = "signin --force --raw";
         var result = Op(command, password);
         _session = result.Trim();
     }

@@ -1,12 +1,13 @@
+using System.Diagnostics;
 using OnePassword.Common;
-using OnePassword.NET.Tests.Common;
 using OnePassword.Users;
 
-namespace OnePassword.NET.Tests;
+namespace OnePassword;
 
 [TestFixture, Order(2)]
 public class SetUpUser : TestsBase
 {
+    private const int ConfirmTimeout = 2 * 60 * 1000;
     private const string InitialName = "Created User";
     private UserDetails _initialUser = null!;
     private const string FinalName = "Test User";
@@ -21,6 +22,7 @@ public class SetUpUser : TestsBase
         try
         {
             _initialUser = OnePassword.ProvisionUser(InitialName, TestUserEmail, Language.English);
+
             Assert.Multiple(() =>
             {
                 Assert.That(_initialUser.Id, Is.Not.Empty);
@@ -55,14 +57,19 @@ public class SetUpUser : TestsBase
         try
         {
             var currentState = State.Unknown;
+            var stopWatch = Stopwatch.StartNew();
             while (currentState != State.TransferAccepted)
             {
                 if (SetUpCancellationTokenSource.IsCancellationRequested)
                     throw new OperationCanceledException();
 
+                if (stopWatch.ElapsedMilliseconds > ConfirmTimeout)
+                    throw new TimeoutException();
+
                 Thread.Sleep(RateLimit * 10);
                 currentState = OnePassword.GetUser(_initialUser).State;
             }
+            stopWatch.Stop();
             OnePassword.ConfirmUser(_initialUser);
         }
         catch (Exception)
@@ -110,9 +117,11 @@ public class SetUpUser : TestsBase
         try
         {
             var users = OnePassword.GetUsers();
+
             Assert.That(users, Has.Count.GreaterThan(0));
 
             var user = users.First(x => x.Name == FinalName);
+
             Assert.Multiple(() =>
             {
                 Assert.That(user.Id, Is.Not.Empty);
@@ -145,17 +154,18 @@ public class SetUpUser : TestsBase
         SemaphoreSlim.Wait(CommandTimeout, SetUpCancellationTokenSource.Token);
         try
         {
-            var userDetails = OnePassword.GetUser(TestUser);
+            var user = OnePassword.GetUser(TestUser);
+
             Assert.Multiple(() =>
             {
-                Assert.That(userDetails.Id, Is.Not.Empty);
-                Assert.That(userDetails.Name, Is.EqualTo(FinalName));
-                Assert.That(userDetails.Email, Is.EqualTo(TestUserEmail));
-                Assert.That(userDetails.Type, Is.EqualTo(UserType.Member));
-                Assert.That(userDetails.State, Is.EqualTo(State.Active));
-                Assert.That(userDetails.Created, Is.Not.EqualTo(default));
-                Assert.That(userDetails.Updated, Is.Not.EqualTo(default));
-                Assert.That(userDetails.LastAuthentication, Is.EqualTo(null));
+                Assert.That(user.Id, Is.Not.Empty);
+                Assert.That(user.Name, Is.EqualTo(FinalName));
+                Assert.That(user.Email, Is.EqualTo(TestUserEmail));
+                Assert.That(user.Type, Is.EqualTo(UserType.Member));
+                Assert.That(user.State, Is.EqualTo(State.Active));
+                Assert.That(user.Created, Is.Not.EqualTo(default));
+                Assert.That(user.Updated, Is.Not.EqualTo(default));
+                Assert.That(user.LastAuthentication, Is.EqualTo(null));
             });
         }
         catch (Exception)
