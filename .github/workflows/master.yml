@@ -26,13 +26,13 @@ jobs:
       with:
         languages: 'csharp'
     - name: Setup .NET
-      uses: actions/setup-dotnet@v2
+      uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: 6.0.x
+        dotnet-version: 7.0.x
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
-      run: dotnet build --no-restore /p:UseSharedCompilation=false
+      run: dotnet build --configuration Release --no-restore
     - name: Test
       env:
         OPT_ACCOUNT_ADDRESS: ${{ secrets.OPT_ACCOUNT_ADDRESS }}
@@ -41,8 +41,8 @@ jobs:
         OPT_ACCOUNT_PASSWORD: ${{ secrets.OPT_ACCOUNT_PASSWORD }}
         OPT_ACCOUNT_SECRET_KEY: ${{ secrets.OPT_ACCOUNT_SECRET_KEY }}
         OPT_CREATE_TEST_USER: ${{ secrets.OPT_CREATE_TEST_USER }}
-        OPT_RUN_LIVE_TESTS: ${{ secrets.OPT_RUN_LIVE_TESTS }}
+        OPT_RUN_LIVE_TESTS: true
         OPT_TEST_USER_EMAIL: ${{ secrets.OPT_TEST_USER_EMAIL }}
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test --configuration Release --no-build --verbosity normal
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2     
