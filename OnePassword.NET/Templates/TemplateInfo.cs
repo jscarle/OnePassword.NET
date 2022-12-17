@@ -12,7 +12,16 @@ public sealed class TemplateInfo : ITemplate
     }
 
     public static bool operator ==(TemplateInfo a, ITemplate b) => a.Equals(b);
+
     public static bool operator !=(TemplateInfo a, ITemplate b) => !a.Equals(b);
+
+    public static bool operator <(TemplateInfo a, ITemplate b) => a.CompareTo(b) < 0;
+
+    public static bool operator <=(TemplateInfo a, ITemplate b) => a.CompareTo(b) <= 0;
+
+    public static bool operator >(TemplateInfo a, ITemplate b) => a.CompareTo(b) > 0;
+
+    public static bool operator >=(TemplateInfo a, ITemplate b) => a.CompareTo(b) >= 0;
 
     public override bool Equals(object? obj)
     {

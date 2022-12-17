@@ -1,6 +1,4 @@
-﻿using System.Collections.Immutable;
-
-namespace OnePassword.Groups;
+﻿namespace OnePassword.Groups;
 
 public sealed class GroupDetails : GroupBase
 {

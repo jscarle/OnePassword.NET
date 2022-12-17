@@ -1,7 +1,7 @@
-using OnePassword.NET.Tests.Common;
+using OnePassword.Common;
 using OnePassword.Vaults;
 
-namespace OnePassword.NET.Tests;
+namespace OnePassword;
 
 [TestFixture, Order(4)]
 public class SetUpVault : TestsBase
@@ -24,6 +24,7 @@ public class SetUpVault : TestsBase
         try
         {
             _initialVault = OnePassword.CreateVault(InitialName, InitialDescription, InitialIcon, true);
+
             Assert.Multiple(() =>
             {
                 Assert.That(_initialVault.Id, Is.Not.Empty);
@@ -78,9 +79,11 @@ public class SetUpVault : TestsBase
         try
         {
             var vaults = OnePassword.GetVaults();
+
             Assert.That(vaults, Has.Count.GreaterThan(0));
 
             var vault = vaults.First(x => x.Name == FinalName);
+
             Assert.Multiple(() =>
             {
                 Assert.That(vault.Id, Is.Not.Empty);
@@ -110,14 +113,15 @@ public class SetUpVault : TestsBase
         SemaphoreSlim.Wait(CommandTimeout, SetUpCancellationTokenSource.Token);
         try
         {
-            var vaultDetails = OnePassword.GetVault(TestVault);
+            var vault = OnePassword.GetVault(TestVault);
+
             Assert.Multiple(() =>
             {
-                Assert.That(vaultDetails.Id, Is.Not.Empty);
-                Assert.That(vaultDetails.Name, Is.EqualTo(FinalName));
-                Assert.That(vaultDetails.Type, Is.EqualTo(VaultType.User));
-                Assert.That(vaultDetails.Items, Is.EqualTo(0));
-                Assert.That(vaultDetails.Created, Is.Not.EqualTo(default));
+                Assert.That(vault.Id, Is.Not.Empty);
+                Assert.That(vault.Name, Is.EqualTo(FinalName));
+                Assert.That(vault.Type, Is.EqualTo(VaultType.User));
+                Assert.That(vault.Items, Is.EqualTo(0));
+                Assert.That(vault.Created, Is.Not.EqualTo(default));
             });
         }
         catch (Exception)

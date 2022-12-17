@@ -40,7 +40,16 @@ public sealed class AccountDetails : IAccount
     }
 
     public static bool operator ==(AccountDetails a, IAccount b) => a.Equals(b);
+
     public static bool operator !=(AccountDetails a, IAccount b) => !a.Equals(b);
+
+    public static bool operator <(AccountDetails a, IAccount b) => a.CompareTo(b) < 0;
+
+    public static bool operator <=(AccountDetails a, IAccount b) => a.CompareTo(b) <= 0;
+
+    public static bool operator >(AccountDetails a, IAccount b) => a.CompareTo(b) > 0;
+
+    public static bool operator >=(AccountDetails a, IAccount b) => a.CompareTo(b) >= 0;
 
     public override bool Equals(object? obj)
     {

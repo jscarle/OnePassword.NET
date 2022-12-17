@@ -23,7 +23,16 @@ public abstract class ResultBase<TInterface> : IResultBase<TInterface>
     }
 
     public static bool operator ==(ResultBase<TInterface> a, IResultBase<TInterface> b) => a.Equals(b);
+
     public static bool operator !=(ResultBase<TInterface> a, IResultBase<TInterface> b) => !a.Equals(b);
+
+    public static bool operator <(ResultBase<TInterface> a, IResultBase<TInterface> b) => a.CompareTo(b) < 0;
+
+    public static bool operator <=(ResultBase<TInterface> a, IResultBase<TInterface> b) => a.CompareTo(b) <= 0;
+
+    public static bool operator >(ResultBase<TInterface> a, IResultBase<TInterface> b) => a.CompareTo(b) > 0;
+
+    public static bool operator >=(ResultBase<TInterface> a, IResultBase<TInterface> b) => a.CompareTo(b) >= 0;
 
     public override bool Equals(object? obj)
     {

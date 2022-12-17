@@ -1,5 +1,4 @@
-﻿using System.Collections.Immutable;
-using OnePassword.Vaults;
+﻿using OnePassword.Vaults;
 
 namespace OnePassword.Groups;
 

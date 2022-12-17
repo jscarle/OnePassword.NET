@@ -5,7 +5,7 @@
 /// </summary>
 /// <typeparam name="TEnum">The enum type.</typeparam>
 /// <remarks>Originally authored by JasonBodley (https://github.com/JasonBodley) [https://github.com/dotnet/runtime/issues/31081#issuecomment-848697673]</remarks>
-internal class JsonStringEnumConverterEx<TEnum> : JsonConverter<TEnum>
+internal sealed class JsonStringEnumConverterEx<TEnum> : JsonConverter<TEnum>
     where TEnum : struct, Enum
 {
     private readonly Dictionary<TEnum, string> _enumToString = new();
@@ -20,13 +20,13 @@ internal class JsonStringEnumConverterEx<TEnum> : JsonConverter<TEnum>
 
             if (enumMemberAttribute is { Value: not null })
             {
-                var enumMemberString = enumMemberAttribute.Value.ToUpper().Replace(" ", "_");
+                var enumMemberString = enumMemberAttribute.Value.ToUpperInvariant().Replace(" ", "_", StringComparison.InvariantCulture);
                 _enumToString.Add(enumMemberValue, enumMemberString);
                 _stringToEnum.Add(enumMemberString, enumMemberValue);
             }
             else
             {
-                var enumMemberString = enumMemberName.ToUpper();
+                var enumMemberString = enumMemberName.ToUpperInvariant();
                 _enumToString.Add(enumMemberValue, enumMemberString);
                 _stringToEnum.Add(enumMemberString, enumMemberValue);
             }
@@ -37,7 +37,7 @@ internal class JsonStringEnumConverterEx<TEnum> : JsonConverter<TEnum>
     {
         var stringValue = reader.GetString() ?? "Unknown";
 
-        var enumMemberString = stringValue.ToUpper().Replace(" ", "_");
+        var enumMemberString = stringValue.ToUpperInvariant().Replace(" ", "_", StringComparison.InvariantCulture);
         if (_stringToEnum.TryGetValue(enumMemberString, out var enumValue))
             return enumValue;
 
@@ -46,8 +46,8 @@ internal class JsonStringEnumConverterEx<TEnum> : JsonConverter<TEnum>
 
     public override void Write(Utf8JsonWriter writer, TEnum value, JsonSerializerOptions options)
     {
-        if (_enumToString.ContainsKey(value))
-            writer.WriteStringValue(_enumToString[value]);
+        if (_enumToString.TryGetValue(value, out var enumValue))
+            writer.WriteStringValue(enumValue);
         else
             throw new NotImplementedException("Enum does not have its string representation defined.");
     }

@@ -1,5 +1,4 @@
-﻿using System.Collections.Immutable;
-using OnePassword.Common;
+﻿using OnePassword.Common;
 using OnePassword.Items;
 using OnePassword.Templates;
 using OnePassword.Vaults;
@@ -8,6 +7,8 @@ namespace OnePassword;
 
 public sealed partial class OnePasswordManager
 {
+    private static readonly string[] AssignmentChars = { ".", "=", "[", "]", "\\", "\"" };
+
     public ImmutableList<Item> GetItems(IVault vault)
     {
         if (vault.Id.Length == 0)
@@ -70,7 +71,36 @@ public sealed partial class OnePasswordManager
         var json = JsonSerializer.Serialize(template) + "\x04";
 
         var command = $"item create - --vault {vault.Id}";
+        ((ITracked)template).AcceptChanges();
         return Op<Item>(command, json);
+    }
+
+    public Item EditItem(Item item, IVault vault)
+    {
+        if (vault.Id.Length == 0)
+            throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
+
+        var command = $"item edit {item.Id}";
+        if (((ITracked)item.Fields).Changed)
+        {
+            command = item.Fields
+                .Where(field => ((ITracked)field).Changed)
+                .Aggregate(command, (current, field) => current + GetFieldAssignment(field));
+            command = item.Fields.Removed
+                .Aggregate(command, (current, field) => current + GetFieldAssignment(field, true));
+        }
+        command += $" --vault {vault.Id}";
+        if (item.TitleChanged)
+            command += $" --title \"{item.Title}\"";
+        if (((ITracked)item.Tags).Changed)
+            command += $" --tags \"{item.Tags.ToCommaSeparated()}\"";
+        if (((ITracked)item.Urls).Changed)
+        {
+            var changedUrl = item.Urls.FirstOrDefault(url => url.Primary && ((ITracked)url).Changed);
+            command += $" --url \"{changedUrl}\"";
+        }
+        ((ITracked)item).AcceptChanges();
+        return Op<Item>(command);
     }
 
     public void ArchiveItem(IItem item, IVault vault)
@@ -93,5 +123,30 @@ public sealed partial class OnePasswordManager
 
         var command = $"item delete {item.Id} --vault {vault.Id}";
         Op(command);
+    }
+
+    private static string GetFieldAssignment(Field field, bool delete = false)
+    {
+        var fieldAssignment = " \"";
+        if (field.Section is not null)
+            fieldAssignment += $"{EscapeLabel(field.Section.Label)}.";
+        fieldAssignment += EscapeLabel(field.Label);
+        if (delete)
+        {
+            fieldAssignment += "[delete]";
+        }
+        else
+        {
+            if (field.TypeChanged)
+                fieldAssignment += $"[{field.Type.ToEnumString().ToLower().Replace(" ", "", StringComparison.InvariantCulture)}]";
+            fieldAssignment += $"={field.Value}";
+        }
+        fieldAssignment += "\"";
+        return fieldAssignment;
+    }
+
+    private static string EscapeLabel(string label)
+    {
+        return AssignmentChars.Aggregate(label, (current, assignmentChar) => current.Replace(assignmentChar, $@"\{assignmentChar}"));
     }
 }
