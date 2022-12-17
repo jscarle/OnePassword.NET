@@ -1,6 +1,6 @@
 ﻿using System.Runtime.Serialization;
 
-namespace OnePassword.NET.Tests.Common;
+namespace OnePassword.Common;
 
 internal static class CommonExtensions
 {

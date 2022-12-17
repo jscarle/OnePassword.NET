@@ -21,5 +21,8 @@ public enum State
     [EnumMember(Value = "Transfer Started")]
     TransferStarted,
 
+    [EnumMember(Value = "Transfer Suspended")]
+    TransferSuspended,
+
     Unknown
 }

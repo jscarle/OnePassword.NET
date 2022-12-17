@@ -1,11 +1,12 @@
 # OnePassword.NET - 1Password CLI Wrapper
 This library serves as a .NET wrapper for the [1Password](https://1password.com/) command-line tool op.exe ( [Download](https://app-updates.agilebits.com/product_history/CLI2) | [Documentation](https://developer.1password.com/docs/cli/reference) ).
 
-![master](https://github.com/jscarle/OnePassword.NET/actions/workflows/master.yml/badge.svg)
-![develop](https://github.com/jscarle/OnePassword.NET/actions/workflows/develop.yml/badge.svg)
+[![nuget](https://img.shields.io/nuget/v/OnePassword.NET)](https://www.nuget.org/packages/OnePassword.NET/)
+[![master](https://github.com/jscarle/OnePassword.NET/actions/workflows/master.yml/badge.svg)](https://github.com/jscarle/OnePassword.NET/actions/workflows/master.yml)
+[![develop](https://github.com/jscarle/OnePassword.NET/actions/workflows/develop.yml/badge.svg)](https://github.com/jscarle/OnePassword.NET/actions/workflows/develop.yml)
 
 ## References
-This library targets .NET 5.0 and .NET 6.0.
+This library targets .NET 6.0 and .NET 7.0.
 
 ## Dependencies
 This library has no dependencies.
@@ -63,6 +64,12 @@ var items = onePassword.GetItems(vault);
 ### Selecting a specific item
 ```csharp
 var item = items.First(x => x.Title == "Your Item's Title");
+```
+
+### Editing a specific item
+```csharp
+item.Fields.First(x => x.Label == "password").Value = "newpass";
+onePassword.EditItem(item, vault);
 ```
 
 ### Archiving an item

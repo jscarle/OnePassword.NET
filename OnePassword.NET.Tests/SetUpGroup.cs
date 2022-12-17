@@ -1,8 +1,7 @@
 using OnePassword.Common;
 using OnePassword.Groups;
-using OnePassword.NET.Tests.Common;
 
-namespace OnePassword.NET.Tests;
+namespace OnePassword;
 
 [TestFixture, Order(3)]
 public class SetUpGroup : TestsBase
@@ -23,6 +22,7 @@ public class SetUpGroup : TestsBase
         try
         {
             _initialGroup = OnePassword.CreateGroup(InitialName, InitialDescription);
+
             Assert.Multiple(() =>
             {
                 Assert.That(_initialGroup.Id, Is.Not.Empty);
@@ -80,9 +80,11 @@ public class SetUpGroup : TestsBase
         try
         {
             var groups = OnePassword.GetGroups();
+
             Assert.That(groups, Has.Count.GreaterThan(0));
 
             var group = groups.First(x => x.Name == FinalName);
+
             Assert.Multiple(() =>
             {
                 Assert.That(group.Id, Is.Not.Empty);
@@ -112,17 +114,18 @@ public class SetUpGroup : TestsBase
         SemaphoreSlim.Wait(CommandTimeout, SetUpCancellationTokenSource.Token);
         try
         {
-            var groupDetails = OnePassword.GetGroup(TestGroup);
+            var group = OnePassword.GetGroup(TestGroup);
+
             Assert.Multiple(() =>
             {
-                Assert.That(groupDetails.Id, Is.Not.Empty);
-                Assert.That(groupDetails.Name, Is.EqualTo(FinalName));
-                Assert.That(groupDetails.Description, Is.EqualTo(FinalDescription));
-                Assert.That(groupDetails.Type, Is.EqualTo(GroupType.User));
-                Assert.That(groupDetails.State, Is.EqualTo(State.Active));
-                Assert.That(groupDetails.Created, Is.Not.EqualTo(default));
-                Assert.That(groupDetails.Updated, Is.Not.EqualTo(default));
-                Assert.That(groupDetails.Permissions, Has.Count.EqualTo(0));
+                Assert.That(group.Id, Is.Not.Empty);
+                Assert.That(group.Name, Is.EqualTo(FinalName));
+                Assert.That(group.Description, Is.EqualTo(FinalDescription));
+                Assert.That(group.Type, Is.EqualTo(GroupType.User));
+                Assert.That(group.State, Is.EqualTo(State.Active));
+                Assert.That(group.Created, Is.Not.EqualTo(default));
+                Assert.That(group.Updated, Is.Not.EqualTo(default));
+                Assert.That(group.Permissions, Has.Count.EqualTo(0));
             });
         }
         catch (Exception)

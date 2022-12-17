@@ -1,8 +1,7 @@
 using OnePassword.Accounts;
 using OnePassword.Common;
-using OnePassword.NET.Tests.Common;
 
-namespace OnePassword.NET.Tests;
+namespace OnePassword;
 
 [TestFixture, Order(1)]
 public class SetUpAccount : TestsBase
@@ -63,9 +62,11 @@ public class SetUpAccount : TestsBase
         try
         {
             var accounts = OnePassword.GetAccounts();
+
             Assert.That(accounts, Has.Count.EqualTo(1));
 
             var account = accounts.First();
+
             Assert.Multiple(() =>
             {
                 Assert.That(account.Id, Is.Not.Empty);
@@ -97,6 +98,7 @@ public class SetUpAccount : TestsBase
         try
         {
             var account = OnePassword.GetAccount();
+
             Assert.Multiple(() =>
             {
                 Assert.That(account.Id, Is.Not.Empty);

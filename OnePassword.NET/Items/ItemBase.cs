@@ -1,10 +1,19 @@
-﻿namespace OnePassword.Items;
+﻿using OnePassword.Common;
 
-public abstract class ItemBase
+namespace OnePassword.Items;
+
+public abstract class ItemBase : ITracked
 {
     [JsonInclude]
     [JsonPropertyName("title")]
-    public string Title { get; set; } = "";
+    public string Title
+    {
+        get => _title;
+        set {
+            _title = value;
+            TitleChanged = true;
+        }
+    }
 
     [JsonInclude]
     [JsonPropertyName("category")]
@@ -12,17 +21,36 @@ public abstract class ItemBase
 
     [JsonInclude]
     [JsonPropertyName("sections")]
-    public List<Section> Sections { get; internal init; } = new();
+    public TrackedList<Section> Sections { get; internal init; } = new();
 
     [JsonInclude]
     [JsonPropertyName("fields")]
-    public List<Field> Fields { get; internal init; } = new();
+    public TrackedList<Field> Fields { get; internal init; } = new();
 
     [JsonInclude]
     [JsonPropertyName("urls")]
-    public List<Url> Urls { get; internal init; } = new();
+    public TrackedList<Url> Urls { get; internal init; } = new();
 
     [JsonInclude]
     [JsonPropertyName("tags")]
-    public List<string> Tags { get; internal init; } = new();
+    public TrackedList<string> Tags { get; internal init; } = new();
+
+    internal bool TitleChanged { get; private set; }
+
+    bool ITracked.Changed => TitleChanged
+        | ((ITracked)Sections).Changed
+        | ((ITracked)Fields).Changed
+        | ((ITracked)Urls).Changed
+        | ((ITracked)Tags).Changed;
+
+    private string _title = "";
+
+    void ITracked.AcceptChanges()
+    {
+        TitleChanged = false;
+        ((ITracked)Sections).AcceptChanges();
+        ((ITracked)Fields).AcceptChanges();
+        ((ITracked)Urls).AcceptChanges();
+        ((ITracked)Tags).AcceptChanges();
+    }
 }

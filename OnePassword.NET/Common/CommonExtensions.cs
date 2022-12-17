@@ -25,12 +25,12 @@ internal static class CommonExtensions
     {
         var values = items.Select(item => item.ToEnumString()).ToList();
         var commaSeparated = string.Join(",", values);
-        return replaceUnderscoresWithSpaces ? commaSeparated.Replace("_", " ") : commaSeparated;
+        return replaceUnderscoresWithSpaces ? commaSeparated.Replace("_", " ", StringComparison.InvariantCulture) : commaSeparated;
     }
 
     internal static string ToCommaSeparated(this IEnumerable<string> items, bool replaceUnderscoresWithSpaces = false)
     {
         var commaSeparated = string.Join(",", items);
-        return replaceUnderscoresWithSpaces ? commaSeparated.Replace("_", " ") : commaSeparated;
+        return replaceUnderscoresWithSpaces ? commaSeparated.Replace("_", " ", StringComparison.InvariantCulture) : commaSeparated;
     }
 }

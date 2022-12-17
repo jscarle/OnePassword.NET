@@ -1,6 +1,6 @@
-using OnePassword.NET.Tests.Common;
+using OnePassword.Common;
 
-namespace OnePassword.NET.Tests;
+namespace OnePassword;
 
 [TestFixture, Order(99)]
 public class TearDownAccount : TestsBase

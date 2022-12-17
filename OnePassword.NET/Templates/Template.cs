@@ -8,13 +8,28 @@ public sealed class Template : ItemBase, ITemplate
     [JsonPropertyName("name")]
     public string Name { get; internal set; } = "";
 
+    public Template Clone()
+    {
+        var json = JsonSerializer.Serialize(this);
+        return JsonSerializer.Deserialize<Template>(json) ?? throw new SerializationException("Could not deserialize the cloned template.");
+    }
+
     public override string ToString()
     {
         return Name;
     }
 
     public static bool operator ==(Template a, ITemplate b) => a.Equals(b);
+
     public static bool operator !=(Template a, ITemplate b) => !a.Equals(b);
+
+    public static bool operator <(Template a, ITemplate b) => a.CompareTo(b) < 0;
+
+    public static bool operator <=(Template a, ITemplate b) => a.CompareTo(b) <= 0;
+
+    public static bool operator >(Template a, ITemplate b) => a.CompareTo(b) > 0;
+
+    public static bool operator >=(Template a, ITemplate b) => a.CompareTo(b) >= 0;
 
     public override bool Equals(object? obj)
     {
