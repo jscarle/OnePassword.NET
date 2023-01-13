@@ -8,6 +8,9 @@ public enum AccountType
     [EnumMember(Value = "Business")]
     Business,
 
+    [EnumMember(Value = "Family")]
+    Family,
+
     [EnumMember(Value = "Personal")]
     Personal,
 
