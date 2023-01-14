@@ -14,5 +14,8 @@ public enum AccountType
     [EnumMember(Value = "Personal")]
     Personal,
 
+    [EnumMember(Value = "Teams")]
+    Teams,
+
     Unknown
 }
