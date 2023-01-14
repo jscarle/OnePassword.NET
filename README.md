@@ -56,6 +56,12 @@ serverTemplate.Fields.First(x => x.Label == "password").Value = "secretpass";
 var serverItem = onePassword.CreateItem(serverTemplate, vault);
 ```
 
+_Note: If you want to reuse the same template for several items, make sure you clone the instance to avoid reference issues._
+```csharp
+var server1 = serverTemplate.Clone();
+var server2 = serverTemplate.Clone();
+```
+
 ### Getting all items in a vault
 ```csharp
 var items = onePassword.GetItems(vault);
