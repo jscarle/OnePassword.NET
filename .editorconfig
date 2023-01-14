@@ -6,6 +6,7 @@ csharp_new_line_before_members_in_object_initializers = false
 csharp_preferred_modifier_order = public, async, private, internal, file, new, override, abstract, virtual, sealed, protected, static, extern, unsafe, volatile, readonly, required:suggestion
 
 # ReSharper properties
+resharper_align_multiline_binary_expressions_chain = false
 resharper_blank_lines_after_block_statements = 0
 resharper_braces_for_using = not_required
 resharper_braces_redundant = false
@@ -22,4 +23,5 @@ resharper_place_expr_method_on_single_line = true
 resharper_place_expr_property_on_single_line = true
 resharper_place_field_attribute_on_same_line = false
 resharper_place_simple_embedded_statement_on_same_line = false
+resharper_wrap_chained_binary_expressions = chop_if_long
 resharper_wrap_object_and_collection_initializer_style = chop_always

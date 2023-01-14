@@ -6,8 +6,14 @@ using OnePassword.Common;
 
 namespace OnePassword;
 
+/// <summary>
+/// Manages the 1Password CLI executable.
+/// </summary>
 public sealed partial class OnePasswordManager
 {
+    /// <summary>
+    /// The version of the 1Password CLI executable.
+    /// </summary>
     public string Version { get; private set; }
 
     private readonly string[] _excludedAccountCommands = { "--version", "update", "account list", "account add", "account forget", "signout --all" };
@@ -18,17 +24,28 @@ public sealed partial class OnePasswordManager
     private string _account = "";
     private string _session = "";
 
+    /// <summary>
+    /// Initializes a new instance of <see cref="OnePasswordManager"/> for the specified 1Password CLI executable.
+    /// </summary>
+    /// <param name="path">The path to the 1Password CLI executable.</param>
+    /// <param name="executable">The name of the 1Password CLI executable.</param>
+    /// <param name="verbose">When <see langword="true"/>, commands sent to the 1Password CLI executable are output to the console.</param>
+    /// <exception cref="FileNotFoundException">Thrown when the 1Password CLI executable cannot be found.</exception>
     public OnePasswordManager(string path = "", string executable = "op.exe", bool verbose = false)
     {
         _opPath = path.Length > 0 ? Path.Combine(path, executable) : Path.Combine(Directory.GetCurrentDirectory(), executable);
         if (!File.Exists(_opPath))
-            throw new ArgumentException($"The 1Password CLI executable ({executable}) was not found in folder \"{Path.GetDirectoryName(_opPath)}\".");
+            throw new FileNotFoundException($"The 1Password CLI executable ({executable}) was not found in folder \"{Path.GetDirectoryName(_opPath)}\".");
 
         _verbose = verbose;
 
         Version = GetVersion();
     }
 
+    /// <summary>
+    /// Updates the 1Password CLI executable.
+    /// </summary>
+    /// <returns>Returns <see langword="true"/> when the 1Password CLI executable has been updated, <see langword="false"/> otherwise.</returns>
     public bool Update()
     {
         var updated = false;

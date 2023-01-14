@@ -11,13 +11,16 @@ internal sealed class JsonStringEnumConverterEx<TEnum> : JsonConverter<TEnum>
     private readonly Dictionary<TEnum, string> _enumToString = new();
     private readonly Dictionary<string, TEnum> _stringToEnum = new();
 
+    /// <summary>
+    /// Initializes a new instance of <see cref="JsonStringEnumConverterEx{TEnum}"/>.
+    /// </summary>
     public JsonStringEnumConverterEx()
     {
         foreach (var enumMemberValue in Enum.GetValues<TEnum>())
         {
             var enumMemberName = enumMemberValue.ToString();
-            var enumMemberAttribute = typeof(TEnum).GetMember(enumMemberName).FirstOrDefault()?.GetCustomAttributes(typeof(EnumMemberAttribute), false).Cast<EnumMemberAttribute>().FirstOrDefault();
 
+            var enumMemberAttribute = typeof(TEnum).GetMember(enumMemberName).FirstOrDefault()?.GetCustomAttributes(typeof(EnumMemberAttribute), false).Cast<EnumMemberAttribute>().FirstOrDefault();
             if (enumMemberAttribute is { Value: not null })
             {
                 var enumMemberString = enumMemberAttribute.Value.ToUpperInvariant().Replace(" ", "_", StringComparison.InvariantCulture);
@@ -33,6 +36,7 @@ internal sealed class JsonStringEnumConverterEx<TEnum> : JsonConverter<TEnum>
         }
     }
 
+    /// <inheritdoc />
     public override TEnum Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         var stringValue = reader.GetString() ?? "Unknown";
@@ -44,6 +48,7 @@ internal sealed class JsonStringEnumConverterEx<TEnum> : JsonConverter<TEnum>
         throw new NotImplementedException("Could not convert string value to its enum representation.");
     }
 
+    /// <inheritdoc />
     public override void Write(Utf8JsonWriter writer, TEnum value, JsonSerializerOptions options)
     {
         if (_enumToString.TryGetValue(value, out var enumValue))

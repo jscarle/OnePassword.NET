@@ -7,12 +7,22 @@ namespace OnePassword;
 
 public sealed partial class OnePasswordManager
 {
+    /// <summary>
+    /// Gets the users.
+    /// </summary>
+    /// <returns>The list of users.</returns>
     public ImmutableList<User> GetUsers()
     {
         const string command = "user list";
         return Op<ImmutableList<User>>(command);
     }
 
+    /// <summary>
+    /// Gets the user's details.
+    /// </summary>
+    /// <param name="user">The user to retrieve.</param>
+    /// <returns>The user details.</returns>
+    /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
     public UserDetails GetUser(IUser user)
     {
         if (user.Id.Length == 0)
@@ -22,6 +32,14 @@ public sealed partial class OnePasswordManager
         return Op<UserDetails>(command);
     }
 
+    /// <summary>
+    /// Provisions a user.
+    /// </summary>
+    /// <param name="name">The user name.</param>
+    /// <param name="emailAddress">The user email address.</param>
+    /// <param name="language">The user language.</param>
+    /// <returns>The provisioned user.</returns>
+    /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
     public UserDetails ProvisionUser(string name, string emailAddress, Language language = Language.Default)
     {
         var trimmedName = name.Trim();
@@ -38,6 +56,11 @@ public sealed partial class OnePasswordManager
         return Op<UserDetails>(command);
     }
 
+    /// <summary>
+    /// Confirms a user.
+    /// </summary>
+    /// <param name="user">The user to confirm.</param>
+    /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
     public void ConfirmUser(IUser user)
     {
         if (user.Id.Length == 0)
@@ -47,12 +70,23 @@ public sealed partial class OnePasswordManager
         Op(command);
     }
 
+    /// <summary>
+    /// Confirms all users.
+    /// </summary>
     public void ConfirmAllUsers()
     {
         const string command = "user confirm --all";
         Op(command);
     }
 
+    /// <summary>
+    /// Edits a user.
+    /// </summary>
+    /// <param name="user">The user to edit.</param>
+    /// <param name="name">The user's new name.</param>
+    /// <param name="travelMode">When <see langword="true"/>, enables travel mode on the vault. If enabled, <see langword="false"/> disables it.</param>
+    /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
+    /// <exception cref="InvalidOperationException">Thrown when there is nothing to edit.</exception>
     public void EditUser(IUser user, string? name = null, bool? travelMode = null)
     {
         if (user.Id.Length == 0)
@@ -73,6 +107,11 @@ public sealed partial class OnePasswordManager
         Op(command);
     }
 
+    /// <summary>
+    /// Deletes a user.
+    /// </summary>
+    /// <param name="user">The user to delete.</param>
+    /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
     public void DeleteUser(IUser user)
     {
         if (user.Id.Length == 0)
@@ -82,6 +121,12 @@ public sealed partial class OnePasswordManager
         Op(command);
     }
 
+    /// <summary>
+    /// Suspends a user.
+    /// </summary>
+    /// <param name="user">The user to suspend.</param>
+    /// <param name="deauthorizeDevicesDelay">The number of seconds to delay deauthorizing devices after the user has been suspended.</param>
+    /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
     public void SuspendUser(IUser user, int? deauthorizeDevicesDelay = null)
     {
         if (user.Id.Length == 0)
@@ -93,6 +138,11 @@ public sealed partial class OnePasswordManager
         Op(command);
     }
 
+    /// <summary>
+    /// Reactivates a user.
+    /// </summary>
+    /// <param name="user">The user to reactivate.</param>
+    /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
     public void ReactivateUser(IUser user)
     {
         if (user.Id.Length == 0)
@@ -102,6 +152,12 @@ public sealed partial class OnePasswordManager
         Op(command);
     }
 
+    /// <summary>
+    /// Gets a vault's users.
+    /// </summary>
+    /// <param name="vault">The vault for which to retrieve users.</param>
+    /// <returns>The vault's users.</returns>
+    /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
     public ImmutableList<VaultUser> GetUsers(IVault vault)
     {
         if (vault.Id.Length == 0)
@@ -111,6 +167,12 @@ public sealed partial class OnePasswordManager
         return Op<ImmutableList<VaultUser>>(command);
     }
 
+    /// <summary>
+    /// Gets a group's users.
+    /// </summary>
+    /// <param name="group">The group for which to retrieve users.</param>
+    /// <returns>The group's users.</returns>
+    /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
     public ImmutableList<GroupUser> GetUsers(IGroup group)
     {
         if (group.Id.Length == 0)

@@ -2,18 +2,31 @@
 
 namespace OnePassword.Templates;
 
-public sealed class Template : ItemBase, ITemplate
+/// <summary>
+/// Represents a 1Password template.
+/// </summary>
+public sealed class Template : ItemBase, ITemplate, ICloneable
 {
+    /// <inheritdoc />
     [JsonInclude]
     [JsonPropertyName("name")]
     public string Name { get; internal set; } = "";
 
+    /// <summary>
+    /// Clones the template.
+    /// </summary>
+    /// <returns>A cloned instance of the template.</returns>
+    /// <exception cref="SerializationException">Thrown when there is an error serializing or deserializing the clone.</exception>
     public Template Clone()
     {
         var json = JsonSerializer.Serialize(this);
         return JsonSerializer.Deserialize<Template>(json) ?? throw new SerializationException("Could not deserialize the cloned template.");
     }
 
+    /// <inheritdoc/>
+    object ICloneable.Clone() => Clone();
+
+    /// <inheritdoc />
     public override string ToString()
     {
         return Name;
@@ -31,17 +44,20 @@ public sealed class Template : ItemBase, ITemplate
 
     public static bool operator >=(Template a, ITemplate b) => a.CompareTo(b) >= 0;
 
+    /// <inheritdoc />
     public override bool Equals(object? obj)
     {
         return ReferenceEquals(this, obj) || obj is ITemplate other && Equals(other);
     }
 
+    /// <inheritdoc />
     public bool Equals(ITemplate? other)
     {
         if (other is null) return false;
         return ReferenceEquals(this, other) || string.Equals(Name, other.Name, StringComparison.OrdinalIgnoreCase);
     }
 
+    /// <inheritdoc />
     public int CompareTo(object? obj)
     {
         if (obj is null) return 1;
@@ -49,12 +65,14 @@ public sealed class Template : ItemBase, ITemplate
         return obj is ITemplate other ? CompareTo(other) : throw new ArgumentException($"Object must be of type {nameof(ITemplate)}");
     }
 
+    /// <inheritdoc />
     public int CompareTo(ITemplate? other)
     {
         if (other is null) return 1;
         return ReferenceEquals(this, other) ? 0 : string.Compare(Name, other.Name, StringComparison.Ordinal);
     }
 
+    /// <inheritdoc />
     public override int GetHashCode()
     {
         // ReSharper disable once NonReadonlyMemberInGetHashCode

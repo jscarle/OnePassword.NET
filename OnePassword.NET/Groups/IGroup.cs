@@ -2,6 +2,9 @@
 
 namespace OnePassword.Groups;
 
-public interface IGroup : IResultBase<IGroup>
+/// <summary>
+/// Defines a 1Password group.
+/// </summary>
+public interface IGroup : IResult<IGroup>
 {
 }

@@ -2,6 +2,9 @@
 
 namespace OnePassword.Users;
 
-public interface IUser : IResultBase<IUser>
+/// <summary>
+/// Defines a 1Password user.
+/// </summary>
+public interface IUser : IResult<IUser>
 {
 }
