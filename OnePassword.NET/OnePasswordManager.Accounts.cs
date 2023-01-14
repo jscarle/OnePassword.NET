@@ -104,6 +104,15 @@ public sealed partial class OnePasswordManager
     }
 
     /// <summary>
+    /// Signs into the account using 1Password app integration.
+    /// </summary>
+    public void SignIn()
+    {
+        const string command = "signin --force";
+        _ = Op(command);
+    }
+
+    /// <summary>
     /// Signs out of the account.
     /// </summary>
     /// <param name="all">When <see langword="true"/>, signs out of all accounts.</param>
