@@ -3,7 +3,8 @@ using OnePassword.Items;
 
 namespace OnePassword;
 
-[TestFixture, Order(6)]
+[TestFixture]
+[Order(6)]
 public class TestItems : TestsBase
 {
     private const string InitialTitle = "Created Item";
@@ -21,14 +22,14 @@ public class TestItems : TestsBase
     private const FieldType FinalType = FieldType.Concealed;
     private const string FinalValue = "Test Value";
 
-    [Test, Order(1)]
+    [Test]
+    [Order(1)]
     public void CreateItem()
     {
         if (!RunLiveTests)
             Assert.Ignore();
 
-        SemaphoreSlim.Wait(CommandTimeout, SetUpCancellationTokenSource.Token);
-        try
+        Run(RunType.Test, () =>
         {
             var template = TestTemplate.Clone();
             template.Title = InitialTitle;
@@ -54,27 +55,17 @@ public class TestItems : TestsBase
                 Assert.That(_initialItem.Fields.First(x => x.Section?.Label == EditSection && x.Label == EditField).Value, Is.EqualTo(InitialValue));
                 Assert.That(_initialItem.Fields.First(x => x.Section?.Label == DeleteSection && x.Label == DeleteField).Value, Is.EqualTo(DeleteValue));
             });
-        }
-        catch (Exception)
-        {
-            SetUpCancellationTokenSource.Cancel();
-            throw;
-        }
-        finally
-        {
-            Thread.Sleep(RateLimit);
-            SemaphoreSlim.Release();
-        }
+        });
     }
 
-    [Test, Order(2)]
+    [Test]
+    [Order(2)]
     public void EditItem()
     {
         if (!RunLiveTests)
             Assert.Ignore();
 
-        SemaphoreSlim.Wait(CommandTimeout, SetUpCancellationTokenSource.Token);
-        try
+        Run(RunType.Test, () =>
         {
             _initialItem.Title = FinalTitle;
             _initialItem.Fields.First(x => x.Label == "username").Value = FinalUsername;
@@ -94,27 +85,17 @@ public class TestItems : TestsBase
                 Assert.That(item.Fields.First(x => x.Section?.Label == EditSection && x.Label == EditField).Value, Is.EqualTo(FinalValue));
                 Assert.That(item.Fields.FirstOrDefault(x => x.Section?.Label == DeleteSection && x.Label == DeleteField), Is.Null);
             });
-        }
-        catch (Exception)
-        {
-            SetUpCancellationTokenSource.Cancel();
-            throw;
-        }
-        finally
-        {
-            Thread.Sleep(RateLimit);
-            SemaphoreSlim.Release();
-        }
+        });
     }
 
-    [Test, Order(3)]
+    [Test]
+    [Order(3)]
     public void GetItems()
     {
         if (!RunLiveTests)
             Assert.Ignore();
 
-        SemaphoreSlim.Wait(CommandTimeout, SetUpCancellationTokenSource.Token);
-        try
+        Run(RunType.Test, () =>
         {
             var items = OnePassword.GetItems(TestVault);
 
@@ -129,27 +110,17 @@ public class TestItems : TestsBase
             });
 
             TestItem = item;
-        }
-        catch (Exception)
-        {
-            SetUpCancellationTokenSource.Cancel();
-            throw;
-        }
-        finally
-        {
-            Thread.Sleep(RateLimit);
-            SemaphoreSlim.Release();
-        }
+        });
     }
 
-    [Test, Order(4)]
+    [Test]
+    [Order(4)]
     public void GetItem()
     {
         if (!RunLiveTests)
             Assert.Ignore();
 
-        SemaphoreSlim.Wait(CommandTimeout, SetUpCancellationTokenSource.Token);
-        try
+        Run(RunType.Test, () =>
         {
             var item = OnePassword.GetItem(TestItem, TestVault);
 
@@ -162,16 +133,6 @@ public class TestItems : TestsBase
                 Assert.That(item.Fields.First(x => x.Section?.Label == EditSection && x.Label == EditField).Value, Is.EqualTo(FinalValue));
                 Assert.That(item.Fields.FirstOrDefault(x => x.Section?.Label == DeleteSection && x.Label == DeleteField), Is.Null);
             });
-        }
-        catch (Exception)
-        {
-            SetUpCancellationTokenSource.Cancel();
-            throw;
-        }
-        finally
-        {
-            Thread.Sleep(RateLimit);
-            SemaphoreSlim.Release();
-        }
+        });
     }
 }
