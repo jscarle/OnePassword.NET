@@ -21,9 +21,9 @@ public sealed partial class OnePasswordManager
 
     private readonly string _opPath;
     private readonly bool _verbose;
+    private readonly bool _appIntegrated;
     private string _account = "";
     private string _session = "";
-    private bool _appIntegrated;
 
     /// <summary>
     /// Initializes a new instance of <see cref="OnePasswordManager"/> for the specified 1Password CLI executable.
@@ -31,6 +31,7 @@ public sealed partial class OnePasswordManager
     /// <param name="path">The path to the 1Password CLI executable.</param>
     /// <param name="executable">The name of the 1Password CLI executable.</param>
     /// <param name="verbose">When <see langword="true"/>, commands sent to the 1Password CLI executable are output to the console.</param>
+    /// <param name="appIntegrated">Set to <see langword="true"/> when authentication is integrated into the 1Password desktop application (see <a href="https://developer.1password.com/docs/cli/get-started/#sign-in">documentation</a>). When <see langword="false"/>, a password will be required to sign in.</param>
     /// <exception cref="FileNotFoundException">Thrown when the 1Password CLI executable cannot be found.</exception>
     public OnePasswordManager(string path = "", string executable = "op.exe", bool verbose = false, bool appIntegrated = false)
     {
@@ -119,27 +120,21 @@ public sealed partial class OnePasswordManager
 
     private string Op(string command, IEnumerable<string> input, bool returnError)
     {
+        var passAccount = !(_appIntegrated || IsExcludedCommand(command, _excludedAccountCommands));
+        if (passAccount && _account.Length == 0)
+            throw new InvalidOperationException("Cannot execute command because account has not been set.");
+
+        var passSession = !(_appIntegrated || IsExcludedCommand(command, _excludedSessionCommands));
+        if (passSession && _session.Length == 0)
+            throw new InvalidOperationException("Cannot execute command because account has not been signed in.");
+
         var arguments = command;
-
-        if (!_appIntegrated)
-        {
-            var passAccount = !IsExcludedCommand(command, _excludedAccountCommands);
-            if (passAccount && _account.Length == 0)
-                throw new InvalidOperationException("Cannot execute command because account has not been set.");
-
-            var passSession = !IsExcludedCommand(command, _excludedSessionCommands);
-            if (passSession && _session.Length == 0)
-                throw new InvalidOperationException("Cannot execute command because account has not been signed in.");
-
-            if (passAccount)
-                arguments += $" --account {_account}";
-            if (passSession)
-                arguments += $" --session {_session}";
-        }
-
         if (command != "--version")
-        arguments += " --format json --no-color";
-
+            arguments += " --format json --no-color";
+        if (passAccount)
+            arguments += $" --account {_account}";
+        if (passSession)
+            arguments += $" --session {_session}";
 
         if (_verbose)
             Console.WriteLine($"{Path.GetDirectoryName(_opPath)}>op {arguments}");

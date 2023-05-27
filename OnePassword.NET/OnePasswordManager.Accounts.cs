@@ -54,7 +54,8 @@ public sealed partial class OnePasswordManager
         if (trimmedSecretKey.Length == 0)
             throw new ArgumentException($"{nameof(secretKey)} cannot be empty.", nameof(secretKey));
 
-        if (password.Length == 0)
+        var trimmedPassword = password.Trim();
+        if (trimmedPassword.Length == 0)
             throw new ArgumentException($"{nameof(password)} cannot be empty.", nameof(password));
 
         var trimmedShorthand = shorthand.Trim();
@@ -63,7 +64,7 @@ public sealed partial class OnePasswordManager
         if (trimmedShorthand.Length > 0)
             command += $" --shorthand \"{trimmedShorthand}\"";
 
-        var result = Op(command, password, true);
+        var result = Op(command, trimmedPassword, true);
         if (result.Contains("No saved device ID."))
         {
             var deviceUuid = DeviceRegex.Match(result).Groups["UUID"].Value;
@@ -91,25 +92,22 @@ public sealed partial class OnePasswordManager
     /// <summary>
     /// Signs in to the account.
     /// </summary>
-    /// <param name="password">The account password.</param>
+    /// <param name="password">The account password to use when manually signing in.</param>
     /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
-    public void SignIn(string password)
+    public void SignIn(string? password = null)
     {
-        if (password.Length == 0)
-            throw new ArgumentException($"{nameof(password)} cannot be empty.", nameof(password));
+        var trimmedPassword = password?.Trim();
+        switch (_appIntegrated)
+        {
+            case true when trimmedPassword is not null:
+                throw new ArgumentException($"{nameof(password)} must be null when authentication is integrated into the 1Password desktop application.", nameof(password));
+            case false when trimmedPassword is null || trimmedPassword.Length == 0:
+                throw new ArgumentException($"{nameof(password)} cannot be empty.", nameof(password));
+        }
 
         const string command = "signin --force --raw";
-        var result = Op(command, password);
+        var result = Op(command, password?.Trim());
         _session = result.Trim();
-    }
-
-    /// <summary>
-    /// Signs into the account using 1Password app integration.
-    /// </summary>
-    public void SignIn()
-    {
-        const string command = "signin --force";
-        _ = Op(command);
     }
 
     /// <summary>
