@@ -4,46 +4,37 @@ using OnePassword.Templates;
 
 namespace OnePassword;
 
-[TestFixture, Order(5)]
+[TestFixture]
+[Order(5)]
 public class TestTemplates : TestsBase
 {
     private ITemplate _template = null!;
 
-    [Test, Order(1)]
+    [Test]
+    [Order(1)]
     public void GetTemplates()
     {
         if (!RunLiveTests)
             Assert.Ignore();
 
-        SemaphoreSlim.Wait(CommandTimeout, SetUpCancellationTokenSource.Token);
-        try
+        Run(RunType.Test, () =>
         {
             var templates = OnePassword.GetTemplates();
 
             Assert.That(templates, Has.Count.EqualTo(22));
 
             _template = templates.First(x => x.Name == "Login");
-        }
-        catch (Exception)
-        {
-            SetUpCancellationTokenSource.Cancel();
-            throw;
-        }
-        finally
-        {
-            Thread.Sleep(RateLimit);
-            SemaphoreSlim.Release();
-        }
+        });
     }
 
-    [Test, Order(2)]
+    [Test]
+    [Order(2)]
     public void GetTemplatesName()
     {
         if (!RunLiveTests)
             Assert.Ignore();
 
-        SemaphoreSlim.Wait(CommandTimeout, SetUpCancellationTokenSource.Token);
-        try
+        Run(RunType.Test, () =>
         {
             TestTemplate = OnePassword.GetTemplate(_template);
 
@@ -52,27 +43,17 @@ public class TestTemplates : TestsBase
                 Assert.That(TestTemplate.Name, Is.EqualTo(_template.Name));
                 Assert.That(TestTemplate.Category, Is.Not.EqualTo(Category.Unknown));
             });
-        }
-        catch (Exception)
-        {
-            SetUpCancellationTokenSource.Cancel();
-            throw;
-        }
-        finally
-        {
-            Thread.Sleep(RateLimit);
-            SemaphoreSlim.Release();
-        }
+        });
     }
 
-    [Test, Order(3)]
+    [Test]
+    [Order(3)]
     public void GetTemplatesByEnum()
     {
         if (!RunLiveTests)
             Assert.Ignore();
 
-        SemaphoreSlim.Wait(CommandTimeout, SetUpCancellationTokenSource.Token);
-        try
+        Run(RunType.Test, () =>
         {
             foreach (var enumValue in Enum.GetValues(typeof(Category)))
             {
@@ -92,16 +73,6 @@ public class TestTemplates : TestsBase
 
                 Thread.Sleep(RateLimit);
             }
-        }
-        catch (Exception)
-        {
-            SetUpCancellationTokenSource.Cancel();
-            throw;
-        }
-        finally
-        {
-            Thread.Sleep(RateLimit);
-            SemaphoreSlim.Release();
-        }
+        });
     }
 }

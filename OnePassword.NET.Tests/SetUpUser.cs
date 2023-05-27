@@ -4,22 +4,22 @@ using OnePassword.Users;
 
 namespace OnePassword;
 
-[TestFixture, Order(2)]
+[TestFixture]
+[Order(2)]
 public class SetUpUser : TestsBase
 {
-    private const int ConfirmTimeout = 2 * 60 * 1000;
     private const string InitialName = "Created User";
     private UserDetails _initialUser = null!;
     private const string FinalName = "Test User";
 
-    [Test, Order(1)]
+    [Test]
+    [Order(1)]
     public void ProvisionUser()
     {
         if (!RunLiveTests || !CreateTestUser)
             Assert.Ignore();
 
-        SemaphoreSlim.Wait(CommandTimeout, SetUpCancellationTokenSource.Token);
-        try
+        Run(RunType.SetUp, () =>
         {
             _initialUser = OnePassword.ProvisionUser(InitialName, TestUserEmail, Language.English);
 
@@ -34,27 +34,17 @@ public class SetUpUser : TestsBase
                 Assert.That(_initialUser.Updated, Is.Not.EqualTo(default));
                 Assert.That(_initialUser.LastAuthentication, Is.EqualTo(null));
             });
-        }
-        catch (Exception)
-        {
-            SetUpCancellationTokenSource.Cancel();
-            throw;
-        }
-        finally
-        {
-            Thread.Sleep(RateLimit);
-            SemaphoreSlim.Release();
-        }
+        });
     }
 
-    [Test, Order(2)]
+    [Test]
+    [Order(2)]
     public void ConfirmUser()
     {
         if (!RunLiveTests || !CreateTestUser)
             Assert.Ignore();
 
-        SemaphoreSlim.Wait(CommandTimeout, SetUpCancellationTokenSource.Token);
-        try
+        Run(RunType.SetUp, () =>
         {
             var currentState = State.Unknown;
             var stopWatch = Stopwatch.StartNew();
@@ -63,7 +53,7 @@ public class SetUpUser : TestsBase
                 if (SetUpCancellationTokenSource.IsCancellationRequested)
                     throw new OperationCanceledException();
 
-                if (stopWatch.ElapsedMilliseconds > ConfirmTimeout)
+                if (stopWatch.ElapsedMilliseconds > TestUserConfirmTimeout)
                     throw new TimeoutException();
 
                 Thread.Sleep(RateLimit * 10);
@@ -71,50 +61,27 @@ public class SetUpUser : TestsBase
             }
             stopWatch.Stop();
             OnePassword.ConfirmUser(_initialUser);
-        }
-        catch (Exception)
-        {
-            SetUpCancellationTokenSource.Cancel();
-            throw;
-        }
-        finally
-        {
-            Thread.Sleep(RateLimit);
-            SemaphoreSlim.Release();
-        }
+        });
     }
 
-    [Test, Order(3)]
+    [Test]
+    [Order(3)]
     public void EditUser()
     {
         if (!RunLiveTests || !CreateTestUser)
             Assert.Ignore();
 
-        SemaphoreSlim.Wait(CommandTimeout, SetUpCancellationTokenSource.Token);
-        try
-        {
-            OnePassword.EditUser(_initialUser, FinalName, false);
-        }
-        catch (Exception)
-        {
-            SetUpCancellationTokenSource.Cancel();
-            throw;
-        }
-        finally
-        {
-            Thread.Sleep(RateLimit);
-            SemaphoreSlim.Release();
-        }
+        Run(RunType.SetUp, () => { OnePassword.EditUser(_initialUser, FinalName, false); });
     }
 
-    [Test, Order(4)]
+    [Test]
+    [Order(4)]
     public void GetUsers()
     {
         if (!RunLiveTests || !CreateTestUser)
             Assert.Ignore();
 
-        SemaphoreSlim.Wait(CommandTimeout, SetUpCancellationTokenSource.Token);
-        try
+        Run(RunType.SetUp, () =>
         {
             var users = OnePassword.GetUsers();
 
@@ -132,27 +99,17 @@ public class SetUpUser : TestsBase
             });
 
             TestUser = user;
-        }
-        catch (Exception)
-        {
-            SetUpCancellationTokenSource.Cancel();
-            throw;
-        }
-        finally
-        {
-            Thread.Sleep(RateLimit);
-            SemaphoreSlim.Release();
-        }
+        });
     }
 
-    [Test, Order(5)]
+    [Test]
+    [Order(5)]
     public void GetUser()
     {
         if (!RunLiveTests || !CreateTestUser)
             Assert.Ignore();
 
-        SemaphoreSlim.Wait(CommandTimeout, SetUpCancellationTokenSource.Token);
-        try
+        Run(RunType.SetUp, () =>
         {
             var user = OnePassword.GetUser(TestUser);
 
@@ -167,62 +124,26 @@ public class SetUpUser : TestsBase
                 Assert.That(user.Updated, Is.Not.EqualTo(default));
                 Assert.That(user.LastAuthentication, Is.EqualTo(null));
             });
-        }
-        catch (Exception)
-        {
-            SetUpCancellationTokenSource.Cancel();
-            throw;
-        }
-        finally
-        {
-            Thread.Sleep(RateLimit);
-            SemaphoreSlim.Release();
-        }
+        });
     }
 
-    [Test, Order(6)]
+    [Test]
+    [Order(6)]
     public void SuspendUser()
     {
         if (!RunLiveTests || !CreateTestUser)
             Assert.Ignore();
 
-        SemaphoreSlim.Wait(CommandTimeout, SetUpCancellationTokenSource.Token);
-        try
-        {
-            OnePassword.SuspendUser(TestUser, 1);
-        }
-        catch (Exception)
-        {
-            SetUpCancellationTokenSource.Cancel();
-            throw;
-        }
-        finally
-        {
-            Thread.Sleep(RateLimit);
-            SemaphoreSlim.Release();
-        }
+        Run(RunType.SetUp, () => { OnePassword.SuspendUser(TestUser, 1); });
     }
 
-    [Test, Order(7)]
+    [Test]
+    [Order(7)]
     public void ReactivateUser()
     {
         if (!RunLiveTests || !CreateTestUser)
             Assert.Ignore();
 
-        SemaphoreSlim.Wait(CommandTimeout, SetUpCancellationTokenSource.Token);
-        try
-        {
-            OnePassword.ReactivateUser(TestUser);
-        }
-        catch (Exception)
-        {
-            SetUpCancellationTokenSource.Cancel();
-            throw;
-        }
-        finally
-        {
-            Thread.Sleep(RateLimit);
-            SemaphoreSlim.Release();
-        }
+        Run(RunType.SetUp, () => { OnePassword.ReactivateUser(TestUser); });
     }
 }
