@@ -5,7 +5,6 @@ op.exe ( [Download](https://app-updates.agilebits.com/product_history/CLI2) | [D
 
 [![nuget](https://img.shields.io/nuget/v/OnePassword.NET)](https://www.nuget.org/packages/OnePassword.NET/)
 [![master](https://github.com/jscarle/OnePassword.NET/actions/workflows/master.yml/badge.svg)](https://github.com/jscarle/OnePassword.NET/actions/workflows/master.yml)
-[![develop](https://github.com/jscarle/OnePassword.NET/actions/workflows/develop.yml/badge.svg)](https://github.com/jscarle/OnePassword.NET/actions/workflows/develop.yml)
 
 ## References
 
