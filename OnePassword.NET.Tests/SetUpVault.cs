@@ -3,7 +3,8 @@ using OnePassword.Vaults;
 
 namespace OnePassword;
 
-[TestFixture, Order(4)]
+[TestFixture]
+[Order(4)]
 public class SetUpVault : TestsBase
 {
     private const string InitialName = "Created Vault";
@@ -14,14 +15,14 @@ public class SetUpVault : TestsBase
     private const string FinalDescription = "Used for unit testing.";
     private const VaultIcon FinalIcon = VaultIcon.Airplane;
 
-    [Test, Order(1)]
+    [Test]
+    [Order(1)]
     public void CreateVault()
     {
         if (!RunLiveTests)
             Assert.Ignore();
 
-        SemaphoreSlim.Wait(CommandTimeout, SetUpCancellationTokenSource.Token);
-        try
+        Run(RunType.SetUp, () =>
         {
             _initialVault = OnePassword.CreateVault(InitialName, InitialDescription, InitialIcon, true);
 
@@ -33,50 +34,27 @@ public class SetUpVault : TestsBase
                 Assert.That(_initialVault.Items, Is.EqualTo(0));
                 Assert.That(_initialVault.Created, Is.Not.EqualTo(default));
             });
-        }
-        catch (Exception)
-        {
-            SetUpCancellationTokenSource.Cancel();
-            throw;
-        }
-        finally
-        {
-            Thread.Sleep(RateLimit);
-            SemaphoreSlim.Release();
-        }
+        });
     }
 
-    [Test, Order(2)]
+    [Test]
+    [Order(2)]
     public void EditVault()
     {
         if (!RunLiveTests)
             Assert.Ignore();
 
-        SemaphoreSlim.Wait(CommandTimeout, SetUpCancellationTokenSource.Token);
-        try
-        {
-            OnePassword.EditVault(_initialVault, FinalName, FinalDescription, FinalIcon, false);
-        }
-        catch (Exception)
-        {
-            SetUpCancellationTokenSource.Cancel();
-            throw;
-        }
-        finally
-        {
-            Thread.Sleep(RateLimit);
-            SemaphoreSlim.Release();
-        }
+        Run(RunType.SetUp, () => { OnePassword.EditVault(_initialVault, FinalName, FinalDescription, FinalIcon, false); });
     }
 
-    [Test, Order(3)]
+    [Test]
+    [Order(3)]
     public void GetVaults()
     {
         if (!RunLiveTests)
             Assert.Ignore();
 
-        SemaphoreSlim.Wait(CommandTimeout, SetUpCancellationTokenSource.Token);
-        try
+        Run(RunType.SetUp, () =>
         {
             var vaults = OnePassword.GetVaults();
 
@@ -91,27 +69,17 @@ public class SetUpVault : TestsBase
             });
 
             TestVault = vault;
-        }
-        catch (Exception)
-        {
-            SetUpCancellationTokenSource.Cancel();
-            throw;
-        }
-        finally
-        {
-            Thread.Sleep(RateLimit);
-            SemaphoreSlim.Release();
-        }
+        });
     }
 
-    [Test, Order(4)]
+    [Test]
+    [Order(4)]
     public void GetVault()
     {
         if (!RunLiveTests)
             Assert.Ignore();
 
-        SemaphoreSlim.Wait(CommandTimeout, SetUpCancellationTokenSource.Token);
-        try
+        Run(RunType.SetUp, () =>
         {
             var vault = OnePassword.GetVault(TestVault);
 
@@ -123,16 +91,6 @@ public class SetUpVault : TestsBase
                 Assert.That(vault.Items, Is.EqualTo(0));
                 Assert.That(vault.Created, Is.Not.EqualTo(default));
             });
-        }
-        catch (Exception)
-        {
-            SetUpCancellationTokenSource.Cancel();
-            throw;
-        }
-        finally
-        {
-            Thread.Sleep(RateLimit);
-            SemaphoreSlim.Release();
-        }
+        });
     }
 }
