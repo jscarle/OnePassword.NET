@@ -3,63 +3,38 @@ using OnePassword.Common;
 
 namespace OnePassword;
 
-[TestFixture, Order(1)]
+[TestFixture]
+[Order(1)]
 public class SetUpAccount : TestsBase
 {
-    [Test, Order(1)]
+    [Test]
+    [Order(1)]
     public void AddAccount()
     {
         if (!RunLiveTests)
             Assert.Ignore();
 
-        SemaphoreSlim.Wait(CommandTimeout, SetUpCancellationTokenSource.Token);
-        try
-        {
-            OnePassword.AddAccount(AccountAddress, AccountEmail, AccountSecretKey, AccountPassword);
-        }
-        catch (Exception)
-        {
-            SetUpCancellationTokenSource.Cancel();
-            throw;
-        }
-        finally
-        {
-            Thread.Sleep(RateLimit);
-            SemaphoreSlim.Release();
-        }
+        Run(RunType.SetUp, () => { OnePassword.AddAccount(AccountAddress, AccountEmail, AccountSecretKey, AccountPassword); });
     }
 
-    [Test, Order(2)]
+    [Test]
+    [Order(2)]
     public void SignIn()
     {
         if (!RunLiveTests)
             Assert.Ignore();
 
-        SemaphoreSlim.Wait(CommandTimeout, SetUpCancellationTokenSource.Token);
-        try
-        {
-            OnePassword.SignIn(AccountPassword);
-        }
-        catch (Exception)
-        {
-            SetUpCancellationTokenSource.Cancel();
-            throw;
-        }
-        finally
-        {
-            Thread.Sleep(RateLimit);
-            SemaphoreSlim.Release();
-        }
+        Run(RunType.SetUp, () => { OnePassword.SignIn(AccountPassword); });
     }
 
-    [Test, Order(3)]
+    [Test]
+    [Order(3)]
     public void GetAccounts()
     {
         if (!RunLiveTests)
             Assert.Ignore();
 
-        SemaphoreSlim.Wait(CommandTimeout, SetUpCancellationTokenSource.Token);
-        try
+        Run(RunType.SetUp, () =>
         {
             var accounts = OnePassword.GetAccounts();
 
@@ -75,27 +50,17 @@ public class SetUpAccount : TestsBase
                 Assert.That(account.Email, Is.EqualTo(AccountEmail));
                 Assert.That(account.Shorthand, Is.EqualTo(AccountAddress[..AccountAddress.IndexOf(".", StringComparison.Ordinal)]));
             });
-        }
-        catch (Exception)
-        {
-            SetUpCancellationTokenSource.Cancel();
-            throw;
-        }
-        finally
-        {
-            Thread.Sleep(RateLimit);
-            SemaphoreSlim.Release();
-        }
+        });
     }
 
-    [Test, Order(4)]
+    [Test]
+    [Order(4)]
     public void GetAccount()
     {
         if (!RunLiveTests)
             Assert.Ignore();
 
-        SemaphoreSlim.Wait(CommandTimeout, SetUpCancellationTokenSource.Token);
-        try
+        Run(RunType.SetUp, () =>
         {
             var account = OnePassword.GetAccount();
 
@@ -108,16 +73,6 @@ public class SetUpAccount : TestsBase
                 Assert.That(account.State, Is.EqualTo(State.Active));
                 Assert.That(account.Created, Is.Not.EqualTo(default));
             });
-        }
-        catch (Exception)
-        {
-            SetUpCancellationTokenSource.Cancel();
-            throw;
-        }
-        finally
-        {
-            Thread.Sleep(RateLimit);
-            SemaphoreSlim.Release();
-        }
+        });
     }
 }

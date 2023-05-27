@@ -10,6 +10,8 @@ namespace OnePassword.Common;
 
 public class TestsBase
 {
+    private static readonly int CommandTimeout = int.Parse(GetEnv("OPT_COMMAND_TIMEOUT", "2")) * 60 * 1000;
+    private protected static readonly int RateLimit = int.Parse(GetEnv("OPT_RATE_LIMIT", "250"));
     private protected static readonly bool RunLiveTests = bool.Parse(GetEnv("OPT_RUN_LIVE_TESTS", "false"));
     private protected static readonly bool CreateTestUser = bool.Parse(GetEnv("OPT_CREATE_TEST_USER", "false"));
     private protected static readonly string AccountAddress = GetEnv("OPT_ACCOUNT_ADDRESS", "");
@@ -18,11 +20,11 @@ public class TestsBase
     private protected static readonly string AccountPassword = GetEnv("OPT_ACCOUNT_PASSWORD", "");
     private protected static readonly string AccountSecretKey = GetEnv("OPT_ACCOUNT_SECRET_KEY", "");
     private protected static readonly string TestUserEmail = GetEnv("OPT_TEST_USER_EMAIL", "");
-    private protected const int CommandTimeout = 2 * 60 * 1000;
-    private protected const int RateLimit = 250;
-    private protected static readonly SemaphoreSlim SemaphoreSlim = new(1, 1);
+    private protected static readonly int TestUserConfirmTimeout = int.Parse(GetEnv("OPT_TEST_USER_CONFIRM_TIMEOUT", GetEnv("OPT_COMMAND_TIMEOUT", "2"))) * 60 * 1000;
+    private static readonly SemaphoreSlim SemaphoreSlim = new(1, 1);
     private protected static readonly CancellationTokenSource SetUpCancellationTokenSource = new();
-    private protected static readonly CancellationTokenSource TearDownCancellationTokenSource = new();
+    private static readonly CancellationTokenSource TestCancellationTokenSource = new();
+    private static readonly CancellationTokenSource TearDownCancellationTokenSource = new();
     private protected static OnePasswordManager OnePassword = null!;
     private protected static IUser TestUser = null!;
     private protected static IGroup TestGroup = null!;
@@ -38,13 +40,11 @@ public class TestsBase
     private static readonly string WorkingDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
     private static bool _initialSetupDone;
 
-    private static string GetEnv(string name, string value)
-    {
-        return Environment.GetEnvironmentVariable(name, EnvironmentVariableTarget.Machine) ??
-               Environment.GetEnvironmentVariable(name, EnvironmentVariableTarget.User) ??
-               Environment.GetEnvironmentVariable(name, EnvironmentVariableTarget.Process) ??
-               value;
-    }
+    private static string GetEnv(string name, string value) =>
+        Environment.GetEnvironmentVariable(name, EnvironmentVariableTarget.Machine)
+        ?? Environment.GetEnvironmentVariable(name, EnvironmentVariableTarget.User)
+        ?? Environment.GetEnvironmentVariable(name, EnvironmentVariableTarget.Process)
+        ?? value;
 
     [OneTimeSetUp]
     public async Task Setup()
@@ -80,5 +80,39 @@ public class TestsBase
             return;
 
         Directory.Delete(WorkingDirectory, true);
+    }
+
+    protected static void Run(RunType runType, Action action)
+    {
+        var tokenSource = runType switch
+        {
+            RunType.SetUp => SetUpCancellationTokenSource,
+            RunType.Test => TestCancellationTokenSource,
+            RunType.TearDown => TearDownCancellationTokenSource,
+            _ => throw new NotImplementedException()
+        };
+
+        SemaphoreSlim.Wait(CommandTimeout, tokenSource.Token);
+        try
+        {
+            action();
+        }
+        catch (Exception)
+        {
+            tokenSource.Cancel();
+            throw;
+        }
+        finally
+        {
+            Thread.Sleep(RateLimit);
+            SemaphoreSlim.Release();
+        }
+    }
+
+    protected enum RunType
+    {
+        SetUp,
+        Test,
+        TearDown
     }
 }
