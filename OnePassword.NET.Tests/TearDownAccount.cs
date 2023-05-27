@@ -2,53 +2,28 @@ using OnePassword.Common;
 
 namespace OnePassword;
 
-[TestFixture, Order(99)]
+[TestFixture]
+[Order(99)]
 public class TearDownAccount : TestsBase
 {
-    [Test, Order(1)]
+    [Test]
+    [Order(1)]
     public void SignOut()
     {
         if (!RunLiveTests)
             Assert.Ignore();
 
-        SemaphoreSlim.Wait(CommandTimeout, TearDownCancellationTokenSource.Token);
-        try
-        {
-            OnePassword.SignOut(true);
-        }
-        catch (Exception)
-        {
-            TearDownCancellationTokenSource.Cancel();
-            throw;
-        }
-        finally
-        {
-            Thread.Sleep(RateLimit);
-            SemaphoreSlim.Release();
-        }
+        Run(RunType.TearDown, () => { OnePassword.SignOut(true); });
     }
 
-    [Test, Order(2)]
+    [Test]
+    [Order(2)]
     public void ForgetAccount()
     {
         if (!RunLiveTests)
             Assert.Ignore();
 
-        SemaphoreSlim.Wait(CommandTimeout, TearDownCancellationTokenSource.Token);
-        try
-        {
-            OnePassword.ForgetAccount(true);
-        }
-        catch (Exception)
-        {
-            TearDownCancellationTokenSource.Cancel();
-            throw;
-        }
-        finally
-        {
-            Thread.Sleep(RateLimit);
-            SemaphoreSlim.Release();
-        }
+        Run(RunType.TearDown, () => { OnePassword.ForgetAccount(true); });
         DoFinalTearDown = true;
     }
 }

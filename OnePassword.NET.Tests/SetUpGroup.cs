@@ -3,7 +3,8 @@ using OnePassword.Groups;
 
 namespace OnePassword;
 
-[TestFixture, Order(3)]
+[TestFixture]
+[Order(3)]
 public class SetUpGroup : TestsBase
 {
     private const string InitialName = "Created Group";
@@ -12,14 +13,14 @@ public class SetUpGroup : TestsBase
     private const string FinalName = "Test Group";
     private const string FinalDescription = "Used for unit testing.";
 
-    [Test, Order(1)]
+    [Test]
+    [Order(1)]
     public void CreateGroup()
     {
         if (!RunLiveTests)
             Assert.Ignore();
 
-        SemaphoreSlim.Wait(CommandTimeout, SetUpCancellationTokenSource.Token);
-        try
+        Run(RunType.SetUp, () =>
         {
             _initialGroup = OnePassword.CreateGroup(InitialName, InitialDescription);
 
@@ -34,50 +35,27 @@ public class SetUpGroup : TestsBase
                 Assert.That(_initialGroup.Updated, Is.Not.EqualTo(default));
                 Assert.That(_initialGroup.Permissions, Has.Count.EqualTo(0));
             });
-        }
-        catch (Exception)
-        {
-            SetUpCancellationTokenSource.Cancel();
-            throw;
-        }
-        finally
-        {
-            Thread.Sleep(RateLimit);
-            SemaphoreSlim.Release();
-        }
+        });
     }
 
-    [Test, Order(2)]
+    [Test]
+    [Order(2)]
     public void EditGroup()
     {
         if (!RunLiveTests)
             Assert.Ignore();
 
-        SemaphoreSlim.Wait(CommandTimeout, SetUpCancellationTokenSource.Token);
-        try
-        {
-            OnePassword.EditGroup(_initialGroup, FinalName, FinalDescription);
-        }
-        catch (Exception)
-        {
-            SetUpCancellationTokenSource.Cancel();
-            throw;
-        }
-        finally
-        {
-            Thread.Sleep(RateLimit);
-            SemaphoreSlim.Release();
-        }
+        Run(RunType.SetUp, () => { OnePassword.EditGroup(_initialGroup, FinalName, FinalDescription); });
     }
 
-    [Test, Order(3)]
+    [Test]
+    [Order(3)]
     public void GetGroups()
     {
         if (!RunLiveTests)
             Assert.Ignore();
 
-        SemaphoreSlim.Wait(CommandTimeout, SetUpCancellationTokenSource.Token);
-        try
+        Run(RunType.SetUp, () =>
         {
             var groups = OnePassword.GetGroups();
 
@@ -92,27 +70,17 @@ public class SetUpGroup : TestsBase
             });
 
             TestGroup = group;
-        }
-        catch (Exception)
-        {
-            SetUpCancellationTokenSource.Cancel();
-            throw;
-        }
-        finally
-        {
-            Thread.Sleep(RateLimit);
-            SemaphoreSlim.Release();
-        }
+        });
     }
 
-    [Test, Order(4)]
+    [Test]
+    [Order(4)]
     public void GetGroup()
     {
         if (!RunLiveTests)
             Assert.Ignore();
 
-        SemaphoreSlim.Wait(CommandTimeout, SetUpCancellationTokenSource.Token);
-        try
+        Run(RunType.SetUp, () =>
         {
             var group = OnePassword.GetGroup(TestGroup);
 
@@ -127,16 +95,6 @@ public class SetUpGroup : TestsBase
                 Assert.That(group.Updated, Is.Not.EqualTo(default));
                 Assert.That(group.Permissions, Has.Count.EqualTo(0));
             });
-        }
-        catch (Exception)
-        {
-            SetUpCancellationTokenSource.Cancel();
-            throw;
-        }
-        finally
-        {
-            Thread.Sleep(RateLimit);
-            SemaphoreSlim.Release();
-        }
+        });
     }
 }
