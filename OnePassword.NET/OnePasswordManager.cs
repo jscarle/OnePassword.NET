@@ -19,11 +19,29 @@ public sealed partial class OnePasswordManager
     private readonly string[] _excludedAccountCommands = { "--version", "update", "account list", "account add", "account forget", "signout --all" };
     private readonly string[] _excludedSessionCommands = { "--version", "update", "account list", "account add", "account forget", "signin", "signout --all" };
 
+    private readonly string[] _serviceAccountUnsupportedCommands = { "events-api", "group", "user" };
+
     private readonly string _opPath;
     private readonly bool _verbose;
     private readonly bool _appIntegrated;
     private string _account = "";
     private string _session = "";
+
+    private string _serviceAccountToken = "";
+
+    /// <summary>
+    /// Initializes a new instance of <see cref="OnePasswordManager"/> for the specified 1Password CLI executable.
+    /// </summary>
+    /// <param name="serviceAccountToken">Alternative to signing in to 1Password a service account token can be used.</param>
+    /// <param name="path">The path to the 1Password CLI executable.</param>
+    /// <param name="executable">The name of the 1Password CLI executable.</param>
+    /// <param name="verbose">When <see langword="true"/>, commands sent to the 1Password CLI executable are output to the console.</param>
+    /// <exception cref="FileNotFoundException">Thrown when the 1Password CLI executable cannot be found.</exception>
+    public OnePasswordManager(string serviceAccountToken, string path = "", string executable = "op.exe", bool verbose = false) :
+        this(path, executable, verbose, true)
+    {
+        _serviceAccountToken = serviceAccountToken;
+    }
 
     /// <summary>
     /// Initializes a new instance of <see cref="OnePasswordManager"/> for the specified 1Password CLI executable.
@@ -120,26 +138,35 @@ public sealed partial class OnePasswordManager
 
     private string Op(string command, IEnumerable<string> input, bool returnError)
     {
-        var passAccount = !(_appIntegrated || IsExcludedCommand(command, _excludedAccountCommands));
-        if (passAccount && _account.Length == 0)
-            throw new InvalidOperationException("Cannot execute command because account has not been set.");
-
-        var passSession = !(_appIntegrated || IsExcludedCommand(command, _excludedSessionCommands));
-        if (passSession && _session.Length == 0)
-            throw new InvalidOperationException("Cannot execute command because account has not been signed in.");
-
         var arguments = command;
         if (command != "--version")
             arguments += " --format json --no-color";
-        if (passAccount)
-            arguments += $" --account {_account}";
-        if (passSession)
-            arguments += $" --session {_session}";
+
+        if ( !string.IsNullOrEmpty(_serviceAccountToken) )
+        {
+            if (IsUnsupportedCommand(command, _serviceAccountUnsupportedCommands))
+                throw new InvalidOperationException($"Unsupported command {command} when using ServiceAccount");
+        }
+        else // non service account mode
+        {
+            var passAccount = !(_appIntegrated || IsExcludedCommand(command, _excludedAccountCommands));
+            if (passAccount && _account.Length == 0)
+                throw new InvalidOperationException("Cannot execute command because account has not been set.");
+
+            var passSession = !(_appIntegrated || IsExcludedCommand(command, _excludedSessionCommands));
+            if (passSession && _session.Length == 0)
+                throw new InvalidOperationException("Cannot execute command because account has not been signed in.");
+
+            if (passAccount)
+                arguments += $" --account {_account}";
+            if (passSession)
+                arguments += $" --session {_session}";
+        }
 
         if (_verbose)
             Console.WriteLine($"{Path.GetDirectoryName(_opPath)}>op {arguments}");
 
-        var process = Process.Start(new ProcessStartInfo(_opPath, arguments)
+        var startInfo = new ProcessStartInfo(_opPath, arguments)
         {
             CreateNoWindow = true,
             UseShellExecute = false,
@@ -148,7 +175,12 @@ public sealed partial class OnePasswordManager
             RedirectStandardError = true,
             StandardOutputEncoding = Encoding.UTF8,
             StandardErrorEncoding = Encoding.UTF8
-        });
+        };
+
+        if( !string.IsNullOrEmpty(_serviceAccountToken) )
+            startInfo.EnvironmentVariables["OP_SERVICE_ACCOUNT_TOKEN"] = _serviceAccountToken;
+
+        var process = Process.Start(startInfo);
 
         if (process is null)
             throw new InvalidOperationException($"Could not start process for {_opPath}.");
@@ -189,5 +221,10 @@ public sealed partial class OnePasswordManager
     private static bool IsExcludedCommand(string command, IEnumerable<string> excludedCommands)
     {
         return excludedCommands.Any(x => command.StartsWith(x, StringComparison.InvariantCulture));
+    }
+
+    private static bool IsUnsupportedCommand(string command, IEnumerable<string> unsupporteddCommands)
+    {
+        return unsupporteddCommands.Any(x => command.StartsWith(x, StringComparison.InvariantCulture));
     }
 }

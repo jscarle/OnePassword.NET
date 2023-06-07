@@ -20,6 +20,7 @@ public class TestsBase
     private protected static readonly string AccountPassword = GetEnv("OPT_ACCOUNT_PASSWORD", "");
     private protected static readonly string AccountSecretKey = GetEnv("OPT_ACCOUNT_SECRET_KEY", "");
     private protected static readonly string TestUserEmail = GetEnv("OPT_TEST_USER_EMAIL", "");
+    private protected static readonly string ServiceAccountToken = GetEnv("OPT_SERVICE_ACCOUNT_TOKEN", "");
     private protected static readonly int TestUserConfirmTimeout = int.Parse(GetEnv("OPT_TEST_USER_CONFIRM_TIMEOUT", GetEnv("OPT_COMMAND_TIMEOUT", "2"))) * 60 * 1000;
     private static readonly SemaphoreSlim SemaphoreSlim = new(1, 1);
     private protected static readonly CancellationTokenSource SetUpCancellationTokenSource = new();
@@ -68,7 +69,14 @@ public class TestsBase
             throw new Exception($"Could not find {ExecutableName} in the zip file.");
         entry.ExtractToFile(extractFilename, true);
 
-        OnePassword = new OnePasswordManager(WorkingDirectory, ExecutableName);
+        if(string.IsNullOrEmpty(ServiceAccountToken))
+        {
+            OnePassword = new OnePasswordManager(path: WorkingDirectory, executable: ExecutableName);
+        }
+        else // assume service account token mode
+        {
+            OnePassword = new OnePasswordManager(path: WorkingDirectory, executable: ExecutableName, serviceAccountToken: ServiceAccountToken);
+        }
 
         _initialSetupDone = true;
     }
