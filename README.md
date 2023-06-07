@@ -41,6 +41,18 @@ onePassword.UseAccount(domain);
 onePassword.SignIn(password);
 ```
 
+### Using Service Account Tokens
+
+If Service Account Tokens are used you do not have to call:
+- AddAccount / UseAccount
+- SignIn
+
+For more information see: [1Password Service Accounts](https://developer.1password.com/docs/service-accounts)
+
+```csharp
+var onePassword = new OnePasswordManager(serviceAccountToken: token);
+```
+
 ### Getting all vaults
 
 ```csharp
