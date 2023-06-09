@@ -38,6 +38,25 @@ public sealed partial class OnePasswordManager
     /// <summary>
     /// Gets a template.
     /// </summary>
+    /// <param name="name">The template name to retrieve.</param>
+    /// <returns>The template details.</returns>
+    /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
+    public Template GetTemplate(string name)
+    {
+        if (string.IsNullOrEmpty(name))
+            throw new ArgumentException($"{nameof(name)} cannot be empty.", nameof(name));
+
+        var command = $"item template get \"{name}\"";
+        var result = Op<Template>(command);
+
+        result.Name = name;
+
+        return result;
+    }
+
+    /// <summary>
+    /// Gets a template.
+    /// </summary>
     /// <param name="category">The template category.</param>
     /// <returns>The template details.</returns>
     /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>

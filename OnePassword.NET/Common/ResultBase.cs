@@ -30,17 +30,17 @@ public abstract class ResultBase<TInterface> : IResult<TInterface>
         return Name;
     }
 
-    public static bool operator ==(ResultBase<TInterface> a, IResult<TInterface> b) => a.Equals(b);
+    public static bool operator == (ResultBase<TInterface> a, IResult<TInterface> b) => Object.Equals(a, b);
 
-    public static bool operator !=(ResultBase<TInterface> a, IResult<TInterface> b) => !a.Equals(b);
+    public static bool operator !=(ResultBase<TInterface> a, IResult<TInterface> b) => !Object.Equals(a, b);
 
-    public static bool operator <(ResultBase<TInterface> a, IResult<TInterface> b) => a.CompareTo(b) < 0;
+    public static bool operator <(ResultBase<TInterface> a, IResult<TInterface> b) => NullSafeCompareTo(a, b) < 0;
 
-    public static bool operator <=(ResultBase<TInterface> a, IResult<TInterface> b) => a.CompareTo(b) <= 0;
+    public static bool operator <=(ResultBase<TInterface> a, IResult<TInterface> b) => NullSafeCompareTo(a, b) <= 0;
 
-    public static bool operator >(ResultBase<TInterface> a, IResult<TInterface> b) => a.CompareTo(b) > 0;
+    public static bool operator >(ResultBase<TInterface> a, IResult<TInterface> b) => NullSafeCompareTo(a, b) > 0;
 
-    public static bool operator >=(ResultBase<TInterface> a, IResult<TInterface> b) => a.CompareTo(b) >= 0;
+    public static bool operator >=(ResultBase<TInterface> a, IResult<TInterface> b) => NullSafeCompareTo(a, b) >= 0;
 
     /// <inheritdoc />
     public override bool Equals(object? obj)
@@ -74,5 +74,10 @@ public abstract class ResultBase<TInterface> : IResult<TInterface>
     public override int GetHashCode()
     {
         return StringComparer.OrdinalIgnoreCase.GetHashCode(Id);
+    }
+
+    private static int NullSafeCompareTo(IComparable? a, object? b)
+    {
+        return a == null ? b == null ? 0 : -1 : b == null ? 1 : a.CompareTo(b);
     }
 }
