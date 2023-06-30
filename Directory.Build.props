@@ -1,0 +1,6 @@
+﻿<Project>
+    <PropertyGroup>
+        <AnalysisLevel>latest-Recommended</AnalysisLevel>
+        <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
+    </PropertyGroup>
+</Project>

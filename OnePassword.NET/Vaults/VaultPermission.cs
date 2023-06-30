@@ -1,4 +1,5 @@
-﻿using OnePassword.Common;
+﻿using System.Diagnostics.CodeAnalysis;
+using OnePassword.Common;
 
 namespace OnePassword.Vaults;
 
@@ -6,6 +7,7 @@ namespace OnePassword.Vaults;
 /// Represents a 1Password vault permission.
 /// </summary>
 [JsonConverter(typeof(JsonStringEnumConverterEx<VaultPermission>))]
+[SuppressMessage("Naming", "CA1711:Identifiers should not have incorrect suffix")]
 public enum VaultPermission
 {
     /// <summary>

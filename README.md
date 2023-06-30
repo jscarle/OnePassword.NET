@@ -8,7 +8,7 @@ op.exe ( [Download](https://app-updates.agilebits.com/product_history/CLI2) | [D
 
 ## References
 
-This library targets .NET 6.0 and .NET 7.0.
+This library targets .NET 6.0, .NET 7.0, and .NET 8.0.
 
 ## Dependencies
 
@@ -41,13 +41,23 @@ onePassword.UseAccount(domain);
 onePassword.SignIn(password);
 ```
 
-### Using Service Account Tokens
+### Using Service Accounts
 
-If Service Account Tokens are used you do not have to call:
-- AddAccount / UseAccount
-- SignIn
+To signin using a Service Account, a token must be provided as part of the options.
 
-For more information see: [1Password Service Accounts](https://developer.1password.com/docs/service-accounts)
+```csharp
+var onePassword = new OnePasswordManager(options => {
+    options.ServiceAccountToken = "yourtoken";
+});
+```
+
+Subsequently, the following commands are not used or supported when using service accounts.
+
+- GetAccounts, GetAccount, AddAccount, UseAccount, ForgetAccount
+- SignIn, SignOut
+
+For more information, see the documentation
+on [1Password Service Accounts](https://developer.1password.com/docs/service-accounts).
 
 ```csharp
 var onePassword = new OnePasswordManager(serviceAccountToken: token);

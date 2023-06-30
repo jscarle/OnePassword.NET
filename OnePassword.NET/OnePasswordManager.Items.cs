@@ -1,4 +1,5 @@
-﻿using OnePassword.Common;
+﻿using System.Globalization;
+using OnePassword.Common;
 using OnePassword.Items;
 using OnePassword.Templates;
 using OnePassword.Vaults;
@@ -9,12 +10,7 @@ public sealed partial class OnePasswordManager
 {
     private static readonly string[] AssignmentChars = { ".", "=", "[", "]", "\\", "\"" };
 
-    /// <summary>
-    /// Gets a vault's items.
-    /// </summary>
-    /// <param name="vault">The vault that contains the items to retrieve.</param>
-    /// <returns>The vault's items.</returns>
-    /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
+    /// <inheritdoc />
     public ImmutableList<Item> GetItems(IVault vault)
     {
         if (vault.Id.Length == 0)
@@ -24,17 +20,7 @@ public sealed partial class OnePasswordManager
         return Op<ImmutableList<Item>>(command);
     }
 
-    /// <summary>
-    /// Searches for an item.
-    /// <remarks>WARNING: If a vault is not specified, the 1Password CLI may generate a large amount of internal calls which may result in throttling.</remarks>
-    /// </summary>
-    /// <param name="vault">The vault that contains the items to search for.</param>
-    /// <param name="includeArchive">When <see langword="true"/>, includes archived items in the search.</param>
-    /// <param name="favorite">When <see langword="true"/>, searches for favorites.</param>
-    /// <param name="categories">The categories to search for.</param>
-    /// <param name="tags">The tags to search for.</param>
-    /// <returns>The items that match the search.</returns>
-    /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
+    /// <inheritdoc />
     public ImmutableList<Item> SearchForItems(IVault? vault = null, bool? includeArchive = null, bool? favorite = null, IReadOnlyCollection<Category>? categories = null, IReadOnlyCollection<string>? tags = null)
     {
         if (vault is not null && vault.Id.Length == 0)
@@ -54,13 +40,7 @@ public sealed partial class OnePasswordManager
         return Op<ImmutableList<Item>>(command);
     }
 
-    /// <summary>
-    /// Gets an item.
-    /// </summary>
-    /// <param name="item">The item to retrieve.</param>
-    /// <param name="vault">The vault that contains the item to retrieve.</param>
-    /// <returns>The item details.</returns>
-    /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
+    /// <inheritdoc />
     public Item GetItem(IItem item, IVault vault)
     {
         if (item.Id is null || item.Id.Length == 0)
@@ -72,15 +52,7 @@ public sealed partial class OnePasswordManager
         return Op<Item>(command);
     }
 
-    /// <summary>
-    /// Searches for an item.
-    /// <remarks>WARNING: If a vault is not specified, the 1Password CLI may generate a large amount of internal calls which may result in throttling.</remarks>
-    /// </summary>
-    /// <param name="item">The item to search for.</param>
-    /// <param name="vault">The vault that contains the item to search for.</param>
-    /// <param name="includeArchive">When <see langword="true"/>, includes archived items in the search.</param>
-    /// <returns>The item that matches the search.</returns>
-    /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
+    /// <inheritdoc />
     public Item SearchForItem(IItem item, IVault? vault = null, bool? includeArchive = null)
     {
         if (item.Id is null || item.Id.Length == 0)
@@ -96,13 +68,7 @@ public sealed partial class OnePasswordManager
         return Op<Item>(command);
     }
 
-    /// <summary>
-    /// Creates an item.
-    /// </summary>
-    /// <param name="template">The template from which to create the item.</param>
-    /// <param name="vault">The vault in which to create the item.</param>
-    /// <returns>The created item.</returns>
-    /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
+    /// <inheritdoc />
     public Item CreateItem(Template template, IVault vault)
     {
         if (vault == null || vault.Id.Length == 0)
@@ -115,13 +81,7 @@ public sealed partial class OnePasswordManager
         return Op<Item>(command, json);
     }
 
-    /// <summary>
-    /// Edits an item.
-    /// </summary>
-    /// <param name="item">The item to edit.</param>
-    /// <param name="vault">The vault that contains the item to edit.</param>
-    /// <returns>The edited item.</returns>
-    /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
+    /// <inheritdoc />
     public Item EditItem(Item item, IVault vault)
     {
         if (vault.Id.Length == 0)
@@ -150,12 +110,7 @@ public sealed partial class OnePasswordManager
         return Op<Item>(command);
     }
 
-    /// <summary>
-    /// Archives an item.
-    /// </summary>
-    /// <param name="item">The item to archive.</param>
-    /// <param name="vault">The vault that contains the item to archive.</param>
-    /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
+    /// <inheritdoc />
     public void ArchiveItem(IItem item, IVault vault)
     {
         if (item.Id is null || item.Id.Length == 0)
@@ -167,12 +122,7 @@ public sealed partial class OnePasswordManager
         Op(command);
     }
 
-    /// <summary>
-    /// Deletes an item.
-    /// </summary>
-    /// <param name="item">The item to delete.</param>
-    /// <param name="vault">The vault that contains the item to delete.</param>
-    /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
+    /// <inheritdoc />
     public void DeleteItem(IItem item, IVault vault)
     {
         if (item.Id is null || item.Id.Length == 0)
@@ -197,7 +147,7 @@ public sealed partial class OnePasswordManager
         else
         {
             if (field.TypeChanged)
-                fieldAssignment += $"[{field.Type.ToEnumString().ToLower().Replace(" ", "", StringComparison.InvariantCulture)}]";
+                fieldAssignment += $"[{field.Type.ToEnumString().ToLower(CultureInfo.InvariantCulture).Replace(" ", "", StringComparison.InvariantCulture)}]";
             fieldAssignment += $"={field.Value}";
         }
         fieldAssignment += "\"";

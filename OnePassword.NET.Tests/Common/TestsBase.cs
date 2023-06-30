@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.IO.Compression;
 using System.Runtime.InteropServices;
 using OnePassword.Groups;
@@ -10,8 +11,8 @@ namespace OnePassword.Common;
 
 public class TestsBase
 {
-    private static readonly int CommandTimeout = int.Parse(GetEnv("OPT_COMMAND_TIMEOUT", "2")) * 60 * 1000;
-    private protected static readonly int RateLimit = int.Parse(GetEnv("OPT_RATE_LIMIT", "250"));
+    private static readonly int CommandTimeout = int.Parse(GetEnv("OPT_COMMAND_TIMEOUT", "2"), CultureInfo.InvariantCulture) * 60 * 1000;
+    private protected static readonly int RateLimit = int.Parse(GetEnv("OPT_RATE_LIMIT", "250"), CultureInfo.InvariantCulture);
     private protected static readonly bool RunLiveTests = bool.Parse(GetEnv("OPT_RUN_LIVE_TESTS", "false"));
     private protected static readonly bool CreateTestUser = bool.Parse(GetEnv("OPT_CREATE_TEST_USER", "false"));
     private protected static readonly string AccountAddress = GetEnv("OPT_ACCOUNT_ADDRESS", "");
@@ -20,8 +21,8 @@ public class TestsBase
     private protected static readonly string AccountPassword = GetEnv("OPT_ACCOUNT_PASSWORD", "");
     private protected static readonly string AccountSecretKey = GetEnv("OPT_ACCOUNT_SECRET_KEY", "");
     private protected static readonly string TestUserEmail = GetEnv("OPT_TEST_USER_EMAIL", "");
-    private protected static readonly string ServiceAccountToken = GetEnv("OPT_SERVICE_ACCOUNT_TOKEN", "");
-    private protected static readonly int TestUserConfirmTimeout = int.Parse(GetEnv("OPT_TEST_USER_CONFIRM_TIMEOUT", GetEnv("OPT_COMMAND_TIMEOUT", "2"))) * 60 * 1000;
+    private static readonly string ServiceAccountToken = GetEnv("OPT_SERVICE_ACCOUNT_TOKEN", "");
+    private protected static readonly int TestUserConfirmTimeout = int.Parse(GetEnv("OPT_TEST_USER_CONFIRM_TIMEOUT", GetEnv("OPT_COMMAND_TIMEOUT", "2")), CultureInfo.InvariantCulture) * 60 * 1000;
     private static readonly SemaphoreSlim SemaphoreSlim = new(1, 1);
     private protected static readonly CancellationTokenSource SetUpCancellationTokenSource = new();
     private static readonly CancellationTokenSource TestCancellationTokenSource = new();
@@ -32,7 +33,7 @@ public class TestsBase
     private protected static IVault TestVault = null!;
     private protected static Template TestTemplate = null!;
     private protected static Item TestItem = null!;
-    private protected static bool DoFinalTearDown = false;
+    private protected static bool DoFinalTearDown;
     private static readonly bool IsLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
     private static readonly Uri DownloadSource = IsLinux ?
         new Uri("https://cache.agilebits.com/dist/1P/op2/pkg/v2.18.0/op_linux_amd64_v2.18.0.zip") :
@@ -66,17 +67,15 @@ public class TestsBase
         using var zipArchive = ZipFile.Open(zipFileName, ZipArchiveMode.Read);
         var entry = zipArchive.GetEntry(ExecutableName);
         if (entry is null)
-            throw new Exception($"Could not find {ExecutableName} in the zip file.");
+            throw new IOException($"Could not find {ExecutableName} in the zip file.");
         entry.ExtractToFile(extractFilename, true);
 
-        if(string.IsNullOrEmpty(ServiceAccountToken))
+        OnePassword = new OnePasswordManager(options =>
         {
-            OnePassword = new OnePasswordManager(path: WorkingDirectory, executable: ExecutableName);
-        }
-        else // assume service account token mode
-        {
-            OnePassword = new OnePasswordManager(path: WorkingDirectory, executable: ExecutableName, serviceAccountToken: ServiceAccountToken);
-        }
+            options.Path = WorkingDirectory;
+            options.Executable = ExecutableName;
+            options.ServiceAccountToken = ServiceAccountToken;
+        });
 
         _initialSetupDone = true;
     }

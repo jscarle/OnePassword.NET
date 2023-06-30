@@ -1,4 +1,5 @@
-﻿using OnePassword.Common;
+﻿using System.Diagnostics.CodeAnalysis;
+using OnePassword.Common;
 
 namespace OnePassword.Items;
 
@@ -6,6 +7,7 @@ namespace OnePassword.Items;
 /// Represents the type of 1Password field.
 /// </summary>
 [JsonConverter(typeof(JsonStringEnumConverterEx<FieldType>))]
+[SuppressMessage("Naming", "CA1720:Identifier contains type name")]
 public enum FieldType
 {
     /// <summary>

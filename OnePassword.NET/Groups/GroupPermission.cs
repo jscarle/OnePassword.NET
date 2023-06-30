@@ -1,4 +1,5 @@
-﻿using OnePassword.Common;
+﻿using System.Diagnostics.CodeAnalysis;
+using OnePassword.Common;
 
 namespace OnePassword.Groups;
 
@@ -6,6 +7,7 @@ namespace OnePassword.Groups;
 /// Represents a 1Password group permission.
 /// </summary>
 [JsonConverter(typeof(JsonStringEnumConverterEx<GroupPermission>))]
+[SuppressMessage("Naming", "CA1711:Identifiers should not have incorrect suffix")]
 public enum GroupPermission
 {
     /// <summary>

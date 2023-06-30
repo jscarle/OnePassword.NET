@@ -7,22 +7,14 @@ namespace OnePassword;
 
 public sealed partial class OnePasswordManager
 {
-    /// <summary>
-    /// Gets the vaults.
-    /// </summary>
-    /// <returns>The list of vaults.</returns>
+    /// <inheritdoc />
     public ImmutableList<Vault> GetVaults()
     {
         const string command = "vault list";
         return Op<ImmutableList<Vault>>(command);
     }
 
-    /// <summary>
-    /// Gets a vault.
-    /// </summary>
-    /// <param name="vault">The vault to retrieve.</param>
-    /// <returns>The vault details.</returns>
-    /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
+    /// <inheritdoc />
     public VaultDetails GetVault(IVault vault)
     {
         if (vault.Id.Length == 0)
@@ -32,15 +24,7 @@ public sealed partial class OnePasswordManager
         return Op<VaultDetails>(command);
     }
 
-    /// <summary>
-    /// Creates a vault.
-    /// </summary>
-    /// <param name="name">The vault name.</param>
-    /// <param name="description">The vault description.</param>
-    /// <param name="icon">The vault icon.</param>
-    /// <param name="allowAdminsToManage">When <see langword="true"/>, allows administrators to manage the vault.</param>
-    /// <returns>The created vault.</returns>
-    /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
+    /// <inheritdoc />
     public VaultDetails CreateVault(string name, string? description = null, VaultIcon icon = VaultIcon.Default, bool? allowAdminsToManage = null)
     {
         var trimmedName = name.Trim();
@@ -59,16 +43,7 @@ public sealed partial class OnePasswordManager
         return Op<VaultDetails>(command);
     }
 
-    /// <summary>
-    /// Edits a vault.
-    /// </summary>
-    /// <param name="vault">The vault to edit.</param>
-    /// <param name="name">The vault's new name.</param>
-    /// <param name="description">The vault's new description.</param>
-    /// <param name="icon">The vault's new icon.</param>
-    /// <param name="travelMode">When <see langword="true"/>, enables travel mode on the vault. If enabled, <see langword="false"/> disables it.</param>
-    /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
-    /// <exception cref="InvalidOperationException">Thrown when there is nothing to edit.</exception>
+    /// <inheritdoc />
     public void EditVault(IVault vault, string? name = null, string? description = null, VaultIcon icon = VaultIcon.Default, bool? travelMode = null)
     {
         if (vault.Id.Length == 0)
@@ -95,11 +70,7 @@ public sealed partial class OnePasswordManager
         Op(command);
     }
 
-    /// <summary>
-    /// Deletes a vault.
-    /// </summary>
-    /// <param name="vault">The vault to delete.</param>
-    /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
+    /// <inheritdoc />
     public void DeleteVault(IVault vault)
     {
         if (vault.Id.Length == 0)
@@ -109,13 +80,7 @@ public sealed partial class OnePasswordManager
         Op(command);
     }
 
-    /// <summary>
-    /// Grants a group permissions to a vault.
-    /// </summary>
-    /// <param name="vault">The vault to grant permissions from.</param>
-    /// <param name="group">The group to grant permissions to.</param>
-    /// <param name="permissions">The permissions to grant.</param>
-    /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
+    /// <inheritdoc />
     public void GrantPermissions(IVault vault, IGroup group, IReadOnlyCollection<VaultPermission> permissions)
     {
         if (vault.Id.Length == 0)
@@ -129,13 +94,7 @@ public sealed partial class OnePasswordManager
         Op(command);
     }
 
-    /// <summary>
-    /// Grants a user permissions to a vault.
-    /// </summary>
-    /// <param name="vault">The vault to grant permissions from.</param>
-    /// <param name="user">The user to grant permissions to.</param>
-    /// <param name="permissions">The permissions to grant.</param>
-    /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
+    /// <inheritdoc />
     public void GrantPermissions(IVault vault, IUser user, IReadOnlyCollection<VaultPermission> permissions)
     {
         if (vault.Id.Length == 0)
@@ -149,13 +108,7 @@ public sealed partial class OnePasswordManager
         Op(command);
     }
 
-    /// <summary>
-    /// Revokes a group's permissions to a vault.
-    /// </summary>
-    /// <param name="vault">The vault to revoke permissions from.</param>
-    /// <param name="permissions">The permissions to revoke.</param>
-    /// <param name="group">The group to revoke permissions to.</param>
-    /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
+    /// <inheritdoc />
     public void RevokePermissions(IVault vault, IGroup group, IReadOnlyCollection<VaultPermission> permissions)
     {
         if (vault.Id.Length == 0)
@@ -169,13 +122,7 @@ public sealed partial class OnePasswordManager
         Op(command);
     }
 
-    /// <summary>
-    /// Revokes a user's permissions to a vault.
-    /// </summary>
-    /// <param name="vault">The vault to revoke permissions from.</param>
-    /// <param name="permissions">The permissions to revoke.</param>
-    /// <param name="user">The user to revoke permissions to.</param>
-    /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
+    /// <inheritdoc />
     public void RevokePermissions(IVault vault, IUser user, IReadOnlyCollection<VaultPermission> permissions)
     {
         if (vault.Id.Length == 0)
@@ -189,12 +136,7 @@ public sealed partial class OnePasswordManager
         Op(command);
     }
 
-    /// <summary>
-    /// Gets a group's vaults.
-    /// </summary>
-    /// <param name="group">The group to retrieve vaults for.</param>
-    /// <returns>The group's vaults.</returns>
-    /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
+    /// <inheritdoc />
     public ImmutableList<Vault> GetVaults(IGroup group)
     {
         if (group.Id.Length == 0)
@@ -204,12 +146,7 @@ public sealed partial class OnePasswordManager
         return Op<ImmutableList<Vault>>(command);
     }
 
-    /// <summary>
-    /// Gets a user's vaults.
-    /// </summary>
-    /// <param name="user">The user to retrieve vaults for.</param>
-    /// <returns>The user's vaults.</returns>
-    /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
+    /// <inheritdoc />
     public ImmutableList<Vault> GetVaults(IUser user)
     {
         if (user.Id.Length == 0)
