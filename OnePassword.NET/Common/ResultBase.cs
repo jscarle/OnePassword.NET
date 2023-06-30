@@ -75,9 +75,4 @@ public abstract class ResultBase<TInterface> : IResult<TInterface>
             return 0;
         return -1;
     }
-
-    private static int NullSafeCompareTo(IComparable? a, object? b)
-    {
-        return a == null ? b == null ? 0 : -1 : b == null ? 1 : a.CompareTo(b);
-    }
 }
