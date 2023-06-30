@@ -69,14 +69,12 @@ public class TestsBase
             throw new Exception($"Could not find {ExecutableName} in the zip file.");
         entry.ExtractToFile(extractFilename, true);
 
-        if(string.IsNullOrEmpty(ServiceAccountToken))
+        OnePassword = new OnePasswordManager(options =>
         {
-            OnePassword = new OnePasswordManager(path: WorkingDirectory, executable: ExecutableName);
-        }
-        else // assume service account token mode
-        {
-            OnePassword = new OnePasswordManager(path: WorkingDirectory, executable: ExecutableName, serviceAccountToken: ServiceAccountToken);
-        }
+            options.Path = WorkingDirectory;
+            options.Executable = ExecutableName;
+            options.ServiceAccountToken = ServiceAccountToken;
+        });
 
         _initialSetupDone = true;
     }

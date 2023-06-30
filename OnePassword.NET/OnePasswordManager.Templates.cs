@@ -6,22 +6,14 @@ namespace OnePassword;
 
 public sealed partial class OnePasswordManager
 {
-    /// <summary>
-    /// Gets the templates.
-    /// </summary>
-    /// <returns>The list of templates.</returns>
+    /// <inheritdoc />
     public ImmutableList<TemplateInfo> GetTemplates()
     {
         const string command = "item template list";
         return Op<ImmutableList<TemplateInfo>>(command);
     }
 
-    /// <summary>
-    /// Gets a template.
-    /// </summary>
-    /// <param name="template">The template to retrieve.</param>
-    /// <returns>The template details.</returns>
-    /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
+    /// <inheritdoc />
     public Template GetTemplate(ITemplate template)
     {
         if (template.Name.Length == 0)
@@ -35,12 +27,21 @@ public sealed partial class OnePasswordManager
         return result;
     }
 
-    /// <summary>
-    /// Gets a template.
-    /// </summary>
-    /// <param name="category">The template category.</param>
-    /// <returns>The template details.</returns>
-    /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
+    /// <inheritdoc />
+    public Template GetTemplate(string name)
+    {
+        if (string.IsNullOrEmpty(name))
+            throw new ArgumentException($"{nameof(name)} cannot be empty.", nameof(name));
+
+        var command = $"item template get \"{name}\"";
+        var result = Op<Template>(command);
+
+        result.Name = name;
+
+        return result;
+    }
+
+    /// <inheritdoc />
     public Template GetTemplate(Category category)
     {
         if (category is Category.Unknown or Category.Custom)
