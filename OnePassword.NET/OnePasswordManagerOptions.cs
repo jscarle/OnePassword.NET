@@ -11,10 +11,10 @@ public class OnePasswordManagerOptions : IOnePasswordManagerOptions
     public string Executable { get; set; } = "op.exe";
 
     /// <inheritdoc />
-    public bool Verbose { get; set; } = false;
+    public bool Verbose { get; set; }
 
     /// <inheritdoc />
-    public bool AppIntegrated { get; set; } = false;
+    public bool AppIntegrated { get; set; }
 
     /// <inheritdoc />
     public string ServiceAccountToken { get; set; } = "";

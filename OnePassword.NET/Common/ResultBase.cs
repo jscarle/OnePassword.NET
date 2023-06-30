@@ -67,7 +67,7 @@ public abstract class ResultBase<TInterface> : IResult<TInterface>
     /// <inheritdoc />
     public override int GetHashCode() => StringComparer.OrdinalIgnoreCase.GetHashCode(Id);
 
-    private static int NullSafeCompareTo(IComparable? a, object? b)
+    private static int NullSafeCompareTo(ResultBase<TInterface>? a, object? b)
     {
         if (a is not null)
             return b is null ? 1 : a.CompareTo(b);

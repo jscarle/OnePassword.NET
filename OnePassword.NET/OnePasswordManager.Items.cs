@@ -1,4 +1,5 @@
-﻿using OnePassword.Common;
+﻿using System.Globalization;
+using OnePassword.Common;
 using OnePassword.Items;
 using OnePassword.Templates;
 using OnePassword.Vaults;
@@ -146,7 +147,7 @@ public sealed partial class OnePasswordManager
         else
         {
             if (field.TypeChanged)
-                fieldAssignment += $"[{field.Type.ToEnumString().ToLower().Replace(" ", "", StringComparison.InvariantCulture)}]";
+                fieldAssignment += $"[{field.Type.ToEnumString().ToLower(CultureInfo.InvariantCulture).Replace(" ", "", StringComparison.InvariantCulture)}]";
             fieldAssignment += $"={field.Value}";
         }
         fieldAssignment += "\"";

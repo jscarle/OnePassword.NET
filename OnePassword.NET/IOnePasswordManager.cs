@@ -1,4 +1,5 @@
-﻿using OnePassword.Accounts;
+﻿using System.Diagnostics.CodeAnalysis;
+using OnePassword.Accounts;
 using OnePassword.Common;
 using OnePassword.Groups;
 using OnePassword.Items;
@@ -8,6 +9,7 @@ using OnePassword.Vaults;
 
 namespace OnePassword;
 
+[SuppressMessage("Naming", "CA1716:Identifiers should not match keywords")]
 public interface IOnePasswordManager
 {
     /// <summary>
