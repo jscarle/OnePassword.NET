@@ -29,6 +29,13 @@ public abstract class ItemBase : ITracked
     public Category Category { get; internal init; } = Category.Unknown;
 
     /// <summary>
+    /// The item category ID.
+    /// </summary>
+    [JsonInclude]
+    [JsonPropertyName("category_id")]
+    public string CategoryID { get; set; }
+
+    /// <summary>
     /// The item sections.
     /// </summary>
     [JsonInclude]
