@@ -7,6 +7,10 @@ namespace OnePassword.Items;
 /// </summary>
 public abstract class ItemBase : ITracked
 {
+    private string _categoryId = "";
+    private bool _categoryIdChanged;
+    private string _title = "";
+
     /// <summary>
     /// The item title.
     /// </summary>
@@ -15,7 +19,8 @@ public abstract class ItemBase : ITracked
     public string Title
     {
         get => _title;
-        set {
+        set
+        {
             _title = value;
             TitleChanged = true;
         }
@@ -32,7 +37,7 @@ public abstract class ItemBase : ITracked
         set
         {
             _categoryId = value;
-            CategoryIdChanged = true;
+            _categoryIdChanged = true;
         }
     }
 
@@ -72,31 +77,23 @@ public abstract class ItemBase : ITracked
     public TrackedList<string> Tags { get; internal init; } = new();
 
     /// <summary>
-    /// Returns <see langword="true"/> when the title has changed, <see langword="false"/> otherwise.
+    /// Returns <see langword="true" /> when the title has changed, <see langword="false" /> otherwise.
     /// </summary>
     internal bool TitleChanged { get; private set; }
 
-    /// <summary>
-    /// Returns <see langword="true"/> when the categoryId has changed, <see langword="false"/> otherwise.
-    /// </summary>
-    internal bool CategoryIdChanged { get; private set; }
-
     /// <inheritdoc />
     bool ITracked.Changed => TitleChanged
-        | CategoryIdChanged
+        | _categoryIdChanged
         | ((ITracked)Sections).Changed
         | ((ITracked)Fields).Changed
         | ((ITracked)Urls).Changed
         | ((ITracked)Tags).Changed;
 
-    private string _title = "";
-    private string _categoryId = "";
-
     /// <inheritdoc />
     void ITracked.AcceptChanges()
     {
         TitleChanged = false;
-        CategoryIdChanged = false;
+        _categoryIdChanged = false;
         ((ITracked)Sections).AcceptChanges();
         ((ITracked)Fields).AcceptChanges();
         ((ITracked)Urls).AcceptChanges();
