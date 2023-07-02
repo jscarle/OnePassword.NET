@@ -71,12 +71,12 @@ public sealed partial class OnePasswordManager
     /// <inheritdoc />
     public Item CreateItem(Template template, IVault vault)
     {
-        if (vault.Id.Length == 0)
+        if (vault is null || vault.Id.Length == 0)
             throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
 
         var json = JsonSerializer.Serialize(template) + "\x04";
 
-        var command = $"item create - --vault {vault.Id}";
+        var command = $"item create --vault {vault.Id} -";
         ((ITracked)template).AcceptChanges();
         return Op<Item>(command, json);
     }

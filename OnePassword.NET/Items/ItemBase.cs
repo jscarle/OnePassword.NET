@@ -22,6 +22,21 @@ public abstract class ItemBase : ITracked
     }
 
     /// <summary>
+    /// The item categoryId.
+    /// </summary>
+    [JsonInclude]
+    [JsonPropertyName("category_id")]
+    public string CategoryId
+    {
+        get => _categoryId;
+        set
+        {
+            _categoryId = value;
+            CategoryIdChanged = true;
+        }
+    }
+
+    /// <summary>
     /// The item category.
     /// </summary>
     [JsonInclude]
@@ -61,19 +76,27 @@ public abstract class ItemBase : ITracked
     /// </summary>
     internal bool TitleChanged { get; private set; }
 
+    /// <summary>
+    /// Returns <see langword="true"/> when the categoryId has changed, <see langword="false"/> otherwise.
+    /// </summary>
+    internal bool CategoryIdChanged { get; private set; }
+
     /// <inheritdoc />
     bool ITracked.Changed => TitleChanged
+        | CategoryIdChanged
         | ((ITracked)Sections).Changed
         | ((ITracked)Fields).Changed
         | ((ITracked)Urls).Changed
         | ((ITracked)Tags).Changed;
 
     private string _title = "";
+    private string _categoryId = "";
 
     /// <inheritdoc />
     void ITracked.AcceptChanges()
     {
         TitleChanged = false;
+        CategoryIdChanged = false;
         ((ITracked)Sections).AcceptChanges();
         ((ITracked)Fields).AcceptChanges();
         ((ITracked)Urls).AcceptChanges();
