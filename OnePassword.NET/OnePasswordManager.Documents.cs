@@ -29,6 +29,48 @@ public sealed partial class OnePasswordManager
     }
 
     /// <inheritdoc />
+    public string GetDocument(
+        string nameOrId,
+        string? outFile = null,
+        string? fileMode = null,
+        string? vault = null,
+        bool includeArchive = false)
+    {
+        var trimmedNameOrId = nameOrId.Trim();
+        if (trimmedNameOrId.Length == 0)
+            throw new ArgumentException($"{nameof(nameOrId)} cannot be empty.", nameof(nameOrId));
+
+        // TODO: Maybe support checking to see if a file would be overwritten on behalf of the force flag?
+        var command = $"document get \"{trimmedNameOrId}\"";
+
+        if (!string.IsNullOrWhiteSpace(outFile))
+        {
+            var trimmedOutFile = outFile.Trim();
+            // Without the force flag, the CLI will prompt for confirmation.
+            command += $" --force --out-file \"{trimmedOutFile}\"";
+        }
+
+        if (!string.IsNullOrWhiteSpace(fileMode))
+        {
+            var trimmedFileMode = fileMode.Trim();
+            command += $" --file-mode \"{trimmedFileMode}\"";
+        }
+
+        if (!string.IsNullOrWhiteSpace(vault))
+        {
+            var trimmedVault = vault.Trim();
+            command += $" --vault \"{trimmedVault}\"";
+        }
+
+        if (includeArchive != false)
+        {
+            command += $" --include-archived";
+        }
+
+        return Op(command);
+    }
+
+    /// <inheritdoc />
     public CreateDocument CreateDocument(
         string filePath,
         string? fileName = null,

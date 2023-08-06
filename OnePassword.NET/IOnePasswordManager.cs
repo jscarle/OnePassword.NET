@@ -479,4 +479,19 @@ public interface IOnePasswordManager
         string? title = null,
         string? vault = null,
         IReadOnlyCollection<string>? tags = null);
+
+    /// <summary>
+    /// Gets the content of a document, or download and save the document to disk.
+    /// </summary>
+    /// <param name="nameOrId">The name or Id of a document.</param>
+    /// <param name="outFile">Save the document to the file path.</param>
+    /// <param name="fileMode">Set filemode for the output file. (default 0600)</param>
+    /// <param name="vault">Look for the document in this vault.</param>
+    /// <param name="includeArchive">Include document items in the Archive. Can also be set using OP_INCLUDE_ARCHIVE environment variable.</param>
+    public string GetDocument(
+        string nameOrId,
+        string? outFile = null,
+        string? fileMode = null,
+        string? vault = null,
+        bool includeArchive = false);
 }
