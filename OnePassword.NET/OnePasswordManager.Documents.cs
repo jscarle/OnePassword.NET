@@ -22,7 +22,7 @@ public sealed partial class OnePasswordManager
 
         if (includeArchive != false)
         {
-            command += $" --include-archived";
+            command += $" --include-archive";
         }
 
         return Op<ImmutableList<Document>>(command);
@@ -64,7 +64,7 @@ public sealed partial class OnePasswordManager
 
         if (includeArchive != false)
         {
-            command += $" --include-archived";
+            command += $" --include-archive";
         }
 
         return Op(command);
@@ -147,6 +147,32 @@ public sealed partial class OnePasswordManager
 
         if (tags is not null && tags.Count > 0)
             command += $" --tags \"{tags.ToCommaSeparated()}\"";
+
+        Op(command);
+    }
+
+    /// <inheritdoc />
+    public void DeleteDocument(
+        string nameOrId,
+        bool archive = false,
+        string? vault = null)
+    {
+        var trimmedNameOrId = nameOrId.Trim();
+        if (trimmedNameOrId.Length == 0)
+            throw new ArgumentException($"{nameof(nameOrId)} cannot be empty.", nameof(nameOrId));
+
+        var command = $"document delete \"{trimmedNameOrId}\"";
+
+        if (archive != false)
+        {
+            command += $" --archive";
+        }
+
+        if (!string.IsNullOrWhiteSpace(vault))
+        {
+            var trimmedVault = vault.Trim();
+            command += $" --vault \"{trimmedVault}\"";
+        }
 
         Op(command);
     }

@@ -513,4 +513,15 @@ public interface IOnePasswordManager
         string? title = null,
         string? vault = null,
         IReadOnlyCollection<string>? tags = null);
+
+    /// <summary>
+    /// Permanently delete a document. Use the 'archive' option to move it to the Archive instead.
+    /// </summary>
+    /// <param name="nameOrId">The name or Id of a document.</param>
+    /// <param name="archive">Move the document to the Archive.</param>
+    /// <param name="vault">Delete the document in this vault.</param>
+    public void DeleteDocument(
+        string nameOrId,
+        bool archive = false,
+        string? vault = null);
 }
