@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using OnePassword.Accounts;
 using OnePassword.Common;
+using OnePassword.Documents;
 using OnePassword.Groups;
 using OnePassword.Items;
 using OnePassword.Templates;
@@ -450,4 +451,14 @@ public interface IOnePasswordManager
     /// <param name="user">The user to revoke access to.</param>
     /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
     public void RevokeAccess(IGroup group, IUser user);
+
+    /// <summary>
+    /// Returns a list of all documents the account has read access to by default. Excludes items in the Archive by default.
+    /// </summary>
+    /// <param name="vault">Only list documents in this vault.</param>
+    /// <param name="includeArchive">Include document items in the Archive. Can also be set using OP_INCLUDE_ARCHIVE environment variable.</param>
+    /// <returns>The user's groups.</returns>
+    public ImmutableList<Document> GetDocuments(
+        string? vault = null,
+        bool includeArchive = false);
 }
