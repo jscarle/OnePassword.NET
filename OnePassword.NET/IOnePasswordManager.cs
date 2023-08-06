@@ -463,7 +463,7 @@ public interface IOnePasswordManager
         bool includeArchive = false);
 
     /// <summary>
-    /// Create a document item.
+    /// Create a document.
     /// When you create a document, a JSON object containing its ID is returned.
     /// The document is saved to the Private or Personal vault unless you specify another with the 'vault' option.
     /// </summary>
@@ -472,7 +472,7 @@ public interface IOnePasswordManager
     /// <param name="title">Set the document item's title.</param>
     /// <param name="vault">Save the document in this vault. Default: Private.</param>
     /// <param name="tags">Set the tags to the specified (comma-separated) values.</param>
-    /// <returns>The user's groups.</returns>
+    /// <returns>The id of the newly created document.</returns>
     public CreateDocument CreateDocument(
         string filePath,
         string? fileName = null,
@@ -488,10 +488,29 @@ public interface IOnePasswordManager
     /// <param name="fileMode">Set filemode for the output file. (default 0600)</param>
     /// <param name="vault">Look for the document in this vault.</param>
     /// <param name="includeArchive">Include document items in the Archive. Can also be set using OP_INCLUDE_ARCHIVE environment variable.</param>
+    /// <returns>The contents of the document if outFile not specified.</returns>
     public string GetDocument(
         string nameOrId,
         string? outFile = null,
         string? fileMode = null,
         string? vault = null,
         bool includeArchive = false);
+
+    /// <summary>
+    /// Edit a document.
+    /// Replaces the file contents of a Document item with the provided file.
+    /// </summary>
+    /// <param name="nameOrId">The name or Id of a document.</param>
+    /// <param name="filePath">The path to the file to upload.</param>
+    /// <param name="fileName">Set the file's name.</param>
+    /// <param name="title">Set the document item's title.</param>
+    /// <param name="vault">Save the document in this vault. Default: Private.</param>
+    /// <param name="tags">Set the tags to the specified (comma-separated) values.</param>
+    public void EditDocument(
+        string nameOrId,
+        string filePath,
+        string? fileName = null,
+        string? title = null,
+        string? vault = null,
+        IReadOnlyCollection<string>? tags = null);
 }
