@@ -461,4 +461,22 @@ public interface IOnePasswordManager
     public ImmutableList<Document> GetDocuments(
         string? vault = null,
         bool includeArchive = false);
+
+    /// <summary>
+    /// Create a document item.
+    /// When you create a document, a JSON object containing its ID is returned.
+    /// The document is saved to the Private or Personal vault unless you specify another with the 'vault' option.
+    /// </summary>
+    /// <param name="filePath">The path to the file to upload.</param>
+    /// <param name="fileName">Set the file's name.</param>
+    /// <param name="title">Set the document item's title.</param>
+    /// <param name="vault">Save the document in this vault. Default: Private.</param>
+    /// <param name="tags">Set the tags to the specified (comma-separated) values.</param>
+    /// <returns>The user's groups.</returns>
+    public CreateDocument CreateDocument(
+        string filePath,
+        string? fileName = null,
+        string? title = null,
+        string? vault = null,
+        IReadOnlyCollection<string>? tags = null);
 }

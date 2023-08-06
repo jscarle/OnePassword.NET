@@ -1,6 +1,6 @@
 ﻿namespace OnePassword.Documents
 {
-    internal class CreateDocument : DocumentBase
+    public sealed class CreateDocument : DocumentBase
     {
         /// <summary>
         /// The document title.
