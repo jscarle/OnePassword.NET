@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.IO.Compression;
 using System.Runtime.InteropServices;
+using OnePassword.Documents;
 using OnePassword.Groups;
 using OnePassword.Items;
 using OnePassword.Templates;

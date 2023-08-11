@@ -1,7 +1,5 @@
 ﻿using OnePassword.Common;
 using OnePassword.Documents;
-using OnePassword.Users;
-using OnePassword.Vaults;
 
 namespace OnePassword;
 

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace OnePassword.Documents
+﻿namespace OnePassword.Documents
 {
     /// <summary>
     /// Represents a 1Password document vault.
