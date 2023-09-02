@@ -84,6 +84,8 @@ public sealed partial class OnePasswordManager
     /// <inheritdoc />
     public Item EditItem(Item item, IVault vault)
     {
+        if (item.Id is null || item.Id.Length == 0)
+            throw new ArgumentException($"{nameof(item.Id)} cannot be empty.", nameof(item));
         if (vault.Id.Length == 0)
             throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
 

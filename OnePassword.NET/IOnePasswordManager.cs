@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using OnePassword.Accounts;
 using OnePassword.Common;
+using OnePassword.Documents;
 using OnePassword.Groups;
 using OnePassword.Items;
 using OnePassword.Templates;
@@ -450,4 +451,91 @@ public interface IOnePasswordManager
     /// <param name="user">The user to revoke access to.</param>
     /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
     public void RevokeAccess(IGroup group, IUser user);
+
+    /// <summary>
+    /// Gets a vault's documents.
+    /// </summary>
+    /// <param name="vault">The vault that contains the documents to retrieve.</param>
+    /// <returns>The vault's documents.</returns>
+    /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
+    public ImmutableList<DocumentDetails> GetDocuments(IVault vault);
+
+    /// <summary>
+    /// Searches for an document.
+    /// <remarks>
+    /// WARNING: If a vault is not specified, the 1Password CLI may generate a large amount of internal calls which
+    /// may result in throttling.
+    /// </remarks>
+    /// </summary>
+    /// <param name="vault">The vault that contains the documents to search for.</param>
+    /// <param name="includeArchive">When <see langword="true" />, includes archived documents in the search.</param>
+    /// <returns>The documents that match the search.</returns>
+    /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
+    public ImmutableList<DocumentDetails> SearchForDocuments(IVault? vault = null, bool? includeArchive = null);
+
+    /// <summary>
+    /// Creates a document.
+    /// </summary>
+    /// <param name="vault">The vault in which to create the document.</param>
+    /// <param name="filePath">The path to the file to upload.</param>
+    /// <param name="fileName">The document's filename.</param>
+    /// <param name="title">The document's title.</param>
+    /// <param name="tags">The document's tags.</param>
+    /// <returns>The created document.</returns>
+    /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
+    public Document CreateDocument(IVault vault, string filePath, string? fileName = null, string? title = null, IReadOnlyCollection<string>? tags = null);
+
+    /// <summary>
+    /// Gets a document.
+    /// </summary>
+    /// <param name="document">The document to retrieve.</param>
+    /// <param name="vault">The vault that contains the document to retrieve.</param>
+    /// <param name="filePath">The file path to save the document to.</param>
+    /// <param name="fileMode">The file mode.</param>
+    /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
+    public void GetDocument(IDocument document, IVault vault, string filePath, string? fileMode = null);
+
+    /// <summary>
+    /// Searches for a document.
+    /// <remarks>
+    /// WARNING: If a vault is not specified, the 1Password CLI may generate a large amount of internal calls which
+    /// may result in throttling.
+    /// </remarks>
+    /// </summary>
+    /// <param name="document">The document to search for.</param>
+    /// <param name="filePath">The file path to save the document to.</param>
+    /// <param name="vault">The vault that contains the document to search for.</param>
+    /// <param name="includeArchive">When <see langword="true" />, includes archived documents in the search.</param>
+    /// <param name="fileMode">The file mode.</param>
+    /// <returns>The document that matches the search.</returns>
+    /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
+    public void SearchForDocument(IDocument document, string filePath, IVault? vault = null, bool? includeArchive = null, string? fileMode = null);
+
+    /// <summary>
+    /// Replaces a document.
+    /// </summary>
+    /// <param name="document">The document to replace.</param>
+    /// <param name="vault">The vault that contains the document to replace.</param>
+    /// <param name="filePath">The path to the file to upload.</param>
+    /// <param name="fileName">The document's filename.</param>
+    /// <param name="title">The document's title.</param>
+    /// <param name="tags">The document's tags.</param>
+    /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
+    public void ReplaceDocument(IDocument document, IVault vault, string filePath, string? fileName = null, string? title = null, IReadOnlyCollection<string>? tags = null);
+
+    /// <summary>
+    /// Archives a document.
+    /// </summary>
+    /// <param name="document">The document to archive.</param>
+    /// <param name="vault">The vault that contains the document to archive.</param>
+    /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
+    public void ArchiveDocument(IDocument document, IVault vault);
+
+    /// <summary>
+    /// Deletes a document.
+    /// </summary>
+    /// <param name="document">The document to delete.</param>
+    /// <param name="vault">The vault that contains the document to delete.</param>
+    /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
+    public void DeleteDocument(IDocument document, IVault vault);
 }
