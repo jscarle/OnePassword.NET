@@ -1,177 +1,154 @@
 ﻿using OnePassword.Common;
 using OnePassword.Documents;
+using OnePassword.Vaults;
 
 namespace OnePassword;
 
 public sealed partial class OnePasswordManager
 {
     /// <inheritdoc />
-    public ImmutableList<Document> GetDocuments(
-        string? vault = null,
-        bool includeArchive = false)
+    public ImmutableList<DocumentDetails> GetDocuments(IVault vault)
     {
-        var command = $"document list";
+        if (vault.Id.Length == 0)
+            throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
 
-        if (!string.IsNullOrWhiteSpace(vault))
-        {
-            var trimmedVault = vault.Trim();
-            command += $" --vault \"{trimmedVault}\"";
-        }
-
-        if (includeArchive != false)
-        {
-            command += $" --include-archive";
-        }
-
-        return Op<ImmutableList<Document>>(command);
+        var command = $"document list --vault {vault.Id}";
+        return Op<ImmutableList<DocumentDetails>>(command);
     }
 
     /// <inheritdoc />
-    public string GetDocument(
-        string nameOrId,
-        string? outFile = null,
-        string? fileMode = null,
-        string? vault = null,
-        bool includeArchive = false)
+    public ImmutableList<DocumentDetails> SearchForDocuments(IVault? vault = null, bool? includeArchive = null)
     {
-        var trimmedNameOrId = nameOrId.Trim();
-        if (trimmedNameOrId.Length == 0)
-            throw new ArgumentException($"{nameof(nameOrId)} cannot be empty.", nameof(nameOrId));
+        if (vault is not null && vault.Id.Length == 0)
+            throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
 
-        // TODO: Maybe support checking to see if a file would be overwritten on behalf of the force flag?
-        var command = $"document get \"{trimmedNameOrId}\"";
-
-        if (!string.IsNullOrWhiteSpace(outFile))
-        {
-            var trimmedOutFile = outFile.Trim();
-            // Without the force flag, the CLI will prompt for confirmation.
-            command += $" --force --out-file \"{trimmedOutFile}\"";
-        }
-
-        if (!string.IsNullOrWhiteSpace(fileMode))
-        {
-            var trimmedFileMode = fileMode.Trim();
-            command += $" --file-mode \"{trimmedFileMode}\"";
-        }
-
-        if (!string.IsNullOrWhiteSpace(vault))
-        {
-            var trimmedVault = vault.Trim();
-            command += $" --vault \"{trimmedVault}\"";
-        }
-
-        if (includeArchive != false)
-        {
-            command += $" --include-archive";
-        }
-
-        return Op(command);
+        var command = "document list";
+        if (vault is not null)
+            command += $" --vault {vault.Id}";
+        if (includeArchive is not null && includeArchive.Value)
+            command += " --include-archive";
+        return Op<ImmutableList<DocumentDetails>>(command);
     }
 
     /// <inheritdoc />
-    public CreateDocument CreateDocument(
-        string filePath,
-        string? fileName = null,
-        string? title = null,
-        string? vault = null,
-        IReadOnlyCollection<string>? tags = null)
+    public void GetDocument(IDocument document, IVault vault, string filePath, string? fileMode = null)
     {
-        var trimmedFilePath = filePath.Trim();
-        if (trimmedFilePath.Length == 0)
+        if (document.Id is null || document.Id.Length == 0)
+            throw new ArgumentException($"{nameof(document.Id)} cannot be empty.", nameof(document));
+        if (vault.Id.Length == 0)
+            throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
+        if (filePath.Length == 0)
             throw new ArgumentException($"{nameof(filePath)} cannot be empty.", nameof(filePath));
 
-        var command = $"document create  \"{trimmedFilePath}\"";
-
-        if (!string.IsNullOrWhiteSpace(fileName))
-        {
-            var trimmedFileName = fileName.Trim();
-            command += $" --file-name \"{trimmedFileName}\"";
-        }
-
-        if (!string.IsNullOrWhiteSpace(title))
-        {
-            var trimmedTitle = title.Trim();
-            command += $" --title \"{trimmedTitle}\"";
-        }
-
-        if (!string.IsNullOrWhiteSpace(vault))
-        {
-            var trimmedVault = vault.Trim();
-            command += $" --vault \"{trimmedVault}\"";
-        }
-
-        if (tags is not null && tags.Count > 0)
-            command += $" --tags \"{tags.ToCommaSeparated()}\"";
-
-        return Op<CreateDocument>(command);
-    }
-
-    /// <inheritdoc />
-    public void EditDocument(
-        string nameOrId,
-        string filePath,
-        string? fileName = null,
-        string? title = null,
-        string? vault = null,
-        IReadOnlyCollection<string>? tags = null)
-    {
-        var trimmedNameOrId = nameOrId.Trim();
-        if (trimmedNameOrId.Length == 0)
-            throw new ArgumentException($"{nameof(nameOrId)} cannot be empty.", nameof(nameOrId));
-
         var trimmedFilePath = filePath.Trim();
-        if (trimmedFilePath.Length == 0)
-            throw new ArgumentException($"{nameof(filePath)} cannot be empty.", nameof(filePath));
+        var trimmedFileMode = fileMode?.Trim();
 
-        var command = $"document edit \"{trimmedNameOrId}\" \"{trimmedFilePath}\"";
-
-        if (!string.IsNullOrWhiteSpace(fileName))
-        {
-            var trimmedFileName = fileName.Trim();
-            command += $" --file-name \"{trimmedFileName}\"";
-        }
-
-        if (!string.IsNullOrWhiteSpace(title))
-        {
-            var trimmedTitle = title.Trim();
-            command += $" --title \"{trimmedTitle}\"";
-        }
-
-        if (!string.IsNullOrWhiteSpace(vault))
-        {
-            var trimmedVault = vault.Trim();
-            command += $" --vault \"{trimmedVault}\"";
-        }
-
-        if (tags is not null && tags.Count > 0)
-            command += $" --tags \"{tags.ToCommaSeparated()}\"";
-
+        // Not specifying --force will hang waiting for user input if the file exists.
+        var command = $"document get {document.Id} --out-file \"{trimmedFilePath}\" --force --vault {vault.Id}";
+        if (trimmedFileMode is not null)
+            command += $" --file-mode {trimmedFileMode}";
         Op(command);
     }
 
     /// <inheritdoc />
-    public void DeleteDocument(
-        string nameOrId,
-        bool archive = false,
-        string? vault = null)
+    public void SearchForDocument(IDocument document, string filePath, IVault? vault = null, bool? includeArchive = null, string? fileMode = null)
     {
-        var trimmedNameOrId = nameOrId.Trim();
-        if (trimmedNameOrId.Length == 0)
-            throw new ArgumentException($"{nameof(nameOrId)} cannot be empty.", nameof(nameOrId));
+        if (document.Id is null || document.Id.Length == 0)
+            throw new ArgumentException($"{nameof(document.Id)} cannot be empty.", nameof(document));
+        if (filePath.Length == 0)
+            throw new ArgumentException($"{nameof(filePath)} cannot be empty.", nameof(filePath));
+        if (!File.Exists(filePath))
+            throw new ArgumentException($"File '{filePath}' was not found or could not be accessed.", nameof(filePath));
+        if (vault is not null && vault.Id.Length == 0)
+            throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
 
-        var command = $"document delete \"{trimmedNameOrId}\"";
+        var trimmedFilePath = filePath.Trim();
+        var trimmedFileMode = fileMode?.Trim();
 
-        if (archive != false)
-        {
-            command += $" --archive";
-        }
+        // Not specifying --force will hang waiting for user input if the file exists.
+        var command = $"document get {document.Id} --out-file \"{trimmedFilePath}\" --force";
+        if (vault is not null)
+            command += $" --vault {vault.Id}";
+        if (includeArchive is not null && includeArchive.Value)
+            command += " --include-archive";
+        if (trimmedFileMode is not null)
+            command += $" --file-mode {trimmedFileMode}";
+        Op(command);
+    }
 
-        if (!string.IsNullOrWhiteSpace(vault))
-        {
-            var trimmedVault = vault.Trim();
-            command += $" --vault \"{trimmedVault}\"";
-        }
+    /// <inheritdoc />
+    public Document CreateDocument(IVault vault, string filePath, string? fileName = null, string? title = null, IReadOnlyCollection<string>? tags = null)
+    {
+        if (vault is not null && vault.Id.Length == 0)
+            throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
+        if (filePath.Length == 0)
+            throw new ArgumentException($"{nameof(filePath)} cannot be empty.", nameof(filePath));
+        if (!File.Exists(filePath))
+            throw new ArgumentException($"File '{filePath}' was not found or could not be accessed.", nameof(filePath));
 
+        var trimmedFilePath = filePath.Trim();
+        var trimmedFileName = fileName?.Trim();
+        var trimmedTitle = title?.Trim();
+
+        var command = $"document create \"{trimmedFilePath}\"";
+        if (vault is not null)
+            command += $" --vault {vault.Id}";
+        if (trimmedFileName is not null)
+            command += $" --file-name \"{trimmedFileName}\"";
+        if (trimmedTitle is not null)
+            command += $" --title \"{trimmedTitle}\"";
+        if (tags is not null && tags.Count > 0)
+            command += $" --tags \"{tags.ToCommaSeparated()}\"";
+        return Op<Document>(command);
+    }
+
+    /// <inheritdoc />
+    public void ReplaceDocument(IDocument document, IVault vault, string filePath, string? fileName = null, string? title = null, IReadOnlyCollection<string>? tags = null)
+    {
+        if (document.Id is null || document.Id.Length == 0)
+            throw new ArgumentException($"{nameof(document.Id)} cannot be empty.", nameof(document));
+        if (vault.Id.Length == 0)
+            throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
+        if (filePath.Length == 0)
+            throw new ArgumentException($"{nameof(filePath)} cannot be empty.", nameof(filePath));
+        if (!File.Exists(filePath))
+            throw new ArgumentException($"File '{filePath}' was not found or could not be accessed.", nameof(filePath));
+
+        var trimmedFilePath = filePath.Trim();
+        var trimmedFileName = fileName?.Trim();
+        var trimmedTitle = title?.Trim();
+
+        var command = $"document edit {document.Id} \"{trimmedFilePath}\" --vault {vault.Id}";
+        if (trimmedFileName is not null)
+            command += $" --file-name \"{trimmedFileName}\"";
+        if (trimmedTitle is not null)
+            command += $" --title \"{trimmedTitle}\"";
+        if (tags is not null && tags.Count > 0)
+            command += $" --tags \"{tags.ToCommaSeparated()}\"";
+        Op(command);
+    }
+
+    /// <inheritdoc />
+    public void ArchiveDocument(IDocument document, IVault vault)
+    {
+        if (document.Id is null || document.Id.Length == 0)
+            throw new ArgumentException($"{nameof(document.Id)} cannot be empty.", nameof(document));
+        if (vault.Id.Length == 0)
+            throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
+
+        var command = $"document delete {document.Id} --vault {vault.Id} --archive";
+        Op(command);
+    }
+
+    /// <inheritdoc />
+    public void DeleteDocument(IDocument document, IVault vault)
+    {
+        if (document.Id is null || document.Id.Length == 0)
+            throw new ArgumentException($"{nameof(document.Id)} cannot be empty.", nameof(document));
+        if (vault.Id.Length == 0)
+            throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
+
+        var command = $"document delete {document.Id} --vault {vault.Id}";
         Op(command);
     }
 }

@@ -5,13 +5,13 @@ namespace OnePassword;
 
 [TestFixture]
 [Order(7)]
-public class SetUpDocument : TestsBase
+public class TestDocuments : TestsBase
 {
     private string _filePath = null!;
     private const string InitialFileName = "CreatedDocument.txt";
     private const string InitialTitle = "Created Document";
     private const string InitialFileContent = "Created by unit testing.";
-    private CreateDocument _initialCreateDocument = null!;
+    private Document _initialDocument = null!;
     private const string FinalFileName = "TestDocument.Txt";
     private const string FinalTitle = "Test Document";
     private const string FinalFileContent = "Test for unit testing.";
@@ -28,40 +28,22 @@ public class SetUpDocument : TestsBase
             _filePath = Path.Combine(WorkingDirectory, "FileNameOnDisk.txt");
             File.WriteAllText(_filePath, InitialFileContent);
 
-            // Does not return title or filename
-            _initialCreateDocument = OnePassword.CreateDocument(
-                _filePath,
-                InitialFileName,
-                InitialTitle,
-                TestVault.Name);
+            _initialDocument = OnePassword.CreateDocument(TestVault, _filePath, InitialFileName, InitialTitle);
 
-            Assert.Multiple(() =>
-            {
-                // Returns "uuid" instead of "id"
-                Assert.That(_initialCreateDocument.VaultUUId, Is.EqualTo(TestVault.Id));
-                Assert.That(_initialCreateDocument.UUId, Is.Not.Empty);
-                Assert.That(_initialCreateDocument.Created, Is.Not.EqualTo(default));
-                Assert.That(_initialCreateDocument.Updated, Is.Not.EqualTo(default));
-            });
+            Assert.Multiple(() => { Assert.That(_initialDocument.Id, Is.Not.Empty); });
         });
     }
 
     [Test]
     [Order(2)]
-    public void EditDocument()
+    public void ReplaceDocument()
     {
         if (!RunLiveTests)
             Assert.Ignore();
 
         File.WriteAllText(_filePath, FinalFileContent);
 
-        Run(RunType.SetUp, () => { OnePassword.EditDocument(
-            _initialCreateDocument.UUId,
-            _filePath,
-            FinalFileName,
-            FinalTitle,
-            TestVault.Name); 
-        });
+        Run(RunType.SetUp, () => { OnePassword.ReplaceDocument(_initialDocument, TestVault, _filePath, FinalFileName, FinalTitle); });
     }
 
     [Test]
@@ -74,7 +56,7 @@ public class SetUpDocument : TestsBase
         Run(RunType.SetUp, () =>
         {
             // Does not return FileName
-            var documents = OnePassword.GetDocuments();
+            var documents = OnePassword.GetDocuments(TestVault);
 
             Assert.That(documents, Has.Count.GreaterThan(0));
 
@@ -82,7 +64,7 @@ public class SetUpDocument : TestsBase
 
             Assert.Multiple(() =>
             {
-                Assert.That(document.Id, Is.EqualTo(_initialCreateDocument.UUId));
+                Assert.That(document.Id, Is.EqualTo(_initialDocument.Id));
                 Assert.That(document.Title, Is.EqualTo(FinalTitle));
             });
 
@@ -92,22 +74,7 @@ public class SetUpDocument : TestsBase
 
     [Test]
     [Order(4)]
-    public void GetDocumentResponse()
-    {
-        if (!RunLiveTests)
-            Assert.Ignore();
-
-        Run(RunType.SetUp, () =>
-        {
-            var documentContent = OnePassword.GetDocument(_initialCreateDocument.UUId, vault: TestVault.Name);
-
-            Assert.That(documentContent, Is.EqualTo(FinalFileContent));
-        });
-    }
-
-    [Test]
-    [Order(5)]
-    public void GetDocumentFile()
+    public void GetDocument()
     {
         if (!RunLiveTests)
             Assert.Ignore();
@@ -116,10 +83,7 @@ public class SetUpDocument : TestsBase
 
         Run(RunType.SetUp, () =>
         {
-            OnePassword.GetDocument(
-                _initialCreateDocument.UUId,
-                outFile: outFilePath,
-                vault: TestVault.Name);
+            OnePassword.GetDocument(_initialDocument, TestVault, outFilePath);
 
             var documentContent = File.ReadAllText(outFilePath);
 
