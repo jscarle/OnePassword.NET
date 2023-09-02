@@ -37,10 +37,10 @@ public sealed partial class OnePasswordManager
             throw new ArgumentException($"{nameof(document.Id)} cannot be empty.", nameof(document));
         if (vault.Id.Length == 0)
             throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
-        if (filePath.Length == 0)
-            throw new ArgumentException($"{nameof(filePath)} cannot be empty.", nameof(filePath));
-
         var trimmedFilePath = filePath.Trim();
+        if (trimmedFilePath.Length == 0)
+            throw new ArgumentException($"{nameof(trimmedFilePath)} cannot be empty.", nameof(filePath));
+
         var trimmedFileMode = fileMode?.Trim();
 
         // Not specifying --force will hang waiting for user input if the file exists.
@@ -55,14 +55,14 @@ public sealed partial class OnePasswordManager
     {
         if (document.Id is null || document.Id.Length == 0)
             throw new ArgumentException($"{nameof(document.Id)} cannot be empty.", nameof(document));
-        if (filePath.Length == 0)
-            throw new ArgumentException($"{nameof(filePath)} cannot be empty.", nameof(filePath));
-        if (!File.Exists(filePath))
-            throw new ArgumentException($"File '{filePath}' was not found or could not be accessed.", nameof(filePath));
+        var trimmedFilePath = filePath.Trim();
+        if (trimmedFilePath.Length == 0)
+            throw new ArgumentException($"{nameof(trimmedFilePath)} cannot be empty.", nameof(filePath));
+        if (!File.Exists(trimmedFilePath))
+            throw new ArgumentException($"File '{trimmedFilePath}' was not found or could not be accessed.", nameof(filePath));
         if (vault is not null && vault.Id.Length == 0)
             throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
 
-        var trimmedFilePath = filePath.Trim();
         var trimmedFileMode = fileMode?.Trim();
 
         // Not specifying --force will hang waiting for user input if the file exists.
@@ -81,12 +81,12 @@ public sealed partial class OnePasswordManager
     {
         if (vault is not null && vault.Id.Length == 0)
             throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
-        if (filePath.Length == 0)
-            throw new ArgumentException($"{nameof(filePath)} cannot be empty.", nameof(filePath));
-        if (!File.Exists(filePath))
-            throw new ArgumentException($"File '{filePath}' was not found or could not be accessed.", nameof(filePath));
-
         var trimmedFilePath = filePath.Trim();
+        if (trimmedFilePath.Length == 0)
+            throw new ArgumentException($"{nameof(trimmedFilePath)} cannot be empty.", nameof(filePath));
+        if (!File.Exists(trimmedFilePath))
+            throw new ArgumentException($"File '{trimmedFilePath}' was not found or could not be accessed.", nameof(filePath));
+
         var trimmedFileName = fileName?.Trim();
         var trimmedTitle = title?.Trim();
 
@@ -109,12 +109,12 @@ public sealed partial class OnePasswordManager
             throw new ArgumentException($"{nameof(document.Id)} cannot be empty.", nameof(document));
         if (vault.Id.Length == 0)
             throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
-        if (filePath.Length == 0)
-            throw new ArgumentException($"{nameof(filePath)} cannot be empty.", nameof(filePath));
-        if (!File.Exists(filePath))
-            throw new ArgumentException($"File '{filePath}' was not found or could not be accessed.", nameof(filePath));
-
         var trimmedFilePath = filePath.Trim();
+        if (trimmedFilePath.Length == 0)
+            throw new ArgumentException($"{nameof(trimmedFilePath)} cannot be empty.", nameof(filePath));
+        if (!File.Exists(trimmedFilePath))
+            throw new ArgumentException($"File '{trimmedFilePath}' was not found or could not be accessed.", nameof(filePath));
+
         var trimmedFileName = fileName?.Trim();
         var trimmedTitle = title?.Trim();
 

@@ -124,6 +124,34 @@ public sealed partial class OnePasswordManager : IOnePasswordManager
         return updated;
     }
 
+    /// <inheritdoc />
+    public string GetSecret(string reference)
+    {
+        var trimmedReference = reference.Trim();
+        if (trimmedReference.Length == 0)
+            throw new ArgumentException($"{nameof(trimmedReference)} cannot be empty.", nameof(reference));
+
+        var command = $"read {reference} --no-newline";
+        return Op(command);
+    }
+
+    /// <inheritdoc />
+    public void SaveSecret(string reference, string filePath, string? fileMode = null)
+    {
+        var trimmedReference = reference.Trim();
+        if (trimmedReference.Length == 0)
+            throw new ArgumentException($"{nameof(trimmedReference)} cannot be empty.", nameof(reference));
+        var trimmedFilePath = filePath.Trim();
+        if (trimmedFilePath.Length == 0)
+            throw new ArgumentException($"{nameof(trimmedFilePath)} cannot be empty.", nameof(filePath));
+
+        var trimmedFileMode = fileMode?.Trim();
+        var command = $"read {reference} --no-newline --force --out-file \"{trimmedFilePath}\"";
+        if (trimmedFileMode is not null)
+            command += $" --file-mode {trimmedFileMode}";
+        Op(command);
+    }
+
     private static OnePasswordManagerOptions ConfigureOptions(Action<OnePasswordManagerOptions> configure)
     {
         var options = OnePasswordManagerOptions.Default;

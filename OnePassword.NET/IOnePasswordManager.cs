@@ -28,6 +28,25 @@ public interface IOnePasswordManager
     public bool Update();
 
     /// <summary>
+    /// Gets a secret.
+    /// </summary>
+    /// <returns>
+    /// Returns the secret.
+    /// </returns>
+    /// <param name="reference">The reference to the secret.</param>
+    /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
+    public string GetSecret(string reference);
+
+    /// <summary>
+    /// Saves a secret.
+    /// </summary>
+    /// <param name="reference">The reference to the secret.</param>
+    /// <param name="filePath">The file path to save the document to.</param>
+    /// <param name="fileMode">The file mode.</param>
+    /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
+    public void SaveSecret(string reference, string filePath, string? fileMode = null);
+
+    /// <summary>
     /// Gets the accounts.
     /// </summary>
     /// <returns>The list of accounts.</returns>

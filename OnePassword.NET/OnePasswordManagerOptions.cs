@@ -2,7 +2,7 @@
 
 public class OnePasswordManagerOptions : IOnePasswordManagerOptions
 {
-    public static readonly OnePasswordManagerOptions Default = new();
+    public static OnePasswordManagerOptions Default => new();
 
     /// <inheritdoc />
     public string Path { get; set; } = "";
