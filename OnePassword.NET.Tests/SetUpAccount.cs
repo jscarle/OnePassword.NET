@@ -48,7 +48,7 @@ public class SetUpAccount : TestsBase
                 Assert.That(account.Url, Is.EqualTo($"https://{AccountAddress}"));
                 Assert.That(account.UserId, Is.Not.Empty);
                 Assert.That(account.Email, Is.EqualTo(AccountEmail));
-                Assert.That(account.Shorthand, Is.EqualTo(AccountAddress[..AccountAddress.IndexOf(".", StringComparison.Ordinal)]));
+                Assert.That(account.Shorthand, Is.EqualTo(AccountAddress[..AccountAddress.IndexOf('.', StringComparison.Ordinal)]));
             });
         });
     }
@@ -68,7 +68,7 @@ public class SetUpAccount : TestsBase
             {
                 Assert.That(account.Id, Is.Not.Empty);
                 Assert.That(account.Name, Is.EqualTo(AccountName));
-                Assert.That(account.Domain, Is.EqualTo(AccountAddress[..AccountAddress.IndexOf(".", StringComparison.Ordinal)]));
+                Assert.That(account.Domain, Is.EqualTo(AccountAddress[..AccountAddress.IndexOf('.', StringComparison.Ordinal)]));
                 Assert.That(account.Type, Is.EqualTo(AccountType.Business));
                 Assert.That(account.State, Is.EqualTo(State.Active));
                 Assert.That(account.Created, Is.Not.EqualTo(default));
