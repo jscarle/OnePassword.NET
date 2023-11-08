@@ -219,8 +219,10 @@ public sealed partial class OnePasswordManager : IOnePasswordManager
             case Mode.Interactive:
             case Mode.AppIntegrated:
             default:
-                var passAccount = !(_mode == Mode.AppIntegrated || IsExcludedCommand(command, _excludedAccountCommands));
-                if (passAccount && _account.Length == 0)
+                var excluded = IsExcludedCommand(command, _excludedAccountCommands);
+                var requireAccount = _mode != Mode.AppIntegrated && !excluded;
+                var passAccount = _account.Length != 0 && !excluded;
+                if (requireAccount && !passAccount)
                     throw new InvalidOperationException("Cannot execute command because account has not been set.");
 
                 var passSession = !(_mode == Mode.AppIntegrated || IsExcludedCommand(command, _excludedSessionCommands));
