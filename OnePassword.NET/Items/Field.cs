@@ -8,6 +8,32 @@ namespace OnePassword.Items;
 /// </summary>
 public sealed class Field : ITracked
 {
+    private FieldType _type = FieldType.Unknown;
+    private string _value = "";
+
+    /// <summary>
+    /// Initializes a new instance of <see cref="Field" />.
+    /// </summary>
+    public Field()
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of <see cref="Field" /> with the specified label, type, value, and optionally, section.
+    /// </summary>
+    /// <param name="label">The field label.</param>
+    /// <param name="type">The field type.</param>
+    /// <param name="value">The field value.</param>
+    /// <param name="section">The field section.</param>
+    public Field(string label, FieldType type, string value, Section? section = null)
+    {
+        Id = label.ToLower(CultureInfo.InvariantCulture).Replace(" ", "_", StringComparison.InvariantCulture);
+        Label = label;
+        Type = type;
+        Value = value;
+        Section = section;
+    }
+
     /// <summary>
     /// The field section.
     /// </summary>
@@ -81,45 +107,19 @@ public sealed class Field : ITracked
     public string? Reference { get; internal init; }
 
     /// <summary>
-    /// Returns <see langword="true"/> when the field type has changed, <see langword="false"/> otherwise.
+    /// Returns <see langword="true" /> when the field type has changed, <see langword="false" /> otherwise.
     /// </summary>
     internal bool TypeChanged { get; private set; }
 
     /// <summary>
-    /// Returns <see langword="true"/> when the field value has changed, <see langword="false"/> otherwise.
+    /// Returns <see langword="true" /> when the field value has changed, <see langword="false" /> otherwise.
     /// </summary>
     internal bool ValueChanged { get; private set; }
 
     /// <inheritdoc />
     bool ITracked.Changed =>
         TypeChanged
-        | ValueChanged;
-
-    private FieldType _type = FieldType.Unknown;
-    private string _value = "";
-
-    /// <summary>
-    /// Initializes a new instance of <see cref="Field"/>.
-    /// </summary>
-    public Field()
-    {
-    }
-
-    /// <summary>
-    /// Initializes a new instance of <see cref="Field"/> with the specified label, type, value, and optionally, section.
-    /// </summary>
-    /// <param name="label">The field label.</param>
-    /// <param name="type">The field type.</param>
-    /// <param name="value">The field value.</param>
-    /// <param name="section">The field section.</param>
-    public Field(string label, FieldType type,  string value, Section? section = null)
-    {
-        Id = label.ToLower(CultureInfo.InvariantCulture).Replace(" ", "_", StringComparison.InvariantCulture);
-        Label = label;
-        Type = type;
-        Value = value;
-        Section = section;
-    }
+        || ValueChanged;
 
     /// <inheritdoc />
     void ITracked.AcceptChanges()

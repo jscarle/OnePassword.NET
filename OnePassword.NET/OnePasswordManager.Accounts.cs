@@ -36,7 +36,7 @@ public sealed partial class OnePasswordManager
     {
         if (_mode == Mode.ServiceAccount)
             throw new InvalidOperationException($"{nameof(AddAccount)} is not supported when using service accounts.");
-        
+
         var trimmedAddress = address.Trim();
         if (trimmedAddress.Length == 0)
             throw new ArgumentException($"{nameof(address)} cannot be empty.", nameof(address));
@@ -60,7 +60,7 @@ public sealed partial class OnePasswordManager
             command += $" --shorthand \"{trimmedShorthand}\"";
 
         var result = Op(command, trimmedPassword, true);
-        if (result.Contains("No saved device ID."))
+        if (result.Contains("No saved device ID.", StringComparison.Ordinal))
         {
             var deviceUuid = DeviceRegex.Match(result).Groups["UUID"].Value;
             Environment.SetEnvironmentVariable("OP_DEVICE", deviceUuid);

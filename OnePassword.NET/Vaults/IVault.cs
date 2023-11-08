@@ -5,6 +5,4 @@ namespace OnePassword.Vaults;
 /// <summary>
 /// Defines a 1Password vault.
 /// </summary>
-public interface IVault : IResult<IVault>
-{
-}
+public interface IVault : IResult<IVault>;

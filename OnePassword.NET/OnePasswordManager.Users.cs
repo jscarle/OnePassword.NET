@@ -7,24 +7,44 @@ namespace OnePassword;
 
 public sealed partial class OnePasswordManager
 {
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public ImmutableList<User> GetUsers()
     {
         const string command = "user list";
         return Op<ImmutableList<User>>(command);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
+    public ImmutableList<VaultUser> GetUsers(IVault vault)
+    {
+        if (vault.Id.Length == 0)
+            throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
+
+        var command = $"vault user list {vault.Id}";
+        return Op<ImmutableList<VaultUser>>(command);
+    }
+
+    /// <inheritdoc />
+    public ImmutableList<GroupUser> GetUsers(IGroup group)
+    {
+        if (group.Id.Length == 0)
+            throw new ArgumentException($"{nameof(group.Id)} cannot be empty.", nameof(group));
+
+        var command = $"group user list {group.Id}";
+        return Op<ImmutableList<GroupUser>>(command);
+    }
+
+    /// <inheritdoc />
     public UserDetails GetUser(IUser user)
     {
         if (user.Id.Length == 0)
             throw new ArgumentException($"{nameof(user.Id)} cannot be empty.", nameof(user));
-        
+
         var command = $"user get {user.Id}";
         return Op<UserDetails>(command);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public UserDetails ProvisionUser(string name, string emailAddress, Language language = Language.Default)
     {
         var trimmedName = name.Trim();
@@ -41,7 +61,7 @@ public sealed partial class OnePasswordManager
         return Op<UserDetails>(command);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public void ConfirmUser(IUser user)
     {
         if (user.Id.Length == 0)
@@ -51,14 +71,14 @@ public sealed partial class OnePasswordManager
         Op(command);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public void ConfirmAllUsers()
     {
         const string command = "user confirm --all";
         Op(command);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public void EditUser(IUser user, string? name = null, bool? travelMode = null)
     {
         if (user.Id.Length == 0)
@@ -79,7 +99,7 @@ public sealed partial class OnePasswordManager
         Op(command);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public void DeleteUser(IUser user)
     {
         if (user.Id.Length == 0)
@@ -89,7 +109,7 @@ public sealed partial class OnePasswordManager
         Op(command);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public void SuspendUser(IUser user, int? deauthorizeDevicesDelay = null)
     {
         if (user.Id.Length == 0)
@@ -101,7 +121,7 @@ public sealed partial class OnePasswordManager
         Op(command);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public void ReactivateUser(IUser user)
     {
         if (user.Id.Length == 0)
@@ -109,25 +129,5 @@ public sealed partial class OnePasswordManager
 
         var command = $"user reactivate {user.Id}";
         Op(command);
-    }
-
-    /// <inheritdoc/>
-    public ImmutableList<VaultUser> GetUsers(IVault vault)
-    {
-        if (vault.Id.Length == 0)
-            throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
-
-        var command = $"vault user list {vault.Id}";
-        return Op<ImmutableList<VaultUser>>(command);
-    }
-
-    /// <inheritdoc/>
-    public ImmutableList<GroupUser> GetUsers(IGroup group)
-    {
-        if (group.Id.Length == 0)
-            throw new ArgumentException($"{nameof(group.Id)} cannot be empty.", nameof(group));
-
-        var command = $"group user list {group.Id}";
-        return Op<ImmutableList<GroupUser>>(command);
     }
 }

@@ -3,6 +3,4 @@
 /// <summary>
 /// Represents a 1Password group associated with a user.
 /// </summary>
-public sealed class UserGroup : GroupBase
-{
-}
+public sealed class UserGroup : GroupBase;

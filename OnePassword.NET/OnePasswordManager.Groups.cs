@@ -15,6 +15,26 @@ public sealed partial class OnePasswordManager
     }
 
     /// <inheritdoc />
+    public ImmutableList<VaultGroup> GetGroups(IVault vault)
+    {
+        if (vault.Id.Length == 0)
+            throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
+
+        var command = $"vault group list {vault.Id}";
+        return Op<ImmutableList<VaultGroup>>(command);
+    }
+
+    /// <inheritdoc />
+    public ImmutableList<UserGroup> GetGroups(IUser user)
+    {
+        if (user.Id.Length == 0)
+            throw new ArgumentException($"{nameof(user.Id)} cannot be empty.", nameof(user));
+
+        var command = $"group list --user {user.Id}";
+        return Op<ImmutableList<UserGroup>>(command);
+    }
+
+    /// <inheritdoc />
     public GroupDetails GetGroup(IGroup group)
     {
         if (group.Id.Length == 0)
@@ -96,25 +116,5 @@ public sealed partial class OnePasswordManager
 
         var command = $"group user revoke --group {group.Id} --user {user.Id}";
         Op(command);
-    }
-
-    /// <inheritdoc />
-    public ImmutableList<VaultGroup> GetGroups(IVault vault)
-    {
-        if (vault.Id.Length == 0)
-            throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
-
-        var command = $"vault group list {vault.Id}";
-        return Op<ImmutableList<VaultGroup>>(command);
-    }
-
-    /// <inheritdoc />
-    public ImmutableList<UserGroup> GetGroups(IUser user)
-    {
-        if (user.Id.Length == 0)
-            throw new ArgumentException($"{nameof(user.Id)} cannot be empty.", nameof(user));
-
-        var command = $"group list --user {user.Id}";
-        return Op<ImmutableList<UserGroup>>(command);
     }
 }

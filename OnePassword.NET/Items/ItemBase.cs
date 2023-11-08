@@ -83,11 +83,11 @@ public abstract class ItemBase : ITracked
 
     /// <inheritdoc />
     bool ITracked.Changed => TitleChanged
-        | _categoryIdChanged
-        | ((ITracked)Sections).Changed
-        | ((ITracked)Fields).Changed
-        | ((ITracked)Urls).Changed
-        | ((ITracked)Tags).Changed;
+        || _categoryIdChanged
+        || ((ITracked)Sections).Changed
+        || ((ITracked)Fields).Changed
+        || ((ITracked)Urls).Changed
+        || ((ITracked)Tags).Changed;
 
     /// <inheritdoc />
     void ITracked.AcceptChanges()

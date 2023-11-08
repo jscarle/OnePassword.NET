@@ -25,13 +25,6 @@ public abstract class ResultBase<TInterface> : IResult<TInterface>
     }
 
     /// <inheritdoc />
-    public bool Equals(IResult<TInterface>? other)
-    {
-        if (other is null) return false;
-        return ReferenceEquals(this, other) || string.Equals(Id, other.Id, StringComparison.OrdinalIgnoreCase);
-    }
-
-    /// <inheritdoc />
     public int CompareTo(object? obj)
     {
         if (obj is null) return 1;
@@ -47,6 +40,16 @@ public abstract class ResultBase<TInterface> : IResult<TInterface>
     }
 
     /// <inheritdoc />
+    public bool Equals(IResult<TInterface>? other)
+    {
+        if (other is null) return false;
+        return ReferenceEquals(this, other) || string.Equals(Id, other.Id, StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <inheritdoc />
+    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || obj is IResult<TInterface> other && Equals(other);
+
+    /// <inheritdoc />
     public override string ToString() => Name;
 
     public static bool operator ==(ResultBase<TInterface> a, IResult<TInterface> b) => Equals(a, b);
@@ -60,9 +63,6 @@ public abstract class ResultBase<TInterface> : IResult<TInterface>
     public static bool operator >(ResultBase<TInterface> a, IResult<TInterface> b) => NullSafeCompareTo(a, b) > 0;
 
     public static bool operator >=(ResultBase<TInterface> a, IResult<TInterface> b) => NullSafeCompareTo(a, b) >= 0;
-
-    /// <inheritdoc />
-    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || obj is IResult<TInterface> other && Equals(other);
 
     /// <inheritdoc />
     public override int GetHashCode() => StringComparer.OrdinalIgnoreCase.GetHashCode(Id);

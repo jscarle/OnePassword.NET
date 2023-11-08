@@ -3,6 +3,4 @@
 /// <summary>
 /// Represents a 1Password user.
 /// </summary>
-public sealed class User : UserBase
-{
-}
+public sealed class User : UserBase;

@@ -27,7 +27,7 @@ public sealed class TrackedList<T> : IList<T>, IList, IReadOnlyList<T>, ITracked
     public object SyncRoot => ((IList)_list).SyncRoot;
     
     /// <inheritdoc />
-    bool ITracked.Changed => _changed | _list.Any(item => item is ITracked { Changed: true });
+    bool ITracked.Changed => _changed || _list.Exists(item => item is ITracked { Changed: true });
     
     /// <summary>
     /// Gets all items that where removed from the list.

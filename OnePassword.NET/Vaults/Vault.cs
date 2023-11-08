@@ -3,6 +3,4 @@
 /// <summary>
 /// Represents a 1Password vault.
 /// </summary>
-public sealed class Vault : VaultBase
-{
-}
+public sealed class Vault : VaultBase;

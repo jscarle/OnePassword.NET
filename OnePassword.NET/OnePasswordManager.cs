@@ -11,6 +11,7 @@ namespace OnePassword;
 /// </summary>
 public sealed partial class OnePasswordManager : IOnePasswordManager
 {
+    private static readonly Regex VersionRegex = new(@"Version ([^\s]+) is now available\.", RegexOptions.Compiled);
     private readonly string[] _excludedAccountCommands = { "--version", "update", "account list", "account add", "account forget", "signout --all" };
     private readonly string[] _excludedSessionCommands = { "--version", "update", "account list", "account add", "account forget", "signin", "signout --all" };
     private readonly Mode _mode = Mode.Interactive;
@@ -102,7 +103,7 @@ public sealed partial class OnePasswordManager : IOnePasswordManager
         var command = $"update --directory \"{tempDirectory}\"";
         var result = Op(command);
 
-        var match = Regex.Match(result, @"Version ([^\s]+) is now available\.");
+        var match = VersionRegex.Match(result);
         if (match.Success)
         {
             foreach (var file in Directory.GetFiles(tempDirectory, "*.zip"))
