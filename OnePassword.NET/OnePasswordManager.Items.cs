@@ -78,6 +78,10 @@ public sealed partial class OnePasswordManager
 
         var command = $"item create --vault {vault.Id} -";
         ((ITracked)template).AcceptChanges();
+        if (template.TitleChanged)
+            command += $" --title \"{template.Title}\"";
+        if (((ITracked)template.Tags).Changed)
+            command += $" --tags \"{template.Tags.ToCommaSeparated()}\"";
         return Op<Item>(command, json);
     }
 

@@ -21,6 +21,8 @@ public class TestItems : TestsBase
     private const string FinalUsername = "Test Username";
     private const FieldType FinalType = FieldType.Concealed;
     private const string FinalValue = "Test Value";
+    private const string Tag1 = "Tag1";
+    private const string Tag2 = "Tag2";
 
     [Test]
     [Order(1)]
@@ -34,6 +36,8 @@ public class TestItems : TestsBase
             var template = TestTemplate.Clone();
             template.Title = InitialTitle;
             template.Fields.First(x => x.Label == "username").Value = InitialUsername;
+            template.Tags.Add(Tag1);
+            template.Tags.Add(Tag2);
 
             var editSection = new Section(EditSection);
             template.Sections.Add(editSection);
@@ -54,6 +58,8 @@ public class TestItems : TestsBase
                 Assert.That(_initialItem.Fields.First(x => x.Section?.Label == EditSection && x.Label == EditField).Type, Is.EqualTo(InitialType));
                 Assert.That(_initialItem.Fields.First(x => x.Section?.Label == EditSection && x.Label == EditField).Value, Is.EqualTo(InitialValue));
                 Assert.That(_initialItem.Fields.First(x => x.Section?.Label == DeleteSection && x.Label == DeleteField).Value, Is.EqualTo(DeleteValue));
+                Assert.That(_initialItem.Tags, Does.Contain(Tag1));
+                Assert.That(_initialItem.Tags, Does.Contain(Tag2));
             });
         });
     }
@@ -72,6 +78,7 @@ public class TestItems : TestsBase
             _initialItem.Fields.First(x => x.Section?.Label == EditSection && x.Label == EditField).Type = FinalType;
             _initialItem.Fields.First(x => x.Section?.Label == EditSection && x.Label == EditField).Value = FinalValue;
             _initialItem.Fields.Remove(_initialItem.Fields.First(x => x.Section?.Label == DeleteSection && x.Label == DeleteField));
+            _initialItem.Tags.Remove(Tag2);
 
             var item = OnePassword.EditItem(_initialItem, TestVault);
 
@@ -84,6 +91,8 @@ public class TestItems : TestsBase
                 Assert.That(item.Fields.First(x => x.Section?.Label == EditSection && x.Label == EditField).Type, Is.EqualTo(FinalType));
                 Assert.That(item.Fields.First(x => x.Section?.Label == EditSection && x.Label == EditField).Value, Is.EqualTo(FinalValue));
                 Assert.That(item.Fields.FirstOrDefault(x => x.Section?.Label == DeleteSection && x.Label == DeleteField), Is.Null);
+                Assert.That(item.Tags, Does.Contain(Tag1));
+                Assert.That(item.Tags, Does.Not.Contain(Tag2));
             });
         });
     }
