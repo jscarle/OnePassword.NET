@@ -5,7 +5,7 @@ using OnePassword.Users;
 namespace OnePassword;
 
 [TestFixture]
-[Order(2)]
+[Order(3)]
 public class SetUpUser : TestsBase
 {
     private const string InitialName = "Created User";

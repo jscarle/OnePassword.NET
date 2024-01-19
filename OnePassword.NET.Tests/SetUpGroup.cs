@@ -4,7 +4,7 @@ using OnePassword.Groups;
 namespace OnePassword;
 
 [TestFixture]
-[Order(3)]
+[Order(4)]
 public class SetUpGroup : TestsBase
 {
     private const string InitialName = "Created Group";

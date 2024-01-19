@@ -4,7 +4,7 @@ using OnePassword.Items;
 namespace OnePassword;
 
 [TestFixture]
-[Order(6)]
+[Order(7)]
 public class TestItems : TestsBase
 {
     private const string InitialTitle = "Created Item";

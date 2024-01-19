@@ -5,7 +5,7 @@ using OnePassword.Templates;
 namespace OnePassword;
 
 [TestFixture]
-[Order(5)]
+[Order(6)]
 public class TestTemplates : TestsBase
 {
     private ITemplate _template = null!;

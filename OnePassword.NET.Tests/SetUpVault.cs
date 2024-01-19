@@ -4,7 +4,7 @@ using OnePassword.Vaults;
 namespace OnePassword;
 
 [TestFixture]
-[Order(4)]
+[Order(5)]
 public class SetUpVault : TestsBase
 {
     private const string InitialName = "Created Vault";

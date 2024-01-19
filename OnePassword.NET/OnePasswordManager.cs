@@ -13,7 +13,7 @@ public sealed partial class OnePasswordManager : IOnePasswordManager
 {
     private static readonly Regex VersionRegex = new(@"Version ([^\s]+) is now available\.", RegexOptions.Compiled);
     private readonly string[] _excludedAccountCommands = { "--version", "update", "account list", "account add", "account forget", "signout --all" };
-    private readonly string[] _excludedSessionCommands = { "--version", "update", "account list", "account add", "account forget", "signin", "signout --all" };
+    private readonly string[] _excludedSessionCommands = { "--version", "update", "account list", "account add", "account forget", "signin", "signout", "signout --all" };
     private readonly Mode _mode = Mode.Interactive;
     private readonly string _opPath;
     private readonly string _serviceAccountToken;

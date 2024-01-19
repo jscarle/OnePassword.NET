@@ -4,7 +4,7 @@ using OnePassword.Documents;
 namespace OnePassword;
 
 [TestFixture]
-[Order(7)]
+[Order(8)]
 public class TestDocuments : TestsBase
 {
     private string _filePath = null!;
