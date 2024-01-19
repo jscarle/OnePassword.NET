@@ -93,16 +93,9 @@ public sealed partial class OnePasswordManager
         if (vault.Id.Length == 0)
             throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
 
-        var command = $"item edit {item.Id}";
-        if (((ITracked)item.Fields).Changed)
-        {
-            command = item.Fields
-                .Where(field => ((ITracked)field).Changed)
-                .Aggregate(command, (current, field) => current + GetFieldAssignment(field));
-            command = item.Fields.Removed
-                .Aggregate(command, (current, field) => current + GetFieldAssignment(field, true));
-        }
-        command += $" --vault {vault.Id}";
+        var json = JsonSerializer.Serialize(item) + "\x04";
+
+        var command = $"item edit {item.Id} --vault {vault.Id}";
         if (item.TitleChanged)
             command += $" --title \"{item.Title}\"";
         if (((ITracked)item.Tags).Changed)
@@ -113,7 +106,7 @@ public sealed partial class OnePasswordManager
             command += $" --url \"{changedUrl}\"";
         }
         ((ITracked)item).AcceptChanges();
-        return Op<Item>(command);
+        return Op<Item>(command, json);
     }
 
     /// <inheritdoc />
