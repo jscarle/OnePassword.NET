@@ -8,7 +8,7 @@ namespace OnePassword;
 [Order(6)]
 public class TestTemplates : TestsBase
 {
-    private ITemplate _template = null!;
+    private TemplateInfo _template = null!;
 
     [Test]
     [Order(1)]
