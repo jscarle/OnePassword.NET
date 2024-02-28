@@ -60,6 +60,17 @@ public sealed partial class OnePasswordManager
         if (vault is not null && vault.Id.Length == 0)
             throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
 
+        return SearchForItem(item.Id, vault, includeArchive);
+    }
+
+    /// <inheritdoc />
+    public Item SearchForItem(string itemId, IVault? vault = null, bool? includeArchive = null)
+    {
+        if (itemId is null || itemId.Length == 0)
+            throw new ArgumentException($"{nameof(itemId)} cannot be empty.", nameof(itemId));
+        if (vault is not null && vault.Id.Length == 0)
+            throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
+
         var command = $"item get {item.Id}";
         if (vault is not null)
             command += $" --vault {vault.Id}";
