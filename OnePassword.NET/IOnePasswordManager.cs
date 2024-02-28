@@ -245,6 +245,20 @@ public interface IOnePasswordManager
     public Item SearchForItem(IItem item, IVault? vault = null, bool? includeArchive = null);
 
     /// <summary>
+    /// Searches for an item.
+    /// <remarks>
+    /// WARNING: If a vault is not specified, the 1Password CLI may generate a large amount of internal calls which
+    /// may result in throttling.
+    /// </remarks>
+    /// </summary>
+    /// <param name="itemId">The ID of the item to search for.</param>
+    /// <param name="vault">The vault that contains the item to search for.</param>
+    /// <param name="includeArchive">When <see langword="true" />, includes archived items in the search.</param>
+    /// <returns>The item that matches the search.</returns>
+    /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
+    public Item SearchForItem(string itemId, IVault? vault = null, bool? includeArchive = null);
+    
+    /// <summary>
     /// Creates an item.
     /// </summary>
     /// <param name="template">The template from which to create the item.</param>
