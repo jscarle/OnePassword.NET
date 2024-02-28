@@ -71,7 +71,7 @@ public sealed partial class OnePasswordManager
         if (vault is not null && vault.Id.Length == 0)
             throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
 
-        var command = $"item get {item.Id}";
+        var command = $"item get {itemId}";
         if (vault is not null)
             command += $" --vault {vault.Id}";
         if (includeArchive is not null && includeArchive.Value)
