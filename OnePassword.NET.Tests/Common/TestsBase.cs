@@ -38,8 +38,8 @@ public class TestsBase
     private protected static bool DoFinalTearDown;
     private static readonly bool IsLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
     private static readonly Uri DownloadSource = IsLinux ?
-        new Uri("https://cache.agilebits.com/dist/1P/op2/pkg/v2.24.0/op_linux_amd64_v2.24.0.zip") :
-        new Uri("https://cache.agilebits.com/dist/1P/op2/pkg/v2.24.0/op_windows_amd64_v2.24.0.zip");
+        new Uri("https://cache.agilebits.com/dist/1P/op2/pkg/v2.25.1/op_linux_amd64_v2.25.1.zip") :
+        new Uri("https://cache.agilebits.com/dist/1P/op2/pkg/v2.25.1/op_windows_amd64_v2.25.1.zip");
     private static readonly string ExecutableName = IsLinux ? "op" : "op.exe";
     private protected static readonly string WorkingDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
     private static bool _initialSetupDone;
