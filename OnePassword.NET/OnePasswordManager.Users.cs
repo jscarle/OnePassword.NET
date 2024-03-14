@@ -15,45 +15,77 @@ public sealed partial class OnePasswordManager
     }
 
     /// <inheritdoc />
-    public ImmutableList<VaultUser> GetUsers(IVault vault)
+    public ImmutableList<GroupUser> GetUsers(IGroup group)
     {
-        if (vault.Id.Length == 0)
-            throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
+        if (group is null || group.Id.Length == 0)
+            throw new ArgumentException($"{nameof(group.Id)} cannot be empty.", nameof(group));
 
-        var command = $"vault user list {vault.Id}";
-        return Op<ImmutableList<VaultUser>>(command);
+        return GetGroupUsers(group.Id);
     }
 
     /// <inheritdoc />
-    public ImmutableList<GroupUser> GetUsers(IGroup group)
+    public ImmutableList<VaultUser> GetUsers(IVault vault)
     {
-        if (group.Id.Length == 0)
-            throw new ArgumentException($"{nameof(group.Id)} cannot be empty.", nameof(group));
+        if (vault is null || vault.Id.Length == 0)
+            throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
 
-        var command = $"group user list {group.Id}";
+        return GetVaultUsers(vault.Id);
+    }
+
+    /// <inheritdoc />
+    public ImmutableList<GroupUser> GetGroupUsers(string groupId)
+    {
+        if (groupId is null || groupId.Length == 0)
+            throw new ArgumentException($"{nameof(groupId)} cannot be empty.", nameof(groupId));
+
+        var command = $"group user list {groupId}";
         return Op<ImmutableList<GroupUser>>(command);
+    }
+
+    /// <inheritdoc />
+    public ImmutableList<VaultUser> GetVaultUsers(string vaultId)
+    {
+        if (vaultId is null || vaultId.Length == 0)
+            throw new ArgumentException($"{nameof(vaultId)} cannot be empty.", nameof(vaultId));
+
+        var command = $"vault user list {vaultId}";
+        return Op<ImmutableList<VaultUser>>(command);
     }
 
     /// <inheritdoc />
     public UserDetails GetUser(IUser user)
     {
-        if (user.Id.Length == 0)
+        if (user is null || user.Id.Length == 0)
             throw new ArgumentException($"{nameof(user.Id)} cannot be empty.", nameof(user));
 
-        var command = $"user get {user.Id}";
+        return GetUser(user.Id);
+    }
+
+    /// <inheritdoc />
+    public UserDetails GetUser(string userId)
+    {
+        if (userId is null || userId.Length == 0)
+            throw new ArgumentException($"{nameof(userId)} cannot be empty.", nameof(userId));
+
+        var command = $"user get {userId}";
         return Op<UserDetails>(command);
     }
 
     /// <inheritdoc />
     public UserDetails ProvisionUser(string name, string emailAddress, Language language = Language.Default)
     {
+        if (name is null || name.Length == 0)
+            throw new ArgumentException($"{nameof(name)} cannot be empty.", nameof(name));
+        if (emailAddress is null || emailAddress.Length == 0)
+            throw new ArgumentException($"{nameof(emailAddress)} cannot be empty.", nameof(emailAddress));
+
         var trimmedName = name.Trim();
         if (trimmedName.Length == 0)
             throw new ArgumentException($"{nameof(name)} cannot be empty.", nameof(name));
 
         var trimmedEmailAddress = emailAddress.Trim();
         if (trimmedEmailAddress.Length == 0)
-            throw new ArgumentException($"{nameof(name)} cannot be empty.", nameof(name));
+            throw new ArgumentException($"{nameof(emailAddress)} cannot be empty.", nameof(emailAddress));
 
         var command = $"user provision --name \"{trimmedName}\" --email \"{trimmedEmailAddress}\"";
         if (language != Language.Default)
@@ -64,10 +96,19 @@ public sealed partial class OnePasswordManager
     /// <inheritdoc />
     public void ConfirmUser(IUser user)
     {
-        if (user.Id.Length == 0)
+        if (user is null || user.Id.Length == 0)
             throw new ArgumentException($"{nameof(user.Id)} cannot be empty.", nameof(user));
 
-        var command = $"user confirm {user.Id}";
+        ConfirmUser(user.Id);
+    }
+
+    /// <inheritdoc />
+    public void ConfirmUser(string userId)
+    {
+        if (userId is null || userId.Length == 0)
+            throw new ArgumentException($"{nameof(userId)} cannot be empty.", nameof(userId));
+
+        var command = $"user confirm {userId}";
         Op(command);
     }
 
@@ -81,7 +122,7 @@ public sealed partial class OnePasswordManager
     /// <inheritdoc />
     public void EditUser(IUser user, string? name = null, bool? travelMode = null)
     {
-        if (user.Id.Length == 0)
+        if (user is null || user.Id.Length == 0)
             throw new ArgumentException($"{nameof(user.Id)} cannot be empty.", nameof(user));
 
         var trimmedName = name?.Trim();
@@ -91,7 +132,23 @@ public sealed partial class OnePasswordManager
         if (name is null && travelMode is null)
             throw new InvalidOperationException("Nothing to edit.");
 
-        var command = $"user edit {user.Id}";
+        EditUser(user.Id, name, travelMode);
+    }
+
+    /// <inheritdoc />
+    public void EditUser(string userId, string? name = null, bool? travelMode = null)
+    {
+        if (userId is null || userId.Length == 0)
+            throw new ArgumentException($"{nameof(userId)} cannot be empty.", nameof(userId));
+
+        var trimmedName = name?.Trim();
+        if (trimmedName is not null && trimmedName.Length == 0)
+            throw new ArgumentException($"{nameof(name)} cannot be empty.", nameof(name));
+
+        if (name is null && travelMode is null)
+            throw new InvalidOperationException("Nothing to edit.");
+
+        var command = $"user edit {userId}";
         if (trimmedName is not null)
             command += $" --name \"{trimmedName}\"";
         if (travelMode.HasValue)
@@ -102,20 +159,38 @@ public sealed partial class OnePasswordManager
     /// <inheritdoc />
     public void DeleteUser(IUser user)
     {
-        if (user.Id.Length == 0)
+        if (user is null || user.Id.Length == 0)
             throw new ArgumentException($"{nameof(user.Id)} cannot be empty.", nameof(user));
 
-        var command = $"user delete {user.Id}";
+        DeleteUser(user.Id);
+    }
+
+    /// <inheritdoc />
+    public void DeleteUser(string userId)
+    {
+        if (userId is null || userId.Length == 0)
+            throw new ArgumentException($"{nameof(userId)} cannot be empty.", nameof(userId));
+
+        var command = $"user delete {userId}";
         Op(command);
     }
 
     /// <inheritdoc />
     public void SuspendUser(IUser user, int? deauthorizeDevicesDelay = null)
     {
-        if (user.Id.Length == 0)
+        if (user is null || user.Id.Length == 0)
             throw new ArgumentException($"{nameof(user.Id)} cannot be empty.", nameof(user));
 
-        var command = $"user suspend {user.Id}";
+        SuspendUser(user.Id, deauthorizeDevicesDelay);
+    }
+
+    /// <inheritdoc />
+    public void SuspendUser(string userId, int? deauthorizeDevicesDelay = null)
+    {
+        if (userId is null || userId.Length == 0)
+            throw new ArgumentException($"{nameof(userId)} cannot be empty.", nameof(userId));
+
+        var command = $"user suspend {userId}";
         if (deauthorizeDevicesDelay is not null)
             command += $" --deauthorize-devices-after {deauthorizeDevicesDelay.Value}s";
         Op(command);
@@ -124,10 +199,19 @@ public sealed partial class OnePasswordManager
     /// <inheritdoc />
     public void ReactivateUser(IUser user)
     {
-        if (user.Id.Length == 0)
+        if (user is null || user.Id.Length == 0)
             throw new ArgumentException($"{nameof(user.Id)} cannot be empty.", nameof(user));
 
-        var command = $"user reactivate {user.Id}";
+        ReactivateUser(user.Id);
+    }
+
+    /// <inheritdoc />
+    public void ReactivateUser(string userId)
+    {
+        if (userId is null || userId.Length == 0)
+            throw new ArgumentException($"{nameof(userId)} cannot be empty.", nameof(userId));
+
+        var command = $"user reactivate {userId}";
         Op(command);
     }
 }

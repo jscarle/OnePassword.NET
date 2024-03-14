@@ -1,19 +1,17 @@
-﻿namespace OnePassword.Common;
+﻿using System.Diagnostics.CodeAnalysis;
 
-/// <summary>
-/// Converts between an enum and its string value.
-/// </summary>
+namespace OnePassword.Common;
+
+/// <summary>Converts between an enum and its string value.</summary>
 /// <typeparam name="TEnum">The enum type.</typeparam>
 /// <remarks>Originally authored by JasonBodley (https://github.com/JasonBodley) [https://github.com/dotnet/runtime/issues/31081#issuecomment-848697673]</remarks>
-internal sealed class JsonStringEnumConverterEx<TEnum> : JsonConverter<TEnum>
-    where TEnum : struct, Enum
+[SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes")]
+internal sealed class JsonStringEnumConverterEx<TEnum> : JsonConverter<TEnum> where TEnum : struct, Enum
 {
     private readonly Dictionary<TEnum, string> _enumToString = new();
     private readonly Dictionary<string, TEnum> _stringToEnum = new();
 
-    /// <summary>
-    /// Initializes a new instance of <see cref="JsonStringEnumConverterEx{TEnum}"/>.
-    /// </summary>
+    /// <summary>Initializes a new instance of <see cref="JsonStringEnumConverterEx{TEnum}" />.</summary>
     public JsonStringEnumConverterEx()
     {
         foreach (var enumMemberValue in Enum.GetValues<TEnum>())

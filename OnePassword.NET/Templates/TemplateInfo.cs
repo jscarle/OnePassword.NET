@@ -1,8 +1,6 @@
 ﻿namespace OnePassword.Templates;
 
-/// <summary>
-/// Describes a 1Password template.
-/// </summary>
+/// <summary>Describes a 1Password template.</summary>
 public sealed class TemplateInfo : ITemplate
 {
     /// <inheritdoc />
@@ -11,28 +9,46 @@ public sealed class TemplateInfo : ITemplate
     public string Name { get; internal set; } = "";
 
     /// <inheritdoc />
-    public override string ToString()
-    {
-        return Name;
-    }
+    public override string ToString() => Name;
 
-    public static bool operator ==(TemplateInfo a, ITemplate b) => a.Equals(b);
+    /// <summary>Equality operator.</summary>
+    /// <param name="a">The <see cref="TemplateInfo" /> object.</param>
+    /// <param name="b">The <see cref="ITemplate" /> object to compare.</param>
+    /// <returns>True if the <paramref name="a" /> is equal to <paramref name="b" />; otherwise, false.</returns>
+    public static bool operator ==(TemplateInfo a, ITemplate b) => a?.Equals(b) ?? false;
 
-    public static bool operator !=(TemplateInfo a, ITemplate b) => !a.Equals(b);
+    /// <summary>Inequality operator.</summary>
+    /// <param name="a">The <see cref="TemplateInfo" /> object.</param>
+    /// <param name="b">The <see cref="ITemplate" /> object to compare.</param>
+    /// <returns>True if the <paramref name="a" /> is not equal to <paramref name="b" />; otherwise, false.</returns>
+    public static bool operator !=(TemplateInfo a, ITemplate b) => !a?.Equals(b) ?? false;
 
-    public static bool operator <(TemplateInfo a, ITemplate b) => a.CompareTo(b) < 0;
+    /// <summary>Less than operator.</summary>
+    /// <param name="a">The <see cref="TemplateInfo" /> object.</param>
+    /// <param name="b">The <see cref="ITemplate" /> object to compare.</param>
+    /// <returns>True if the <paramref name="a" /> is less than <paramref name="b" />; otherwise, false.</returns>
+    public static bool operator <(TemplateInfo a, ITemplate b) => a?.CompareTo(b) < 0;
 
-    public static bool operator <=(TemplateInfo a, ITemplate b) => a.CompareTo(b) <= 0;
+    /// <summary>Less than or equal to operator.</summary>
+    /// <param name="a">The <see cref="TemplateInfo" /> object.</param>
+    /// <param name="b">The <see cref="ITemplate" /> object to compare.</param>
+    /// <returns>True if the <paramref name="a" /> is less than or equal to <paramref name="b" />; otherwise, false.</returns>
+    public static bool operator <=(TemplateInfo a, ITemplate b) => a?.CompareTo(b) <= 0;
 
-    public static bool operator >(TemplateInfo a, ITemplate b) => a.CompareTo(b) > 0;
+    /// <summary>Greater than operator.</summary>
+    /// <param name="a">The <see cref="TemplateInfo" /> object.</param>
+    /// <param name="b">The <see cref="ITemplate" /> object to compare.</param>
+    /// <returns>True if the <paramref name="a" /> is greater than <paramref name="b" />; otherwise, false.</returns>
+    public static bool operator >(TemplateInfo a, ITemplate b) => a?.CompareTo(b) > 0;
 
-    public static bool operator >=(TemplateInfo a, ITemplate b) => a.CompareTo(b) >= 0;
+    /// <summary>Greater than or equal to operator.</summary>
+    /// <param name="a">The <see cref="TemplateInfo" /> object.</param>
+    /// <param name="b">The <see cref="ITemplate" /> object to compare.</param>
+    /// <returns>True if the <paramref name="a" /> is greater than or equal to <paramref name="b" />; otherwise, false.</returns>
+    public static bool operator >=(TemplateInfo a, ITemplate b) => a?.CompareTo(b) >= 0;
 
     /// <inheritdoc />
-    public override bool Equals(object? obj)
-    {
-        return ReferenceEquals(this, obj) || obj is ITemplate other && Equals(other);
-    }
+    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || obj is ITemplate other && Equals(other);
 
     /// <inheritdoc />
     public bool Equals(ITemplate? other)
@@ -57,10 +73,8 @@ public sealed class TemplateInfo : ITemplate
     }
 
     /// <inheritdoc />
-    public override int GetHashCode()
-    {
+    public override int GetHashCode() =>
         // ReSharper disable once NonReadonlyMemberInGetHashCode
         // Name can only be set by internal methods.
-        return StringComparer.OrdinalIgnoreCase.GetHashCode(Name);
-    }
+        StringComparer.OrdinalIgnoreCase.GetHashCode(Name);
 }

@@ -17,36 +17,66 @@ public sealed partial class OnePasswordManager
     /// <inheritdoc />
     public ImmutableList<VaultGroup> GetGroups(IVault vault)
     {
-        if (vault.Id.Length == 0)
+        if (vault is null || vault.Id.Length == 0)
             throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
 
-        var command = $"vault group list {vault.Id}";
-        return Op<ImmutableList<VaultGroup>>(command);
+        return GetVaultGroups(vault.Id);
     }
 
     /// <inheritdoc />
     public ImmutableList<UserGroup> GetGroups(IUser user)
     {
-        if (user.Id.Length == 0)
+        if (user is null || user.Id.Length == 0)
             throw new ArgumentException($"{nameof(user.Id)} cannot be empty.", nameof(user));
 
-        var command = $"group list --user {user.Id}";
+        return GetUserGroups(user.Id);
+    }
+
+    /// <inheritdoc />
+    public ImmutableList<VaultGroup> GetVaultGroups(string vaultId)
+    {
+        if (vaultId is null || vaultId.Length == 0)
+            throw new ArgumentException($"{nameof(vaultId)} cannot be empty.", nameof(vaultId));
+
+        var command = $"vault group list {vaultId}";
+        return Op<ImmutableList<VaultGroup>>(command);
+    }
+
+    /// <inheritdoc />
+    public ImmutableList<UserGroup> GetUserGroups(string userId)
+    {
+        if (userId is null || userId.Length == 0)
+            throw new ArgumentException($"{nameof(userId)} cannot be empty.", nameof(userId));
+
+        var command = $"group list --user {userId}";
         return Op<ImmutableList<UserGroup>>(command);
     }
 
     /// <inheritdoc />
     public GroupDetails GetGroup(IGroup group)
     {
-        if (group.Id.Length == 0)
+        if (group is null || group.Id.Length == 0)
             throw new ArgumentException($"{nameof(group.Id)} cannot be empty.", nameof(group));
 
-        var command = $"group get {group.Id}";
+        return GetGroup(group.Id);
+    }
+
+    /// <inheritdoc />
+    public GroupDetails GetGroup(string groupId)
+    {
+        if (groupId is null || groupId.Length == 0)
+            throw new ArgumentException($"{nameof(groupId)} cannot be empty.", nameof(groupId));
+
+        var command = $"group get {groupId}";
         return Op<GroupDetails>(command);
     }
 
     /// <inheritdoc />
     public GroupDetails CreateGroup(string name, string? description = null)
     {
+        if (name is null || name.Length == 0)
+            throw new ArgumentException($"{nameof(name)} cannot be empty.", nameof(name));
+
         var trimmedName = name.Trim();
         if (trimmedName.Length == 0)
             throw new ArgumentException($"{nameof(name)} cannot be empty.", nameof(name));
@@ -62,8 +92,24 @@ public sealed partial class OnePasswordManager
     /// <inheritdoc />
     public void EditGroup(IGroup group, string? name = null, string? description = null)
     {
-        if (group.Id.Length == 0)
+        if (group is null || group.Id.Length == 0)
             throw new ArgumentException($"{nameof(group.Id)} cannot be empty.", nameof(group));
+
+        var trimmedName = name?.Trim();
+        if (trimmedName is not null && trimmedName.Length == 0)
+            throw new ArgumentException($"{nameof(name)} cannot be empty.", nameof(name));
+
+        if (name is null && description is null)
+            throw new InvalidOperationException("Nothing to edit.");
+
+        EditGroup(group.Id, name, description);
+    }
+
+    /// <inheritdoc />
+    public void EditGroup(string groupId, string? name = null, string? description = null)
+    {
+        if (groupId is null || groupId.Length == 0)
+            throw new ArgumentException($"{nameof(groupId)} cannot be empty.", nameof(groupId));
 
         var trimmedName = name?.Trim();
         if (trimmedName is not null && trimmedName.Length == 0)
@@ -74,7 +120,7 @@ public sealed partial class OnePasswordManager
         if (name is null && description is null)
             throw new InvalidOperationException("Nothing to edit.");
 
-        var command = $"group edit {group.Id}";
+        var command = $"group edit {groupId}";
         if (trimmedName is not null)
             command += $" --name \"{trimmedName}\"";
         if (trimmedDescription is not null)
@@ -85,36 +131,69 @@ public sealed partial class OnePasswordManager
     /// <inheritdoc />
     public void DeleteGroup(IGroup group)
     {
-        if (group.Id.Length == 0)
+        if (group is null || group.Id.Length == 0)
             throw new ArgumentException($"{nameof(group.Id)} cannot be empty.", nameof(group));
 
-        var command = $"group delete {group.Id}";
+        DeleteGroup(group.Id);
+    }
+
+    /// <inheritdoc />
+    public void DeleteGroup(string groupId)
+    {
+        if (groupId is null || groupId.Length == 0)
+            throw new ArgumentException($"{nameof(groupId)} cannot be empty.", nameof(groupId));
+
+        var command = $"group delete {groupId}";
         Op(command);
     }
 
     /// <inheritdoc />
     public void GrantAccess(IGroup group, IUser user, UserRole userRole = UserRole.Member)
     {
-        if (group.Id.Length == 0)
+        if (group is null || group.Id.Length == 0)
             throw new ArgumentException($"{nameof(group.Id)} cannot be empty.", nameof(group));
-        if (user.Id.Length == 0)
+        if (user is null || user.Id.Length == 0)
             throw new ArgumentException($"{nameof(user.Id)} cannot be empty.", nameof(user));
         if (userRole != UserRole.Member && userRole != UserRole.Manager)
             throw new ArgumentException($"{nameof(userRole)} must be {nameof(UserRole.Member)} or {nameof(UserRole.Manager)}.", nameof(userRole));
 
-        var command = $"group user grant --group {group.Id} --user {user.Id} --role \"{userRole.ToEnumString()}\"";
+        GrantAccess(group.Id, user.Id, userRole);
+    }
+
+    /// <inheritdoc />
+    public void GrantAccess(string groupId, string userId, UserRole userRole = UserRole.Member)
+    {
+        if (groupId is null || groupId.Length == 0)
+            throw new ArgumentException($"{nameof(groupId)} cannot be empty.", nameof(groupId));
+        if (userId is null || userId.Length == 0)
+            throw new ArgumentException($"{nameof(userId)} cannot be empty.", nameof(userId));
+        if (userRole != UserRole.Member && userRole != UserRole.Manager)
+            throw new ArgumentException($"{nameof(userRole)} must be {nameof(UserRole.Member)} or {nameof(UserRole.Manager)}.", nameof(userRole));
+
+        var command = $"group user grant --group {groupId} --user {userId} --role \"{userRole.ToEnumString()}\"";
         Op(command);
     }
 
     /// <inheritdoc />
     public void RevokeAccess(IGroup group, IUser user)
     {
-        if (group.Id.Length == 0)
+        if (group is null || group.Id.Length == 0)
             throw new ArgumentException($"{nameof(group.Id)} cannot be empty.", nameof(group));
-        if (user.Id.Length == 0)
+        if (user is null || user.Id.Length == 0)
             throw new ArgumentException($"{nameof(user.Id)} cannot be empty.", nameof(user));
 
-        var command = $"group user revoke --group {group.Id} --user {user.Id}";
+        RevokeAccess(group.Id, user.Id);
+    }
+
+    /// <inheritdoc />
+    public void RevokeAccess(string groupId, string userId)
+    {
+        if (groupId is null || groupId.Length == 0)
+            throw new ArgumentException($"{nameof(groupId)} cannot be empty.", nameof(groupId));
+        if (userId is null || userId.Length == 0)
+            throw new ArgumentException($"{nameof(userId)} cannot be empty.", nameof(userId));
+
+        var command = $"group user revoke --group {groupId} --user {userId}";
         Op(command);
     }
 }

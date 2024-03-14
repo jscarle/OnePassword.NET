@@ -6,8 +6,13 @@ namespace OnePassword;
 
 public sealed partial class OnePasswordManager
 {
+#if NET7_0_OR_GREATER
+    private static readonly Regex ForgottenAccountsRegex = GeneratedForgottenAccountsRegex();
+    private static readonly Regex DeviceRegex = GeneratedDeviceRegex();
+#else
     private static readonly Regex ForgottenAccountsRegex = new(@"""([^""]+)""", RegexOptions.Compiled);
     private static readonly Regex DeviceRegex = new("OP_DEVICE=(?<UUID>[a-z0-9]+)", RegexOptions.Compiled);
+#endif
 
     /// <inheritdoc />
     public ImmutableList<Account> GetAccounts()
@@ -25,7 +30,7 @@ public sealed partial class OnePasswordManager
         if (_mode == Mode.ServiceAccount)
             throw new InvalidOperationException($"{nameof(GetAccount)} is not supported when using service accounts.");
 
-        var trimmedAccount = account.Trim();
+        var trimmedAccount = account?.Trim() ?? "";
 
         var command = trimmedAccount.Length > 0 ? $"account get --account \"{trimmedAccount}\"" : "account get";
         return Op<AccountDetails>(command);
@@ -37,23 +42,31 @@ public sealed partial class OnePasswordManager
         if (_mode == Mode.ServiceAccount)
             throw new InvalidOperationException($"{nameof(AddAccount)} is not supported when using service accounts.");
 
+        if (address is null || address.Length == 0)
+            throw new ArgumentException($"{nameof(address)} cannot be empty.", nameof(address));
         var trimmedAddress = address.Trim();
         if (trimmedAddress.Length == 0)
             throw new ArgumentException($"{nameof(address)} cannot be empty.", nameof(address));
 
+        if (email is null || email.Length == 0)
+            throw new ArgumentException($"{nameof(email)} cannot be empty.", nameof(email));
         var trimmedEmail = email.Trim();
         if (trimmedEmail.Length == 0)
             throw new ArgumentException($"{nameof(email)} cannot be empty.", nameof(email));
 
+        if (secretKey is null || secretKey.Length == 0)
+            throw new ArgumentException($"{nameof(secretKey)} cannot be empty.", nameof(secretKey));
         var trimmedSecretKey = secretKey.Trim();
         if (trimmedSecretKey.Length == 0)
             throw new ArgumentException($"{nameof(secretKey)} cannot be empty.", nameof(secretKey));
 
+        if (password is null || password.Length == 0)
+            throw new ArgumentException($"{nameof(password)} cannot be empty.", nameof(password));
         var trimmedPassword = password.Trim();
         if (trimmedPassword.Length == 0)
             throw new ArgumentException($"{nameof(password)} cannot be empty.", nameof(password));
 
-        var trimmedShorthand = shorthand.Trim();
+        var trimmedShorthand = shorthand?.Trim() ?? "";
 
         var command = $"account add --address \"{trimmedAddress}\" --email \"{trimmedEmail}\" --secret-key \"{trimmedSecretKey}\"";
         if (trimmedShorthand.Length > 0)
@@ -76,7 +89,7 @@ public sealed partial class OnePasswordManager
         if (_mode == Mode.ServiceAccount)
             throw new InvalidOperationException($"{nameof(UseAccount)} is not supported when using service accounts.");
 
-        var trimmedAccount = account.Trim();
+        var trimmedAccount = account?.Trim() ?? "";
         if (trimmedAccount.Length == 0)
             throw new ArgumentException($"{nameof(account)} cannot be empty.", nameof(account));
 
@@ -136,4 +149,12 @@ public sealed partial class OnePasswordManager
 
         return accounts.ToImmutable();
     }
+#if NET7_0_OR_GREATER
+
+    [GeneratedRegex(@"""([^""]+)""", RegexOptions.Compiled)]
+    private static partial Regex GeneratedForgottenAccountsRegex();
+
+    [GeneratedRegex("OP_DEVICE=(?<UUID>[a-z0-9]+)", RegexOptions.Compiled)]
+    private static partial Regex GeneratedDeviceRegex();
+#endif
 }

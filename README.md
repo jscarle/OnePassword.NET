@@ -15,7 +15,7 @@ This library targets .NET 6.0, .NET 7.0, and .NET 8.0.
 
 This library has no dependencies.
 
-## Quick Start
+## Quick start
 
 ### Creating an instance of the manager
 

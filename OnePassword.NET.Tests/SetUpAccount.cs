@@ -1,4 +1,3 @@
-using OnePassword.Accounts;
 using OnePassword.Common;
 
 namespace OnePassword;

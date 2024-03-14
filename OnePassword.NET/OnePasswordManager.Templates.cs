@@ -16,7 +16,7 @@ public sealed partial class OnePasswordManager
     /// <inheritdoc />
     public Template GetTemplate(ITemplate template)
     {
-        if (template.Name.Length == 0)
+        if (template is null || template.Name.Length == 0)
             throw new ArgumentException($"{nameof(template.Name)} cannot be empty.", nameof(template));
 
         var command = $"item template get \"{template.Name}\"";

@@ -17,36 +17,66 @@ public sealed partial class OnePasswordManager
     /// <inheritdoc />
     public ImmutableList<Vault> GetVaults(IGroup group)
     {
-        if (group.Id.Length == 0)
+        if (group is null || group.Id.Length == 0)
             throw new ArgumentException($"{nameof(group.Id)} cannot be empty.", nameof(group));
 
-        var command = $"vault list --group {group.Id}";
-        return Op<ImmutableList<Vault>>(command);
+        return GetGroupVaults(group.Id);
     }
 
     /// <inheritdoc />
     public ImmutableList<Vault> GetVaults(IUser user)
     {
-        if (user.Id.Length == 0)
+        if (user is null || user.Id.Length == 0)
             throw new ArgumentException($"{nameof(user.Id)} cannot be empty.", nameof(user));
 
-        var command = $"vault list --user {user.Id}";
+        return GetUserVaults(user.Id);
+    }
+
+    /// <inheritdoc />
+    public ImmutableList<Vault> GetGroupVaults(string groupId)
+    {
+        if (groupId is null || groupId.Length == 0)
+            throw new ArgumentException($"{nameof(groupId)} cannot be empty.", nameof(groupId));
+
+        var command = $"vault list --group {groupId}";
+        return Op<ImmutableList<Vault>>(command);
+    }
+
+    /// <inheritdoc />
+    public ImmutableList<Vault> GetUserVaults(string userId)
+    {
+        if (userId is null || userId.Length == 0)
+            throw new ArgumentException($"{nameof(userId)} cannot be empty.", nameof(userId));
+
+        var command = $"vault list --user {userId}";
         return Op<ImmutableList<Vault>>(command);
     }
 
     /// <inheritdoc />
     public VaultDetails GetVault(IVault vault)
     {
-        if (vault.Id.Length == 0)
+        if (vault is null || vault.Id.Length == 0)
             throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
 
-        var command = $"vault get {vault.Id}";
+        return GetVault(vault.Id);
+    }
+
+    /// <inheritdoc />
+    public VaultDetails GetVault(string vaultId)
+    {
+        if (vaultId is null || vaultId.Length == 0)
+            throw new ArgumentException($"{nameof(vaultId)} cannot be empty.", nameof(vaultId));
+
+        var command = $"vault get {vaultId}";
         return Op<VaultDetails>(command);
     }
 
     /// <inheritdoc />
     public VaultDetails CreateVault(string name, string? description = null, VaultIcon icon = VaultIcon.Default, bool? allowAdminsToManage = null)
     {
+        if (name is null || name.Length == 0)
+            throw new ArgumentException($"{nameof(name)} cannot be empty.", nameof(name));
+
         var trimmedName = name.Trim();
         if (trimmedName.Length == 0)
             throw new ArgumentException($"{nameof(name)} cannot be empty.", nameof(name));
@@ -66,8 +96,24 @@ public sealed partial class OnePasswordManager
     /// <inheritdoc />
     public void EditVault(IVault vault, string? name = null, string? description = null, VaultIcon icon = VaultIcon.Default, bool? travelMode = null)
     {
-        if (vault.Id.Length == 0)
+        if (vault is null || vault.Id.Length == 0)
             throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
+
+        var trimmedName = name?.Trim();
+        if (trimmedName is not null && trimmedName.Length == 0)
+            throw new ArgumentException($"{nameof(name)} cannot be empty.", nameof(name));
+
+        if (name is null && description is null && icon is VaultIcon.Default or VaultIcon.Unknown && travelMode is null)
+            throw new InvalidOperationException("Nothing to edit.");
+
+        EditVault(vault.Id);
+    }
+
+    /// <inheritdoc />
+    public void EditVault(string vaultId, string? name = null, string? description = null, VaultIcon icon = VaultIcon.Default, bool? travelMode = null)
+    {
+        if (vaultId is null || vaultId.Length == 0)
+            throw new ArgumentException($"{nameof(vaultId)} cannot be empty.", nameof(vaultId));
 
         var trimmedName = name?.Trim();
         if (trimmedName is not null && trimmedName.Length == 0)
@@ -78,7 +124,7 @@ public sealed partial class OnePasswordManager
         if (name is null && description is null && icon is VaultIcon.Default or VaultIcon.Unknown && travelMode is null)
             throw new InvalidOperationException("Nothing to edit.");
 
-        var command = $"vault edit {vault.Id}";
+        var command = $"vault edit {vaultId}";
         if (trimmedName is not null)
             command += $" --name \"{trimmedName}\"";
         if (trimmedDescription is not null)
@@ -93,66 +139,127 @@ public sealed partial class OnePasswordManager
     /// <inheritdoc />
     public void DeleteVault(IVault vault)
     {
-        if (vault.Id.Length == 0)
+        if (vault is null || vault.Id.Length == 0)
             throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
 
-        var command = $"vault delete {vault.Id}";
+        DeleteVault(vault.Id);
+    }
+
+    /// <inheritdoc />
+    public void DeleteVault(string vaultId)
+    {
+        if (vaultId is null || vaultId.Length == 0)
+            throw new ArgumentException($"{nameof(vaultId)} cannot be empty.", nameof(vaultId));
+
+        var command = $"vault delete {vaultId}";
         Op(command);
     }
 
     /// <inheritdoc />
     public void GrantPermissions(IVault vault, IGroup group, IReadOnlyCollection<VaultPermission> permissions)
     {
-        if (vault.Id.Length == 0)
+        if (vault is null || vault.Id.Length == 0)
             throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
-        if (group.Id.Length == 0)
+        if (group is null || group.Id.Length == 0)
             throw new ArgumentException($"{nameof(group.Id)} cannot be empty.", nameof(group));
-        if (permissions.Count == 0)
+        if (permissions is null || permissions.Count == 0)
             throw new ArgumentException($"{nameof(permissions)} cannot be empty.", nameof(permissions));
 
-        var command = $"vault group grant --vault {vault.Id} --group {group.Id} --permissions \"{permissions.ToCommaSeparated()}\"";
-        Op(command);
+        GrantGroupPermissions(vault.Id, group.Id, permissions);
     }
 
     /// <inheritdoc />
     public void GrantPermissions(IVault vault, IUser user, IReadOnlyCollection<VaultPermission> permissions)
     {
-        if (vault.Id.Length == 0)
+        if (vault is null || vault.Id.Length == 0)
             throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
-        if (user.Id.Length == 0)
+        if (user is null || user.Id.Length == 0)
             throw new ArgumentException($"{nameof(user.Id)} cannot be empty.", nameof(user));
-        if (permissions.Count == 0)
+        if (permissions is null || permissions.Count == 0)
             throw new ArgumentException($"{nameof(permissions)} cannot be empty.", nameof(permissions));
 
-        var command = $"vault user grant --vault {vault.Id} --user {user.Id} --permissions \"{permissions.ToCommaSeparated()}\"";
+        GrantUserPermissions(vault.Id, user.Id, permissions);
+    }
+
+    /// <inheritdoc />
+    public void GrantGroupPermissions(string vaultId, string groupId, IReadOnlyCollection<VaultPermission> permissions)
+    {
+        if (vaultId is null || vaultId.Length == 0)
+            throw new ArgumentException($"{nameof(vaultId)} cannot be empty.", nameof(vaultId));
+        if (groupId is null || groupId.Length == 0)
+            throw new ArgumentException($"{nameof(groupId)} cannot be empty.", nameof(groupId));
+        if (permissions is null || permissions.Count == 0)
+            throw new ArgumentException($"{nameof(permissions)} cannot be empty.", nameof(permissions));
+
+        var command = $"vault group grant --vault {vaultId} --group {groupId} --permissions \"{permissions.ToCommaSeparated()}\"";
+        Op(command);
+    }
+
+    /// <inheritdoc />
+    public void GrantUserPermissions(string vaultId, string userId, IReadOnlyCollection<VaultPermission> permissions)
+    {
+        if (vaultId is null || vaultId.Length == 0)
+            throw new ArgumentException($"{nameof(vaultId)} cannot be empty.", nameof(vaultId));
+        if (userId is null || userId.Length == 0)
+            throw new ArgumentException($"{nameof(userId)} cannot be empty.", nameof(userId));
+        if (permissions is null || permissions.Count == 0)
+            throw new ArgumentException($"{nameof(permissions)} cannot be empty.", nameof(permissions));
+
+        var command = $"vault user grant --vault {vaultId} --user {userId} --permissions \"{permissions.ToCommaSeparated()}\"";
         Op(command);
     }
 
     /// <inheritdoc />
     public void RevokePermissions(IVault vault, IGroup group, IReadOnlyCollection<VaultPermission> permissions)
     {
-        if (vault.Id.Length == 0)
+        if (vault is null || vault.Id.Length == 0)
             throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
-        if (permissions.Count == 0)
-            throw new ArgumentException($"{nameof(permissions)} cannot be empty.", nameof(permissions));
-        if (group.Id.Length == 0)
+        if (group is null || group.Id.Length == 0)
             throw new ArgumentException($"{nameof(group.Id)} cannot be empty.", nameof(group));
+        if (permissions is null || permissions.Count == 0)
+            throw new ArgumentException($"{nameof(permissions)} cannot be empty.", nameof(permissions));
 
-        var command = $"vault user revoke --vault {vault.Id} --group {group.Id} --permissions \"{permissions.ToCommaSeparated()}\"";
-        Op(command);
+        RevokeGroupPermissions(vault.Id, group.Id, permissions);
     }
 
     /// <inheritdoc />
     public void RevokePermissions(IVault vault, IUser user, IReadOnlyCollection<VaultPermission> permissions)
     {
-        if (vault.Id.Length == 0)
+        if (vault is null || vault.Id.Length == 0)
             throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
-        if (permissions.Count == 0)
-            throw new ArgumentException($"{nameof(permissions)} cannot be empty.", nameof(permissions));
-        if (user.Id.Length == 0)
+        if (user is null || user.Id.Length == 0)
             throw new ArgumentException($"{nameof(user.Id)} cannot be empty.", nameof(user));
+        if (permissions is null || permissions.Count == 0)
+            throw new ArgumentException($"{nameof(permissions)} cannot be empty.", nameof(permissions));
 
-        var command = $"vault user revoke --vault {vault.Id} --user {user.Id} --permissions \"{permissions.ToCommaSeparated()}\"";
+        RevokeUserPermissions(vault.Id, user.Id, permissions);
+    }
+
+    /// <inheritdoc />
+    public void RevokeGroupPermissions(string vaultId, string groupId, IReadOnlyCollection<VaultPermission> permissions)
+    {
+        if (vaultId is null || vaultId.Length == 0)
+            throw new ArgumentException($"{nameof(vaultId)} cannot be empty.", nameof(vaultId));
+        if (groupId is null || groupId.Length == 0)
+            throw new ArgumentException($"{nameof(groupId)} cannot be empty.", nameof(groupId));
+        if (permissions is null || permissions.Count == 0)
+            throw new ArgumentException($"{nameof(permissions)} cannot be empty.", nameof(permissions));
+
+        var command = $"vault user revoke --vault {vaultId} --group {groupId} --permissions \"{permissions.ToCommaSeparated()}\"";
+        Op(command);
+    }
+
+    /// <inheritdoc />
+    public void RevokeUserPermissions(string vaultId, string userId, IReadOnlyCollection<VaultPermission> permissions)
+    {
+        if (vaultId is null || vaultId.Length == 0)
+            throw new ArgumentException($"{nameof(vaultId)} cannot be empty.", nameof(vaultId));
+        if (userId is null || userId.Length == 0)
+            throw new ArgumentException($"{nameof(userId)} cannot be empty.", nameof(userId));
+        if (permissions is null || permissions.Count == 0)
+            throw new ArgumentException($"{nameof(permissions)} cannot be empty.", nameof(permissions));
+
+        var command = $"vault user revoke --vault {vaultId} --user {userId} --permissions \"{permissions.ToCommaSeparated()}\"";
         Op(command);
     }
 }
