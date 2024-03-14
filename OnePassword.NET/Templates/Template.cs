@@ -2,9 +2,7 @@
 
 namespace OnePassword.Templates;
 
-/// <summary>
-/// Represents a 1Password template.
-/// </summary>
+/// <summary>Represents a 1Password template.</summary>
 public sealed class Template : ItemBase, ITemplate, ICloneable
 {
     /// <inheritdoc />
@@ -12,9 +10,7 @@ public sealed class Template : ItemBase, ITemplate, ICloneable
     [JsonPropertyName("name")]
     public string Name { get; internal set; } = "";
 
-    /// <summary>
-    /// Clones the template.
-    /// </summary>
+    /// <summary>Clones the template.</summary>
     /// <returns>A cloned instance of the template.</returns>
     /// <exception cref="SerializationException">Thrown when there is an error serializing or deserializing the clone.</exception>
     public Template Clone()
@@ -23,32 +19,47 @@ public sealed class Template : ItemBase, ITemplate, ICloneable
         return JsonSerializer.Deserialize<Template>(json) ?? throw new SerializationException("Could not deserialize the cloned template.");
     }
 
-    /// <inheritdoc/>
-    object ICloneable.Clone() => Clone();
+    /// <inheritdoc />
+    public override string ToString() => Name;
+
+    /// <summary>Equality operator.</summary>
+    /// <param name="a">The <see cref="Template" /> object.</param>
+    /// <param name="b">The <see cref="ITemplate" /> object to compare.</param>
+    /// <returns>True if the <paramref name="a" /> is equal to <paramref name="b" />; otherwise, false.</returns>
+    public static bool operator ==(Template a, ITemplate b) => a?.Equals(b) ?? false;
+
+    /// <summary>Inequality operator.</summary>
+    /// <param name="a">The <see cref="Template" /> object.</param>
+    /// <param name="b">The <see cref="ITemplate" /> object to compare.</param>
+    /// <returns>True if the <paramref name="a" /> is not equal to <paramref name="b" />; otherwise, false.</returns>
+    public static bool operator !=(Template a, ITemplate b) => !a?.Equals(b) ?? false;
+
+    /// <summary>Less than operator.</summary>
+    /// <param name="a">The <see cref="Template" /> object.</param>
+    /// <param name="b">The <see cref="ITemplate" /> object to compare.</param>
+    /// <returns>True if the <paramref name="a" /> is less than <paramref name="b" />; otherwise, false.</returns>
+    public static bool operator <(Template a, ITemplate b) => a?.CompareTo(b) < 0;
+
+    /// <summary>Less than or equal to operator.</summary>
+    /// <param name="a">The <see cref="Template" /> object.</param>
+    /// <param name="b">The <see cref="ITemplate" /> object to compare.</param>
+    /// <returns>True if the <paramref name="a" /> is less than or equal to <paramref name="b" />; otherwise, false.</returns>
+    public static bool operator <=(Template a, ITemplate b) => a?.CompareTo(b) <= 0;
+
+    /// <summary>Greater than operator.</summary>
+    /// <param name="a">The <see cref="Template" /> object.</param>
+    /// <param name="b">The <see cref="ITemplate" /> object to compare.</param>
+    /// <returns>True if the <paramref name="a" /> is greater than <paramref name="b" />; otherwise, false.</returns>
+    public static bool operator >(Template a, ITemplate b) => a?.CompareTo(b) > 0;
+
+    /// <summary>Greater than or equal to operator.</summary>
+    /// <param name="a">The <see cref="Template" /> object.</param>
+    /// <param name="b">The <see cref="ITemplate" /> object to compare.</param>
+    /// <returns>True if the <paramref name="a" /> is greater than or equal to <paramref name="b" />; otherwise, false.</returns>
+    public static bool operator >=(Template a, ITemplate b) => a?.CompareTo(b) >= 0;
 
     /// <inheritdoc />
-    public override string ToString()
-    {
-        return Name;
-    }
-
-    public static bool operator ==(Template a, ITemplate b) => a.Equals(b);
-
-    public static bool operator !=(Template a, ITemplate b) => !a.Equals(b);
-
-    public static bool operator <(Template a, ITemplate b) => a.CompareTo(b) < 0;
-
-    public static bool operator <=(Template a, ITemplate b) => a.CompareTo(b) <= 0;
-
-    public static bool operator >(Template a, ITemplate b) => a.CompareTo(b) > 0;
-
-    public static bool operator >=(Template a, ITemplate b) => a.CompareTo(b) >= 0;
-
-    /// <inheritdoc />
-    public override bool Equals(object? obj)
-    {
-        return ReferenceEquals(this, obj) || obj is ITemplate other && Equals(other);
-    }
+    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || obj is ITemplate other && Equals(other);
 
     /// <inheritdoc />
     public bool Equals(ITemplate? other)
@@ -73,10 +84,11 @@ public sealed class Template : ItemBase, ITemplate, ICloneable
     }
 
     /// <inheritdoc />
-    public override int GetHashCode()
-    {
+    public override int GetHashCode() =>
         // ReSharper disable once NonReadonlyMemberInGetHashCode
         // Name can only be set by internal methods.
-        return StringComparer.OrdinalIgnoreCase.GetHashCode(Name);
-    }
+        StringComparer.OrdinalIgnoreCase.GetHashCode(Name);
+
+    /// <inheritdoc />
+    object ICloneable.Clone() => Clone();
 }

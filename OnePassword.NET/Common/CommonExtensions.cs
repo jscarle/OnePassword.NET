@@ -11,8 +11,8 @@ internal static class CommonExtensions
     /// <param name="field">The enum field.</param>
     /// <typeparam name="TField">The type of enum field.</typeparam>
     /// <returns>A string representation of the enum field.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when <see cref="field"/> is null.</exception>
-    /// <exception cref="NotImplementedException">Thrown when <see cref="field"/> is not correctly annotated with a <see cref="EnumMemberAttribute"/>.</exception>
+    /// <exception cref="ArgumentNullException">Thrown when field is null.</exception>
+    /// <exception cref="NotImplementedException">Thrown when field is not correctly annotated with a <see cref="EnumMemberAttribute"/>.</exception>
     internal static string ToEnumString<TField>(this TField field)
         where TField : Enum
     {

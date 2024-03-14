@@ -6,12 +6,17 @@ using OnePassword.Common;
 
 namespace OnePassword;
 
-/// <summary>
-/// Manages the 1Password CLI executable.
-/// </summary>
+/// <summary>Represents the 1Password CLI executable manager.</summary>
 public sealed partial class OnePasswordManager : IOnePasswordManager
 {
-    private static readonly Regex VersionRegex = new(@"Version ([^\s]+) is now available\.", RegexOptions.Compiled);
+    /// <inheritdoc />
+    public string Version { get; private set; }
+
+#if NET7_0_OR_GREATER
+    private static readonly Regex VersionRegex = GeneratedVersionRegex();
+#else
+    private static readonly Regex VersionRegex = new (@"Version ([^\s]+) is now available\.", RegexOptions.Compiled);
+#endif
     private readonly string[] _excludedAccountCommands = { "--version", "update", "account list", "account add", "account forget", "signout --all" };
     private readonly string[] _excludedSessionCommands = { "--version", "update", "account list", "account add", "account forget", "signin", "signout", "signout --all" };
     private readonly Mode _mode = Mode.Interactive;
@@ -22,19 +27,14 @@ public sealed partial class OnePasswordManager : IOnePasswordManager
     private string _account = "";
     private string _session = "";
 
-    /// <summary>
-    /// Initializes a new instance of <see cref="OnePasswordManager" /> using the specified options.
-    /// </summary>
+    /// <summary>Initializes a new instance of <see cref="OnePasswordManager" /> using the specified options.</summary>
     /// <param name="options">The configuration options.</param>
     /// <exception cref="FileNotFoundException">Thrown when the 1Password CLI executable cannot be found.</exception>
-    public OnePasswordManager(Action<OnePasswordManagerOptions> options)
-        : this(ConfigureOptions(options))
+    public OnePasswordManager(Action<OnePasswordManagerOptions> options) : this(ConfigureOptions(options))
     {
     }
 
-    /// <summary>
-    /// Initializes a new instance of <see cref="OnePasswordManager" /> using the specified options.
-    /// </summary>
+    /// <summary>Initializes a new instance of <see cref="OnePasswordManager" /> using the specified options.</summary>
     /// <param name="options">The configuration options.</param>
     /// <exception cref="FileNotFoundException">Thrown when the 1Password CLI executable cannot be found.</exception>
     public OnePasswordManager(OnePasswordManagerOptions? options = null)
@@ -57,25 +57,19 @@ public sealed partial class OnePasswordManager : IOnePasswordManager
         Version = GetVersion();
     }
 
-    /// <summary>
-    /// Initializes a new instance of <see cref="OnePasswordManager" /> for the specified 1Password CLI executable.
-    /// </summary>
+    /// <summary>Initializes a new instance of <see cref="OnePasswordManager" /> for the specified 1Password CLI executable.</summary>
     /// <param name="path">The path to the 1Password CLI executable.</param>
     /// <param name="executable">The name of the 1Password CLI executable.</param>
-    /// <param name="verbose">
-    /// When <see langword="true" />, commands sent to the 1Password CLI executable are output to the
-    /// console.
-    /// </param>
+    /// <param name="verbose">When <see langword="true" />, commands sent to the 1Password CLI executable are output to the console.</param>
     /// <param name="appIntegrated">
-    /// Set to <see langword="true" /> when authentication is integrated into the 1Password desktop
-    /// application (see <a href="https://developer.1password.com/docs/cli/get-started/#sign-in">documentation</a>). When
+    /// Set to <see langword="true" /> when authentication is integrated into the 1Password desktop application (see <a href="https://developer.1password.com/docs/cli/get-started/#sign-in">documentation</a>). When
     /// <see langword="false" />, a password will be required to sign in.
     /// </param>
     /// <exception cref="FileNotFoundException">Thrown when the 1Password CLI executable cannot be found.</exception>
     [Obsolete($"This constructor is deprecated. Please use the constructor overload with '{nameof(OnePasswordManagerOptions)}' as argument.")]
     public OnePasswordManager(string path = "", string executable = "op.exe", bool verbose = false, bool appIntegrated = false)
     {
-        _opPath = path.Length > 0 ? Path.Combine(path, executable) : Path.Combine(Directory.GetCurrentDirectory(), executable);
+        _opPath = path is not null && path.Length > 0 ? Path.Combine(path, executable) : Path.Combine(Directory.GetCurrentDirectory(), executable);
         if (!File.Exists(_opPath))
             throw new FileNotFoundException($"The 1Password CLI executable ({executable}) was not found in folder \"{Path.GetDirectoryName(_opPath)}\".");
 
@@ -88,9 +82,6 @@ public sealed partial class OnePasswordManager : IOnePasswordManager
 
         Version = GetVersion();
     }
-
-    /// <inheritdoc />
-    public string Version { get; private set; }
 
     /// <inheritdoc />
     public bool Update()
@@ -128,6 +119,8 @@ public sealed partial class OnePasswordManager : IOnePasswordManager
     /// <inheritdoc />
     public string GetSecret(string reference)
     {
+        if (reference is null || reference.Length == 0)
+            throw new ArgumentException($"{nameof(reference)} cannot be empty.", nameof(reference));
         var trimmedReference = reference.Trim();
         if (trimmedReference.Length == 0)
             throw new ArgumentException($"{nameof(trimmedReference)} cannot be empty.", nameof(reference));
@@ -139,22 +132,28 @@ public sealed partial class OnePasswordManager : IOnePasswordManager
     /// <inheritdoc />
     public void SaveSecret(string reference, string filePath, string? fileMode = null)
     {
+        if (reference is null || reference.Length == 0)
+            throw new ArgumentException($"{nameof(reference)} cannot be empty.", nameof(reference));
         var trimmedReference = reference.Trim();
         if (trimmedReference.Length == 0)
             throw new ArgumentException($"{nameof(trimmedReference)} cannot be empty.", nameof(reference));
+        if (filePath is null || filePath.Length == 0)
+            throw new ArgumentException($"{nameof(filePath)} cannot be empty.", nameof(filePath));
         var trimmedFilePath = filePath.Trim();
         if (trimmedFilePath.Length == 0)
             throw new ArgumentException($"{nameof(trimmedFilePath)} cannot be empty.", nameof(filePath));
 
         var trimmedFileMode = fileMode?.Trim();
         var command = $"read {reference} --no-newline --force --out-file \"{trimmedFilePath}\"";
-        if (trimmedFileMode is not null)
+        if (trimmedFileMode is not null && trimmedFileMode.Length > 0)
             command += $" --file-mode {trimmedFileMode}";
         Op(command);
     }
 
     private static OnePasswordManagerOptions ConfigureOptions(Action<OnePasswordManagerOptions> configure)
     {
+        if (configure is null)
+            return OnePasswordManagerOptions.Default;
         var options = OnePasswordManagerOptions.Default;
         configure(options);
         return options;
@@ -190,8 +189,7 @@ public sealed partial class OnePasswordManager : IOnePasswordManager
         return output.ToString();
     }
 
-    private TResult Op<TResult>(string command, string? input = null, bool returnError = false)
-        where TResult : class
+    private TResult Op<TResult>(string command, string? input = null, bool returnError = false) where TResult : class
     {
         var result = Op(command, input is null ? Array.Empty<string>() : new[] { input }, returnError);
         var obj = JsonSerializer.Deserialize<TResult>(result) ?? throw new SerializationException("Could not deserialize the command result.");
@@ -301,4 +299,9 @@ public sealed partial class OnePasswordManager : IOnePasswordManager
     {
         return unsupportedCommands.Any(x => command.StartsWith(x, StringComparison.InvariantCulture));
     }
+#if NET7_0_OR_GREATER
+
+    [GeneratedRegex(@"Version ([^\s]+) is now available\.", RegexOptions.Compiled)]
+    private static partial Regex GeneratedVersionRegex();
+#endif
 }

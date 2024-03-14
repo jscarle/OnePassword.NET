@@ -1,7 +1,9 @@
 ﻿namespace OnePassword;
 
+/// <summary>Represents the 1Password manager options.</summary>
 public class OnePasswordManagerOptions : IOnePasswordManagerOptions
 {
+    /// <summary>The default options.</summary>
     public static OnePasswordManagerOptions Default => new();
 
     /// <inheritdoc />

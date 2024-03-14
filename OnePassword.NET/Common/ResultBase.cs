@@ -1,11 +1,8 @@
 ﻿namespace OnePassword.Common;
 
-/// <summary>
-/// Common base class that represents a command result.
-/// </summary>
+/// <summary>Common base class that represents a command result.</summary>
 /// <typeparam name="TInterface">The result interface type.</typeparam>
-public abstract class ResultBase<TInterface> : IResult<TInterface>
-    where TInterface : IResult<TInterface>
+public abstract class ResultBase<TInterface> : IResult<TInterface> where TInterface : IResult<TInterface>
 {
     /// <inheritdoc />
     [JsonInclude]
@@ -52,16 +49,40 @@ public abstract class ResultBase<TInterface> : IResult<TInterface>
     /// <inheritdoc />
     public override string ToString() => Name;
 
+    /// <summary>Equality operator.</summary>
+    /// <param name="a">The <see cref="ResultBase{TInterface}" /> object.</param>
+    /// <param name="b">The <see cref="IResult{TInterface}" /> object to compare.</param>
+    /// <returns>True if the <paramref name="a" /> is equal to <paramref name="b" />; otherwise, false.</returns>
     public static bool operator ==(ResultBase<TInterface> a, IResult<TInterface> b) => Equals(a, b);
 
+    /// <summary>Inequality operator.</summary>
+    /// <param name="a">The <see cref="ResultBase{TInterface}" /> object.</param>
+    /// <param name="b">The <see cref="IResult{TInterface}" /> object to compare.</param>
+    /// <returns>True if the <paramref name="a" /> is not equal to <paramref name="b" />; otherwise, false.</returns>
     public static bool operator !=(ResultBase<TInterface> a, IResult<TInterface> b) => !Equals(a, b);
 
+    /// <summary>Less than operator.</summary>
+    /// <param name="a">The <see cref="ResultBase{TInterface}" /> object.</param>
+    /// <param name="b">The <see cref="IResult{TInterface}" /> object to compare.</param>
+    /// <returns>True if the <paramref name="a" /> is less than <paramref name="b" />; otherwise, false.</returns>
     public static bool operator <(ResultBase<TInterface> a, IResult<TInterface> b) => NullSafeCompareTo(a, b) < 0;
 
+    /// <summary>Less than or equal to operator.</summary>
+    /// <param name="a">The <see cref="ResultBase{TInterface}" /> object.</param>
+    /// <param name="b">The <see cref="IResult{TInterface}" /> object to compare.</param>
+    /// <returns>True if the <paramref name="a" /> is less than or equal to <paramref name="b" />; otherwise, false.</returns>
     public static bool operator <=(ResultBase<TInterface> a, IResult<TInterface> b) => NullSafeCompareTo(a, b) <= 0;
 
+    /// <summary>Greater than operator.</summary>
+    /// <param name="a">The <see cref="ResultBase{TInterface}" /> object.</param>
+    /// <param name="b">The <see cref="IResult{TInterface}" /> object to compare.</param>
+    /// <returns>True if the <paramref name="a" /> is greater than <paramref name="b" />; otherwise, false.</returns>
     public static bool operator >(ResultBase<TInterface> a, IResult<TInterface> b) => NullSafeCompareTo(a, b) > 0;
 
+    /// <summary>Greater than or equal to operator.</summary>
+    /// <param name="a">The <see cref="ResultBase{TInterface}" /> object.</param>
+    /// <param name="b">The <see cref="IResult{TInterface}" /> object to compare.</param>
+    /// <returns>True if the <paramref name="a" /> is greater than or equal to <paramref name="b" />; otherwise, false.</returns>
     public static bool operator >=(ResultBase<TInterface> a, IResult<TInterface> b) => NullSafeCompareTo(a, b) >= 0;
 
     /// <inheritdoc />

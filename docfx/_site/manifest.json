@@ -1,0 +1,708 @@
+{
+  "source_base_path": "C:/Users/jscarle/repos/OnePassword.NET/docfx",
+  "xrefmap": "xrefmap.yml",
+  "files": [
+    {
+      "type": "Resource",
+      "output": {
+        "resource": {
+          "relative_path": "index.json"
+        }
+      }
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "docs/quick-start.md",
+      "output": {
+        ".html": {
+          "relative_path": "docs/quick-start.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "docs/running-tests.md",
+      "output": {
+        ".html": {
+          "relative_path": "docs/running-tests.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Toc",
+      "source_relative_path": "docs/toc.yml",
+      "output": {
+        ".html": {
+          "relative_path": "docs/toc.html"
+        },
+        ".json": {
+          "relative_path": "docs/toc.json"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "index.md",
+      "output": {
+        ".html": {
+          "relative_path": "index.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Accounts.Account.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Accounts.Account.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Accounts.AccountDetails.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Accounts.AccountDetails.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Accounts.AccountType.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Accounts.AccountType.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Accounts.IAccount.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Accounts.IAccount.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Accounts.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Accounts.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Common.IResult-1.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Common.IResult-1.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Common.Language.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Common.Language.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Common.Mode.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Common.Mode.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Common.ResultBase-1.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Common.ResultBase-1.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Common.State.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Common.State.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Common.TrackedList-1.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Common.TrackedList-1.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Common.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Common.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Documents.Document.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Documents.Document.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Documents.DocumentDetails.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Documents.DocumentDetails.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Documents.IDocument.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Documents.IDocument.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Documents.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Documents.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Groups.Group.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Groups.Group.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Groups.GroupBase.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Groups.GroupBase.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Groups.GroupDetails.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Groups.GroupDetails.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Groups.GroupPermission.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Groups.GroupPermission.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Groups.GroupType.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Groups.GroupType.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Groups.IGroup.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Groups.IGroup.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Groups.UserGroup.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Groups.UserGroup.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Groups.VaultGroup.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Groups.VaultGroup.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Groups.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Groups.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.IOnePasswordManager.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.IOnePasswordManager.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.IOnePasswordManagerOptions.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.IOnePasswordManagerOptions.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Items.Category.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Items.Category.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Items.Field.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Items.Field.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Items.FieldPurpose.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Items.FieldPurpose.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Items.FieldType.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Items.FieldType.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Items.IItem.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Items.IItem.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Items.Item.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Items.Item.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Items.ItemBase.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Items.ItemBase.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Items.PasswordDetails.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Items.PasswordDetails.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Items.Section.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Items.Section.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Items.Url.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Items.Url.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Items.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Items.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.OnePasswordManager.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.OnePasswordManager.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.OnePasswordManagerOptions.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.OnePasswordManagerOptions.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Templates.ITemplate.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Templates.ITemplate.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Templates.Template.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Templates.Template.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Templates.TemplateInfo.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Templates.TemplateInfo.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Templates.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Templates.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Users.GroupUser.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Users.GroupUser.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Users.IUser.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Users.IUser.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Users.User.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Users.User.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Users.UserBase.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Users.UserBase.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Users.UserDetails.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Users.UserDetails.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Users.UserRole.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Users.UserRole.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Users.UserType.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Users.UserType.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Users.VaultUser.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Users.VaultUser.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Users.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Users.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Vaults.IVault.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Vaults.IVault.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Vaults.Vault.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Vaults.Vault.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Vaults.VaultBase.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Vaults.VaultBase.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Vaults.VaultDetails.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Vaults.VaultDetails.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Vaults.VaultIcon.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Vaults.VaultIcon.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Vaults.VaultPermission.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Vaults.VaultPermission.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Vaults.VaultType.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Vaults.VaultType.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.Vaults.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.Vaults.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ApiPage",
+      "source_relative_path": "reference/OnePassword.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/OnePassword.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Toc",
+      "source_relative_path": "reference/toc.yml",
+      "output": {
+        ".html": {
+          "relative_path": "reference/toc.html"
+        },
+        ".json": {
+          "relative_path": "reference/toc.json"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Toc",
+      "source_relative_path": "toc.yml",
+      "output": {
+        ".html": {
+          "relative_path": "toc.html"
+        },
+        ".json": {
+          "relative_path": "toc.json"
+        }
+      },
+      "version": ""
+    }
+  ],
+  "groups": [
+    {
+      "xrefmap": "xrefmap.yml"
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "metadata": [
+    {
+      "src": [
+        {
+          "src": "../OnePassword.NET",
+          "files": [
+            "**/*.csproj"
+          ]
+        }
+      ],
+      "outputFormat": "apiPage",
+      "dest": "reference"
+    }
+  ],
+  "build": {
+    "content": [
+      {
+        "files": "**/*.{md,yml}",
+        "exclude": [
+          "_site/**"
+        ]
+      }
+    ],
+    "resource": [
+      {
+        "files": [
+          "images/**"
+        ]
+      }
+    ],
+    "output": "_site",
+    "template": [
+      "default",
+      "modern"
+    ],
+    "globalMetadata": {
+      "_appName": "OnePassword.NET",
+      "_appTitle": "OnePassword.NET",
+      "_appFooter": "Developed and maintained by Jean-Sebastien Carle — <a href=\"https://jscarle.dev\">jscarle.dev</a>",
+      "_enableSearch": true
+    }
+  }
+}
