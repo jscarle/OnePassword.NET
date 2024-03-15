@@ -12,7 +12,7 @@ public sealed class Url : ITracked
     /// </summary>
     [JsonInclude]
     [JsonPropertyName("label")]
-    public string Label { get; internal init; } = "";
+    public string Label { get; internal set; } = "";
 
     /// <summary>
     /// The URL HREF.
@@ -34,7 +34,7 @@ public sealed class Url : ITracked
     /// </summary>
     [JsonInclude]
     [JsonPropertyName("primary")]
-    public bool Primary { get; internal init; }
+    public bool Primary { get; internal set; }
 
     /// <inheritdoc />
     bool ITracked.Changed => _changed;

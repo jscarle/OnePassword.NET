@@ -10,5 +10,5 @@ public sealed class PasswordDetails
     /// </summary>
     [JsonInclude]
     [JsonPropertyName("strength")]
-    public string Strength { get; internal init; } = "";
+    public string Strength { get; internal set; } = "";
 }

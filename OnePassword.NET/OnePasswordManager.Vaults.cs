@@ -11,7 +11,7 @@ public sealed partial class OnePasswordManager
     public ImmutableList<Vault> GetVaults()
     {
         const string command = "vault list";
-        return Op<ImmutableList<Vault>>(command);
+        return Op(JsonContext.Default.ImmutableListVault, command);
     }
 
     /// <inheritdoc />
@@ -39,7 +39,7 @@ public sealed partial class OnePasswordManager
             throw new ArgumentException($"{nameof(groupId)} cannot be empty.", nameof(groupId));
 
         var command = $"vault list --group {groupId}";
-        return Op<ImmutableList<Vault>>(command);
+        return Op(JsonContext.Default.ImmutableListVault, command);
     }
 
     /// <inheritdoc />
@@ -49,7 +49,7 @@ public sealed partial class OnePasswordManager
             throw new ArgumentException($"{nameof(userId)} cannot be empty.", nameof(userId));
 
         var command = $"vault list --user {userId}";
-        return Op<ImmutableList<Vault>>(command);
+        return Op(JsonContext.Default.ImmutableListVault, command);
     }
 
     /// <inheritdoc />
@@ -68,7 +68,7 @@ public sealed partial class OnePasswordManager
             throw new ArgumentException($"{nameof(vaultId)} cannot be empty.", nameof(vaultId));
 
         var command = $"vault get {vaultId}";
-        return Op<VaultDetails>(command);
+        return Op(JsonContext.Default.VaultDetails, command);
     }
 
     /// <inheritdoc />
@@ -90,7 +90,7 @@ public sealed partial class OnePasswordManager
             command += $" --icon \"{icon.ToEnumString()}\"";
         if (allowAdminsToManage.HasValue)
             command += $" --allow-admins-to-manage {(allowAdminsToManage.Value ? "true" : "false")}";
-        return Op<VaultDetails>(command);
+        return Op(JsonContext.Default.VaultDetails, command);
     }
 
     /// <inheritdoc />

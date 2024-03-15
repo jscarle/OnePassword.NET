@@ -22,7 +22,7 @@ public sealed partial class OnePasswordManager
             throw new ArgumentException($"{nameof(vaultId)} cannot be empty.", nameof(vaultId));
 
         var command = $"document list --vault {vaultId}";
-        return Op<ImmutableList<DocumentDetails>>(command);
+        return Op(JsonContext.Default.ImmutableListDocumentDetails, command);
     }
 
     /// <inheritdoc />
@@ -45,7 +45,7 @@ public sealed partial class OnePasswordManager
             command += $" --vault {vaultId}";
         if (includeArchive is not null && includeArchive.Value)
             command += " --include-archive";
-        return Op<ImmutableList<DocumentDetails>>(command);
+        return Op(JsonContext.Default.ImmutableListDocumentDetails, command);
     }
 
     /// <inheritdoc />
@@ -171,7 +171,7 @@ public sealed partial class OnePasswordManager
             command += $" --title \"{trimmedTitle}\"";
         if (tags is not null && tags.Count > 0)
             command += $" --tags \"{tags.ToCommaSeparated()}\"";
-        return Op<Document>(command);
+        return Op(JsonContext.Default.Document, command);
     }
 
     /// <inheritdoc />

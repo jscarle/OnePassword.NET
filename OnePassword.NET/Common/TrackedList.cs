@@ -43,7 +43,7 @@ public sealed class TrackedList<T> : IList<T>, IList, IReadOnlyList<T>, ITracked
     /// </summary>
     public TrackedList()
     {
-        _list = new List<T>();
+        _list = [];
         _initialList = new List<T>(_list);
     }
 

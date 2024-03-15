@@ -21,7 +21,7 @@ public sealed partial class OnePasswordManager
             throw new InvalidOperationException($"{nameof(GetAccounts)} is not supported when using service accounts.");
 
         const string command = "account list";
-        return Op<ImmutableList<Account>>(command);
+        return Op(JsonContext.Default.ImmutableListAccount, command);
     }
 
     /// <inheritdoc />
@@ -33,7 +33,7 @@ public sealed partial class OnePasswordManager
         var trimmedAccount = account?.Trim() ?? "";
 
         var command = trimmedAccount.Length > 0 ? $"account get --account \"{trimmedAccount}\"" : "account get";
-        return Op<AccountDetails>(command);
+        return Op(JsonContext.Default.AccountDetails, command);
     }
 
     /// <inheritdoc />

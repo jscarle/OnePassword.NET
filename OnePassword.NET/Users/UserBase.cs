@@ -12,19 +12,19 @@ public abstract class UserBase : ResultBase<IUser>, IUser
     /// </summary>
     [JsonInclude]
     [JsonPropertyName("email")]
-    public string Email { get; internal init; } = "";
+    public string Email { get; internal set; } = "";
 
     /// <summary>
     /// The user type.
     /// </summary>
     [JsonInclude]
     [JsonPropertyName("type")]
-    public UserType Type { get; internal init; } = UserType.Unknown;
+    public UserType Type { get; internal set; } = UserType.Unknown;
 
     /// <summary>
     /// The state of the user.
     /// </summary>
     [JsonInclude]
     [JsonPropertyName("state")]
-    public State State { get; internal init; } = State.Unknown;
+    public State State { get; internal set; } = State.Unknown;
 }

@@ -12,19 +12,19 @@ public abstract class GroupBase : ResultBase<IGroup>, IGroup
     /// </summary>
     [JsonInclude]
     [JsonPropertyName("description")]
-    public string Description { get; internal init; } = "";
+    public string Description { get; internal set; } = "";
 
     /// <summary>
     /// The state of the group.
     /// </summary>
     [JsonInclude]
     [JsonPropertyName("state")]
-    public State State { get; internal init; } = State.Unknown;
+    public State State { get; internal set; } = State.Unknown;
 
     /// <summary>
     /// The date and time when the group was created.
     /// </summary>
     [JsonInclude]
     [JsonPropertyName("created_at")]
-    public DateTimeOffset Created { get; internal init; }
+    public DateTimeOffset Created { get; internal set; }
 }

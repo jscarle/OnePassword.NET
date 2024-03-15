@@ -10,17 +10,17 @@ public sealed class Field : ITracked
     /// <summary>The field section.</summary>
     [JsonInclude]
     [JsonPropertyName("section")]
-    public Section? Section { get; internal init; }
+    public Section? Section { get; internal set; }
 
     /// <summary>The field ID.</summary>
     [JsonInclude]
     [JsonPropertyName("id")]
-    public string Id { get; internal init; } = "";
+    public string Id { get; internal set; } = "";
 
     /// <summary>The field label.</summary>
     [JsonInclude]
     [JsonPropertyName("label")]
-    public string Label { get; internal init; } = "";
+    public string Label { get; internal set; } = "";
 
     /// <summary>The field type.</summary>
     [JsonInclude]
@@ -38,7 +38,7 @@ public sealed class Field : ITracked
     /// <summary>The field purpose.</summary>
     [JsonInclude]
     [JsonPropertyName("purpose")]
-    public FieldPurpose? Purpose { get; internal init; }
+    public FieldPurpose? Purpose { get; internal set; }
 
     /// <summary>The field value.</summary>
     [JsonInclude]
@@ -56,12 +56,12 @@ public sealed class Field : ITracked
     /// <summary>Password details when the field is a password type field.</summary>
     [JsonInclude]
     [JsonPropertyName("password_details")]
-    public PasswordDetails? PasswordDetails { get; internal init; }
+    public PasswordDetails? PasswordDetails { get; internal set; }
 
     /// <summary>The reference path to the field.</summary>
     [JsonInclude]
     [JsonPropertyName("reference")]
-    public string? Reference { get; internal init; }
+    public string? Reference { get; internal set; }
 
     /// <summary>Returns <see langword="true" /> when the field type has changed, <see langword="false" /> otherwise.</summary>
     internal bool TypeChanged { get; private set; }

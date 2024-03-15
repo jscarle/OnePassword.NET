@@ -12,5 +12,5 @@ public sealed class VaultGroup : GroupBase
     /// </summary>
     [JsonInclude]
     [JsonPropertyName("permissions")]
-    public ImmutableList<VaultPermission> Permissions { get; internal init; } = ImmutableList<VaultPermission>.Empty;
+    public ImmutableList<VaultPermission> Permissions { get; internal set; } = ImmutableList<VaultPermission>.Empty;
 }

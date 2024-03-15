@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.IO.Compression;
 using System.Text;
+using System.Text.Json.Serialization.Metadata;
 using System.Text.RegularExpressions;
 using OnePassword.Common;
 
@@ -17,12 +18,12 @@ public sealed partial class OnePasswordManager : IOnePasswordManager
 #else
     private static readonly Regex VersionRegex = new (@"Version ([^\s]+) is now available\.", RegexOptions.Compiled);
 #endif
-    private readonly string[] _excludedAccountCommands = { "--version", "update", "account list", "account add", "account forget", "signout --all" };
-    private readonly string[] _excludedSessionCommands = { "--version", "update", "account list", "account add", "account forget", "signin", "signout", "signout --all" };
+    private readonly string[] _excludedAccountCommands = ["--version", "update", "account list", "account add", "account forget", "signout --all"];
+    private readonly string[] _excludedSessionCommands = ["--version", "update", "account list", "account add", "account forget", "signin", "signout", "signout --all"];
     private readonly Mode _mode = Mode.Interactive;
     private readonly string _opPath;
     private readonly string _serviceAccountToken;
-    private readonly string[] _serviceAccountUnsupportedCommands = { "events-api", "group", "user" };
+    private readonly string[] _serviceAccountUnsupportedCommands = ["events-api", "group", "user"];
     private readonly bool _verbose;
     private string _account = "";
     private string _session = "";
@@ -189,19 +190,16 @@ public sealed partial class OnePasswordManager : IOnePasswordManager
         return output.ToString();
     }
 
-    private TResult Op<TResult>(string command, string? input = null, bool returnError = false) where TResult : class
+    private TResult Op<TResult>(JsonTypeInfo<TResult> jsonTypeInfo, string command, string? input = null, bool returnError = false) where TResult : class
     {
-        var result = Op(command, input is null ? Array.Empty<string>() : new[] { input }, returnError);
-        var obj = JsonSerializer.Deserialize<TResult>(result) ?? throw new SerializationException("Could not deserialize the command result.");
+        var result = Op(command, input is null ? Array.Empty<string>() : [input], returnError);
+        var obj = JsonSerializer.Deserialize(result, jsonTypeInfo) ?? throw new SerializationException("Could not deserialize the command result.");
         if (obj is ITracked item)
             item.AcceptChanges();
         return obj;
     }
 
-    private string Op(string command, string? input = null, bool returnError = false)
-    {
-        return Op(command, input is null ? Array.Empty<string>() : new[] { input }, returnError);
-    }
+    private string Op(string command, string? input = null, bool returnError = false) => Op(command, input is null ? Array.Empty<string>() : [input], returnError);
 
     private string Op(string command, IEnumerable<string> input, bool returnError)
     {
@@ -252,11 +250,7 @@ public sealed partial class OnePasswordManager : IOnePasswordManager
         if (_mode == Mode.ServiceAccount)
             startInfo.EnvironmentVariables["OP_SERVICE_ACCOUNT_TOKEN"] = _serviceAccountToken;
 
-        var process = Process.Start(startInfo);
-
-        if (process is null)
-            throw new InvalidOperationException($"Could not start process for {_opPath}.");
-
+        var process = Process.Start(startInfo) ?? throw new InvalidOperationException($"Could not start process for {_opPath}.");
         foreach (var inputLine in input)
         {
             var lastChar = inputLine.Substring(inputLine.Length - 1, 1);

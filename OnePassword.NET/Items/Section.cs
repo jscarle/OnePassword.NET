@@ -9,12 +9,12 @@ public sealed class Section
     /// <summary>The section ID.</summary>
     [JsonInclude]
     [JsonPropertyName("id")]
-    public string Id { get; internal init; } = "";
+    public string Id { get; internal set; } = "";
 
     /// <summary>The section label.</summary>
     [JsonInclude]
     [JsonPropertyName("label")]
-    public string Label { get; internal init; } = "";
+    public string Label { get; internal set; } = "";
 
     /// <summary>Initializes a new instance of <see cref="Section" />.</summary>
     public Section()

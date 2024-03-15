@@ -1,4 +1,5 @@
-﻿using OnePassword.Items;
+﻿using OnePassword.Common;
+using OnePassword.Items;
 
 namespace OnePassword.Templates;
 
@@ -15,8 +16,9 @@ public sealed class Template : ItemBase, ITemplate, ICloneable
     /// <exception cref="SerializationException">Thrown when there is an error serializing or deserializing the clone.</exception>
     public Template Clone()
     {
-        var json = JsonSerializer.Serialize(this);
-        return JsonSerializer.Deserialize<Template>(json) ?? throw new SerializationException("Could not deserialize the cloned template.");
+        var json = JsonSerializer.Serialize(this, JsonContext.Default.Template);
+        return JsonSerializer.Deserialize(json, JsonContext.Default.Template)
+            ?? throw new SerializationException("Could not deserialize the cloned template.");
     }
 
     /// <inheritdoc />
@@ -26,37 +28,37 @@ public sealed class Template : ItemBase, ITemplate, ICloneable
     /// <param name="a">The <see cref="Template" /> object.</param>
     /// <param name="b">The <see cref="ITemplate" /> object to compare.</param>
     /// <returns>True if the <paramref name="a" /> is equal to <paramref name="b" />; otherwise, false.</returns>
-    public static bool operator ==(Template a, ITemplate b) => a?.Equals(b) ?? false;
+    public static bool operator ==(Template a, ITemplate b) => a is not null && b is not null && a.Equals(b);
 
     /// <summary>Inequality operator.</summary>
     /// <param name="a">The <see cref="Template" /> object.</param>
     /// <param name="b">The <see cref="ITemplate" /> object to compare.</param>
     /// <returns>True if the <paramref name="a" /> is not equal to <paramref name="b" />; otherwise, false.</returns>
-    public static bool operator !=(Template a, ITemplate b) => !a?.Equals(b) ?? false;
+    public static bool operator !=(Template a, ITemplate b) => a is null || b is null || !a.Equals(b);
 
     /// <summary>Less than operator.</summary>
     /// <param name="a">The <see cref="Template" /> object.</param>
     /// <param name="b">The <see cref="ITemplate" /> object to compare.</param>
     /// <returns>True if the <paramref name="a" /> is less than <paramref name="b" />; otherwise, false.</returns>
-    public static bool operator <(Template a, ITemplate b) => a?.CompareTo(b) < 0;
+    public static bool operator <(Template a, ITemplate b) => a is not null && b is not null && a.CompareTo(b) < 0;
 
     /// <summary>Less than or equal to operator.</summary>
     /// <param name="a">The <see cref="Template" /> object.</param>
     /// <param name="b">The <see cref="ITemplate" /> object to compare.</param>
     /// <returns>True if the <paramref name="a" /> is less than or equal to <paramref name="b" />; otherwise, false.</returns>
-    public static bool operator <=(Template a, ITemplate b) => a?.CompareTo(b) <= 0;
+    public static bool operator <=(Template a, ITemplate b) => a is not null && b is not null && a.CompareTo(b) <= 0;
 
     /// <summary>Greater than operator.</summary>
     /// <param name="a">The <see cref="Template" /> object.</param>
     /// <param name="b">The <see cref="ITemplate" /> object to compare.</param>
     /// <returns>True if the <paramref name="a" /> is greater than <paramref name="b" />; otherwise, false.</returns>
-    public static bool operator >(Template a, ITemplate b) => a?.CompareTo(b) > 0;
+    public static bool operator >(Template a, ITemplate b) => a is not null && b is not null && a.CompareTo(b) > 0;
 
     /// <summary>Greater than or equal to operator.</summary>
     /// <param name="a">The <see cref="Template" /> object.</param>
     /// <param name="b">The <see cref="ITemplate" /> object to compare.</param>
     /// <returns>True if the <paramref name="a" /> is greater than or equal to <paramref name="b" />; otherwise, false.</returns>
-    public static bool operator >=(Template a, ITemplate b) => a?.CompareTo(b) >= 0;
+    public static bool operator >=(Template a, ITemplate b) => a is not null && b is not null && a.CompareTo(b) >= 0;
 
     /// <inheritdoc />
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || obj is ITemplate other && Equals(other);

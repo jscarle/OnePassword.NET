@@ -7,12 +7,12 @@ public abstract class ResultBase<TInterface> : IResult<TInterface> where TInterf
     /// <inheritdoc />
     [JsonInclude]
     [JsonPropertyName("id")]
-    public string Id { get; internal init; } = "";
+    public string Id { get; internal set; } = "";
 
     /// <inheritdoc />
     [JsonInclude]
     [JsonPropertyName("name")]
-    public string Name { get; internal init; } = "";
+    public string Name { get; internal set; } = "";
 
     /// <inheritdoc />
     public void Deconstruct(out string id, out string name)
@@ -86,6 +86,7 @@ public abstract class ResultBase<TInterface> : IResult<TInterface> where TInterf
     public static bool operator >=(ResultBase<TInterface> a, IResult<TInterface> b) => NullSafeCompareTo(a, b) >= 0;
 
     /// <inheritdoc />
+    // ReSharper disable once NonReadonlyMemberInGetHashCode
     public override int GetHashCode() => StringComparer.OrdinalIgnoreCase.GetHashCode(Id);
 
     private static int NullSafeCompareTo(ResultBase<TInterface>? a, object? b)

@@ -11,7 +11,7 @@ public sealed partial class OnePasswordManager
     public ImmutableList<Group> GetGroups()
     {
         const string command = "group list";
-        return Op<ImmutableList<Group>>(command);
+        return Op(JsonContext.Default.ImmutableListGroup, command);
     }
 
     /// <inheritdoc />
@@ -39,7 +39,7 @@ public sealed partial class OnePasswordManager
             throw new ArgumentException($"{nameof(vaultId)} cannot be empty.", nameof(vaultId));
 
         var command = $"vault group list {vaultId}";
-        return Op<ImmutableList<VaultGroup>>(command);
+        return Op(JsonContext.Default.ImmutableListVaultGroup, command);
     }
 
     /// <inheritdoc />
@@ -49,7 +49,7 @@ public sealed partial class OnePasswordManager
             throw new ArgumentException($"{nameof(userId)} cannot be empty.", nameof(userId));
 
         var command = $"group list --user {userId}";
-        return Op<ImmutableList<UserGroup>>(command);
+        return Op(JsonContext.Default.ImmutableListUserGroup, command);
     }
 
     /// <inheritdoc />
@@ -68,7 +68,7 @@ public sealed partial class OnePasswordManager
             throw new ArgumentException($"{nameof(groupId)} cannot be empty.", nameof(groupId));
 
         var command = $"group get {groupId}";
-        return Op<GroupDetails>(command);
+        return Op(JsonContext.Default.GroupDetails, command);
     }
 
     /// <inheritdoc />
@@ -86,7 +86,7 @@ public sealed partial class OnePasswordManager
         var command = $"group create \"{trimmedName}\"";
         if (trimmedDescription is not null)
             command += $" --description \"{trimmedDescription}\"";
-        return Op<GroupDetails>(command);
+        return Op(JsonContext.Default.GroupDetails, command);
     }
 
     /// <inheritdoc />

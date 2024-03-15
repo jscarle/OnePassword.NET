@@ -10,5 +10,5 @@ public sealed class GroupUser : UserBase
     /// </summary>
     [JsonInclude]
     [JsonPropertyName("role")]
-    public UserRole Role { get; internal init; } = UserRole.Unknown;
+    public UserRole Role { get; internal set; } = UserRole.Unknown;
 }
