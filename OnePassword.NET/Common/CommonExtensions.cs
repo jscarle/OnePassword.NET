@@ -1,4 +1,7 @@
-﻿namespace OnePassword.Common;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
+
+namespace OnePassword.Common;
 
 /// <summary>
 /// Common extensions methods.
@@ -13,21 +16,16 @@ internal static class CommonExtensions
     /// <returns>A string representation of the enum field.</returns>
     /// <exception cref="ArgumentNullException">Thrown when field is null.</exception>
     /// <exception cref="NotImplementedException">Thrown when field is not correctly annotated with a <see cref="EnumMemberAttribute"/>.</exception>
+    [UnconditionalSuppressMessage("AssemblyLoadTrimming", "IL2090:'this' argument does not satisfy 'DynamicallyAccessedMembersAttribute' in call to 'target method'.", Justification = "https://github.com/dotnet/runtime/issues/97737")]
     internal static string ToEnumString<TField>(this TField field)
         where TField : Enum
     {
-        var fieldInfo = typeof(TField).GetField(field.ToString());
-        if (fieldInfo is null)
-            throw new ArgumentNullException(nameof(field));
-
+        var fieldInfo = typeof(TField).GetField(field.ToString(), BindingFlags.Public | BindingFlags.Static) ?? throw new ArgumentNullException(nameof(field));
         var attributes = (EnumMemberAttribute[])fieldInfo.GetCustomAttributes(typeof(EnumMemberAttribute), false);
         if (attributes.Length == 0)
             throw new NotImplementedException($"The field has not been annotated with a {nameof(EnumMemberAttribute)}.");
 
-        var value = attributes[0].Value;
-        if (value is null)
-            throw new NotImplementedException($"{nameof(EnumMemberAttribute)}.{nameof(EnumMemberAttribute.Value)} has not been set for this field.");
-
+        var value = attributes[0].Value ?? throw new NotImplementedException($"{nameof(EnumMemberAttribute)}.{nameof(EnumMemberAttribute.Value)} has not been set for this field.");
         return value;
     }
 

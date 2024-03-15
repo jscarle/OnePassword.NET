@@ -11,7 +11,7 @@ public sealed partial class OnePasswordManager
     public ImmutableList<User> GetUsers()
     {
         const string command = "user list";
-        return Op<ImmutableList<User>>(command);
+        return Op(JsonContext.Default.ImmutableListUser, command);
     }
 
     /// <inheritdoc />
@@ -39,7 +39,7 @@ public sealed partial class OnePasswordManager
             throw new ArgumentException($"{nameof(groupId)} cannot be empty.", nameof(groupId));
 
         var command = $"group user list {groupId}";
-        return Op<ImmutableList<GroupUser>>(command);
+        return Op(JsonContext.Default.ImmutableListGroupUser, command);
     }
 
     /// <inheritdoc />
@@ -49,7 +49,7 @@ public sealed partial class OnePasswordManager
             throw new ArgumentException($"{nameof(vaultId)} cannot be empty.", nameof(vaultId));
 
         var command = $"vault user list {vaultId}";
-        return Op<ImmutableList<VaultUser>>(command);
+        return Op(JsonContext.Default.ImmutableListVaultUser, command);
     }
 
     /// <inheritdoc />
@@ -68,7 +68,7 @@ public sealed partial class OnePasswordManager
             throw new ArgumentException($"{nameof(userId)} cannot be empty.", nameof(userId));
 
         var command = $"user get {userId}";
-        return Op<UserDetails>(command);
+        return Op(JsonContext.Default.UserDetails, command);
     }
 
     /// <inheritdoc />
@@ -90,7 +90,7 @@ public sealed partial class OnePasswordManager
         var command = $"user provision --name \"{trimmedName}\" --email \"{trimmedEmailAddress}\"";
         if (language != Language.Default)
             command += $" --language \"{language.ToEnumString()}\"";
-        return Op<UserDetails>(command);
+        return Op(JsonContext.Default.UserDetails, command);
     }
 
     /// <inheritdoc />

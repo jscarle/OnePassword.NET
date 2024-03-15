@@ -8,5 +8,5 @@ public sealed class Document : IDocument
     /// <inheritdoc />
     [JsonInclude]
     [JsonPropertyName("uuid")]
-    public string Id { get; internal init; } = "";
+    public string Id { get; internal set; } = "";
 }

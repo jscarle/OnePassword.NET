@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 
 namespace OnePassword.Common;
 
@@ -8,17 +9,18 @@ namespace OnePassword.Common;
 [SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes")]
 internal sealed class JsonStringEnumConverterEx<TEnum> : JsonConverter<TEnum> where TEnum : struct, Enum
 {
-    private readonly Dictionary<TEnum, string> _enumToString = new();
-    private readonly Dictionary<string, TEnum> _stringToEnum = new();
+    private readonly Dictionary<TEnum, string> _enumToString = [];
+    private readonly Dictionary<string, TEnum> _stringToEnum = [];
 
     /// <summary>Initializes a new instance of <see cref="JsonStringEnumConverterEx{TEnum}" />.</summary>
+    [UnconditionalSuppressMessage("AssemblyLoadTrimming", "IL2090:'this' argument does not satisfy 'DynamicallyAccessedMembersAttribute' in call to 'target method'.", Justification = "https://github.com/dotnet/runtime/issues/97737")]
     public JsonStringEnumConverterEx()
     {
         foreach (var enumMemberValue in Enum.GetValues<TEnum>())
         {
             var enumMemberName = enumMemberValue.ToString();
 
-            var enumMemberAttribute = typeof(TEnum).GetMember(enumMemberName).FirstOrDefault()?.GetCustomAttributes(typeof(EnumMemberAttribute), false).Cast<EnumMemberAttribute>().FirstOrDefault();
+            var enumMemberAttribute = typeof(TEnum).GetMember(enumMemberName, BindingFlags.Public | BindingFlags.Static).FirstOrDefault()?.GetCustomAttributes(typeof(EnumMemberAttribute), false).Cast<EnumMemberAttribute>().FirstOrDefault();
             if (enumMemberAttribute is { Value: not null })
             {
                 var enumMemberString = enumMemberAttribute.Value.ToUpperInvariant().Replace(" ", "_", StringComparison.InvariantCulture);

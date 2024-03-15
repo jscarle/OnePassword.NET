@@ -10,19 +10,19 @@ public sealed class GroupDetails : GroupBase
     /// </summary>
     [JsonInclude]
     [JsonPropertyName("permissions")]
-    public ImmutableList<GroupPermission> Permissions { get; internal init; } = ImmutableList<GroupPermission>.Empty;
+    public ImmutableList<GroupPermission> Permissions { get; internal set; } = ImmutableList<GroupPermission>.Empty;
 
     /// <summary>
     /// The group type.
     /// </summary>
     [JsonInclude]
     [JsonPropertyName("type")]
-    public GroupType Type { get; internal init; } = GroupType.Unknown;
+    public GroupType Type { get; internal set; } = GroupType.Unknown;
 
     /// <summary>
     /// The date and time when the group was last updated.
     /// </summary>
     [JsonInclude]
     [JsonPropertyName("updated_at")]
-    public DateTimeOffset Updated { get; internal init; }
+    public DateTimeOffset Updated { get; internal set; }
 }

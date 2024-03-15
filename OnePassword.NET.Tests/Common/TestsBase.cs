@@ -67,9 +67,7 @@ public class TestsBase
             await stream.CopyToAsync(fileStream);
 
         using var zipArchive = ZipFile.Open(zipFileName, ZipArchiveMode.Read);
-        var entry = zipArchive.GetEntry(ExecutableName);
-        if (entry is null)
-            throw new IOException($"Could not find {ExecutableName} in the zip file.");
+        var entry = zipArchive.GetEntry(ExecutableName) ?? throw new IOException($"Could not find {ExecutableName} in the zip file.");
         entry.ExtractToFile(extractFilename, true);
 
         OnePassword = new OnePasswordManager(options =>

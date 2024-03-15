@@ -8,28 +8,28 @@ public sealed class Account : IAccount
     /// <inheritdoc />
     [JsonInclude]
     [JsonPropertyName("account_uuid")]
-    public string Id { get; internal init; } = "";
+    public string Id { get; internal set; } = "";
 
     /// <summary>The account shorthand.</summary>
     [JsonInclude]
     [JsonPropertyName("shorthand")]
-    public string Shorthand { get; internal init; } = "";
+    public string Shorthand { get; internal set; } = "";
 
     /// <summary>The account URL.</summary>
     [JsonInclude]
     [JsonPropertyName("url")]
     [SuppressMessage("Design", "CA1056:URI-like properties should not be strings")]
-    public string Url { get; internal init; } = "";
+    public string Url { get; internal set; } = "";
 
     /// <summary>The user ID for the user associated with the account.</summary>
     [JsonInclude]
     [JsonPropertyName("user_uuid")]
-    public string UserId { get; internal init; } = "";
+    public string UserId { get; internal set; } = "";
 
     /// <summary>The email address for the user associated with the account.</summary>
     [JsonInclude]
     [JsonPropertyName("email")]
-    public string Email { get; internal init; } = "";
+    public string Email { get; internal set; } = "";
 
     /// <inheritdoc />
     public void Deconstruct(out string id, out string name)
@@ -45,37 +45,37 @@ public sealed class Account : IAccount
     /// <param name="a">The first account to compare.</param>
     /// <param name="b">The second account to compare.</param>
     /// <returns>True if the accounts are equal, false otherwise.</returns>
-    public static bool operator ==(Account a, IAccount b) => a?.Equals(b) ?? false;
+    public static bool operator ==(Account? a, IAccount? b) => Equals(a, b);
 
     /// <summary>Inequality operator.</summary>
     /// <param name="a">The first account to compare.</param>
     /// <param name="b">The second account to compare.</param>
     /// <returns>True if the accounts are not equal, false otherwise.</returns>
-    public static bool operator !=(Account a, IAccount b) => !a?.Equals(b) ?? false;
+    public static bool operator !=(Account? a, IAccount? b) => !Equals(a, b);
 
     /// <summary>Less than operator.</summary>
     /// <param name="a">The first account to compare.</param>
     /// <param name="b">The second account to compare.</param>
     /// <returns>True if the first account is less than the second one, false otherwise.</returns>
-    public static bool operator <(Account a, IAccount b) => a?.CompareTo(b) < 0;
+    public static bool operator <(Account? a, IAccount? b) => NullSafeCompareTo(a, b) < 0;
 
     /// <summary>Less than or equal to operator.</summary>
     /// <param name="a">The first account to compare.</param>
     /// <param name="b">The second account to compare.</param>
     /// <returns>True if the first account is less than or equal to the second one, false otherwise.</returns>
-    public static bool operator <=(Account a, IAccount b) => a?.CompareTo(b) <= 0;
+    public static bool operator <=(Account? a, IAccount? b) => NullSafeCompareTo(a, b) <= 0;
 
     /// <summary>Greater than operator.</summary>
     /// <param name="a">The first account to compare.</param>
     /// <param name="b">The second account to compare.</param>
     /// <returns>True if the first account is greater than the second one, false otherwise.</returns>
-    public static bool operator >(Account a, IAccount b) => a?.CompareTo(b) > 0;
+    public static bool operator >(Account? a, IAccount? b) => NullSafeCompareTo(a, b) > 0;
 
     /// <summary>Greater than or equal to operator.</summary>
     /// <param name="a">The first account to compare.</param>
     /// <param name="b">The second account to compare.</param>
     /// <returns>True if the first account is greater than or equal to the second one, false otherwise.</returns>
-    public static bool operator >=(Account a, IAccount b) => a?.CompareTo(b) >= 0;
+    public static bool operator >=(Account? a, IAccount? b) => NullSafeCompareTo(a, b) >= 0;
 
     /// <inheritdoc />
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || obj is IAccount other && Equals(other);
@@ -109,7 +109,10 @@ public sealed class Account : IAccount
     }
 
     /// <inheritdoc />
-    public override int GetHashCode() => StringComparer.OrdinalIgnoreCase.GetHashCode(Id);
+    public override int GetHashCode() =>
+        // ReSharper disable once NonReadonlyMemberInGetHashCode
+        // Id can only be set by internal methods.
+        StringComparer.OrdinalIgnoreCase.GetHashCode(Id);
 
     private int CompareTo(Account? other)
     {
@@ -118,4 +121,13 @@ public sealed class Account : IAccount
     }
 
     private int CompareTo(AccountDetails? other) => other is null ? 1 : string.Compare(Shorthand, other.Domain, StringComparison.Ordinal);
+
+    private static int NullSafeCompareTo(Account? a, IAccount? b)
+    {
+        if (a is not null)
+            return b is null ? 1 : a.CompareTo(b);
+        if (b is null)
+            return 0;
+        return -1;
+    }
 }

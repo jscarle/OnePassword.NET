@@ -46,35 +46,35 @@ public abstract class ItemBase : ITracked
     /// </summary>
     [JsonInclude]
     [JsonPropertyName("category")]
-    public Category Category { get; internal init; } = Category.Unknown;
+    public Category Category { get; internal set; } = Category.Unknown;
 
     /// <summary>
     /// The item sections.
     /// </summary>
     [JsonInclude]
     [JsonPropertyName("sections")]
-    public TrackedList<Section> Sections { get; internal init; } = new();
+    public TrackedList<Section> Sections { get; internal set; } = [];
 
     /// <summary>
     /// The item fields.
     /// </summary>
     [JsonInclude]
     [JsonPropertyName("fields")]
-    public TrackedList<Field> Fields { get; internal init; } = new();
+    public TrackedList<Field> Fields { get; internal set; } = [];
 
     /// <summary>
     /// The item URLs.
     /// </summary>
     [JsonInclude]
     [JsonPropertyName("urls")]
-    public TrackedList<Url> Urls { get; internal init; } = new();
+    public TrackedList<Url> Urls { get; internal set; } = [];
 
     /// <summary>
     /// The tags associated with the item.
     /// </summary>
     [JsonInclude]
     [JsonPropertyName("tags")]
-    public TrackedList<string> Tags { get; internal init; } = new();
+    public TrackedList<string> Tags { get; internal set; } = [];
 
     /// <summary>
     /// Returns <see langword="true" /> when the title has changed, <see langword="false" /> otherwise.

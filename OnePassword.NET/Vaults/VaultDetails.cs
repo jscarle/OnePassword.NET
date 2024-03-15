@@ -10,26 +10,26 @@ public sealed class VaultDetails : VaultBase
     /// </summary>
     [JsonInclude]
     [JsonPropertyName("type")]
-    public VaultType Type { get; internal init; }
+    public VaultType Type { get; internal set; }
 
     /// <summary>
     /// The vault items.
     /// </summary>
     [JsonInclude]
     [JsonPropertyName("items")]
-    public int Items { get; internal init; }
+    public int Items { get; internal set; }
 
     /// <summary>
     /// The date and time when the vault was created.
     /// </summary>
     [JsonInclude]
     [JsonPropertyName("created_at")]
-    public DateTimeOffset Created { get; internal init; }
+    public DateTimeOffset Created { get; internal set; }
 
     /// <summary>
     /// The date and time when the vault was last updated.
     /// </summary>
     [JsonInclude]
     [JsonPropertyName("updated_at")]
-    public DateTimeOffset Updated { get; internal init; }
+    public DateTimeOffset Updated { get; internal set; }
 }
