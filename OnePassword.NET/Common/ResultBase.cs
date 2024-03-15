@@ -53,43 +53,45 @@ public abstract class ResultBase<TInterface> : IResult<TInterface> where TInterf
     /// <param name="a">The <see cref="ResultBase{TInterface}" /> object.</param>
     /// <param name="b">The <see cref="IResult{TInterface}" /> object to compare.</param>
     /// <returns>True if the <paramref name="a" /> is equal to <paramref name="b" />; otherwise, false.</returns>
-    public static bool operator ==(ResultBase<TInterface> a, IResult<TInterface> b) => Equals(a, b);
+    public static bool operator ==(ResultBase<TInterface>? a, IResult<TInterface>? b) => Equals(a, b);
 
     /// <summary>Inequality operator.</summary>
     /// <param name="a">The <see cref="ResultBase{TInterface}" /> object.</param>
     /// <param name="b">The <see cref="IResult{TInterface}" /> object to compare.</param>
     /// <returns>True if the <paramref name="a" /> is not equal to <paramref name="b" />; otherwise, false.</returns>
-    public static bool operator !=(ResultBase<TInterface> a, IResult<TInterface> b) => !Equals(a, b);
+    public static bool operator !=(ResultBase<TInterface>? a, IResult<TInterface>? b) => !Equals(a, b);
 
     /// <summary>Less than operator.</summary>
     /// <param name="a">The <see cref="ResultBase{TInterface}" /> object.</param>
     /// <param name="b">The <see cref="IResult{TInterface}" /> object to compare.</param>
     /// <returns>True if the <paramref name="a" /> is less than <paramref name="b" />; otherwise, false.</returns>
-    public static bool operator <(ResultBase<TInterface> a, IResult<TInterface> b) => NullSafeCompareTo(a, b) < 0;
+    public static bool operator <(ResultBase<TInterface>? a, IResult<TInterface>? b) => NullSafeCompareTo(a, b) < 0;
 
     /// <summary>Less than or equal to operator.</summary>
     /// <param name="a">The <see cref="ResultBase{TInterface}" /> object.</param>
     /// <param name="b">The <see cref="IResult{TInterface}" /> object to compare.</param>
     /// <returns>True if the <paramref name="a" /> is less than or equal to <paramref name="b" />; otherwise, false.</returns>
-    public static bool operator <=(ResultBase<TInterface> a, IResult<TInterface> b) => NullSafeCompareTo(a, b) <= 0;
+    public static bool operator <=(ResultBase<TInterface>? a, IResult<TInterface>? b) => NullSafeCompareTo(a, b) <= 0;
 
     /// <summary>Greater than operator.</summary>
     /// <param name="a">The <see cref="ResultBase{TInterface}" /> object.</param>
     /// <param name="b">The <see cref="IResult{TInterface}" /> object to compare.</param>
     /// <returns>True if the <paramref name="a" /> is greater than <paramref name="b" />; otherwise, false.</returns>
-    public static bool operator >(ResultBase<TInterface> a, IResult<TInterface> b) => NullSafeCompareTo(a, b) > 0;
+    public static bool operator >(ResultBase<TInterface>? a, IResult<TInterface>? b) => NullSafeCompareTo(a, b) > 0;
 
     /// <summary>Greater than or equal to operator.</summary>
     /// <param name="a">The <see cref="ResultBase{TInterface}" /> object.</param>
     /// <param name="b">The <see cref="IResult{TInterface}" /> object to compare.</param>
     /// <returns>True if the <paramref name="a" /> is greater than or equal to <paramref name="b" />; otherwise, false.</returns>
-    public static bool operator >=(ResultBase<TInterface> a, IResult<TInterface> b) => NullSafeCompareTo(a, b) >= 0;
+    public static bool operator >=(ResultBase<TInterface>? a, IResult<TInterface>? b) => NullSafeCompareTo(a, b) >= 0;
 
     /// <inheritdoc />
-    // ReSharper disable once NonReadonlyMemberInGetHashCode
-    public override int GetHashCode() => StringComparer.OrdinalIgnoreCase.GetHashCode(Id);
+    public override int GetHashCode() =>
+        // ReSharper disable once NonReadonlyMemberInGetHashCode
+        // Id can only be set by internal methods.
+        StringComparer.OrdinalIgnoreCase.GetHashCode(Id);
 
-    private static int NullSafeCompareTo(ResultBase<TInterface>? a, object? b)
+    private static int NullSafeCompareTo(ResultBase<TInterface>? a, IResult<TInterface>? b)
     {
         if (a is not null)
             return b is null ? 1 : a.CompareTo(b);

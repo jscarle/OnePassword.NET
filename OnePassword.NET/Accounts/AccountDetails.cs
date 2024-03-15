@@ -49,37 +49,37 @@ public sealed class AccountDetails : IAccount
     /// <param name="a">The <see cref="AccountDetails" /> object.</param>
     /// <param name="b">The <see cref="IAccount" /> object to compare.</param>
     /// <returns>True if the <paramref name="a" /> is equal to <paramref name="b" />; otherwise, false.</returns>
-    public static bool operator ==(AccountDetails a, IAccount b) => a is not null && b is not null && a.Equals(b);
+    public static bool operator ==(AccountDetails? a, IAccount? b) => Equals(a, b);
 
     /// <summary>Inequality operator.</summary>
     /// <param name="a">The <see cref="AccountDetails" /> object.</param>
     /// <param name="b">The <see cref="IAccount" /> object to compare.</param>
     /// <returns>True if the <paramref name="a" /> is not equal to <paramref name="b" />; otherwise, false.</returns>
-    public static bool operator !=(AccountDetails a, IAccount b) => a is null || b is null || !a.Equals(b);
+    public static bool operator !=(AccountDetails? a, IAccount? b) => !Equals(a, b);
 
     /// <summary>Less than operator.</summary>
     /// <param name="a">The <see cref="AccountDetails" /> object.</param>
     /// <param name="b">The <see cref="IAccount" /> object to compare.</param>
     /// <returns>True if the <paramref name="a" /> is less than <paramref name="b" />; otherwise, false.</returns>
-    public static bool operator <(AccountDetails a, IAccount b) => a is not null && b is not null && a.CompareTo(b) < 0;
+    public static bool operator <(AccountDetails? a, IAccount? b) => NullSafeCompareTo(a, b) < 0;
 
     /// <summary>Less than or equal to operator.</summary>
     /// <param name="a">The <see cref="AccountDetails" /> object.</param>
     /// <param name="b">The <see cref="IAccount" /> object to compare.</param>
     /// <returns>True if the <paramref name="a" /> is less than or equal to <paramref name="b" />; otherwise, false.</returns>
-    public static bool operator <=(AccountDetails a, IAccount b) => a is not null && b is not null && a.CompareTo(b) <= 0;
+    public static bool operator <=(AccountDetails? a, IAccount? b) => NullSafeCompareTo(a, b) <= 0;
 
     /// <summary>Greater than operator.</summary>
     /// <param name="a">The <see cref="AccountDetails" /> object.</param>
     /// <param name="b">The <see cref="IAccount" /> object to compare.</param>
     /// <returns>True if the <paramref name="a" /> is greater than <paramref name="b" />; otherwise, false.</returns>
-    public static bool operator >(AccountDetails a, IAccount b) => a is not null && b is not null && a.CompareTo(b) > 0;
+    public static bool operator >(AccountDetails? a, IAccount? b) => NullSafeCompareTo(a, b) > 0;
 
     /// <summary>Greater than or equal to operator.</summary>
     /// <param name="a">The <see cref="AccountDetails" /> object.</param>
     /// <param name="b">The <see cref="IAccount" /> object to compare.</param>
     /// <returns>True if the <paramref name="a" /> is greater than or equal to <paramref name="b" />; otherwise, false.</returns>
-    public static bool operator >=(AccountDetails a, IAccount b) => a is not null && b is not null && a.CompareTo(b) >= 0;
+    public static bool operator >=(AccountDetails? a, IAccount? b) => NullSafeCompareTo(a, b) >= 0;
 
     /// <inheritdoc />
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || obj is IAccount other && Equals(other);
@@ -113,8 +113,10 @@ public sealed class AccountDetails : IAccount
     }
 
     /// <inheritdoc />
-    // ReSharper disable once NonReadonlyMemberInGetHashCode
-    public override int GetHashCode() => StringComparer.OrdinalIgnoreCase.GetHashCode(Id);
+    public override int GetHashCode() =>
+        // ReSharper disable once NonReadonlyMemberInGetHashCode
+        // Id can only be set by internal methods.
+        StringComparer.OrdinalIgnoreCase.GetHashCode(Id);
 
     private int CompareTo(Account? other) => other is null ? 1 : string.Compare(Domain, other.Shorthand, StringComparison.Ordinal);
 
@@ -122,5 +124,14 @@ public sealed class AccountDetails : IAccount
     {
         if (other is null) return 1;
         return ReferenceEquals(this, other) ? 0 : string.Compare(Domain, other.Domain, StringComparison.Ordinal);
+    }
+
+    private static int NullSafeCompareTo(AccountDetails? a, IAccount? b)
+    {
+        if (a is not null)
+            return b is null ? 1 : a.CompareTo(b);
+        if (b is null)
+            return 0;
+        return -1;
     }
 }

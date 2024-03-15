@@ -45,37 +45,37 @@ public sealed class Account : IAccount
     /// <param name="a">The first account to compare.</param>
     /// <param name="b">The second account to compare.</param>
     /// <returns>True if the accounts are equal, false otherwise.</returns>
-    public static bool operator ==(Account a, IAccount b) => a is not null && b is not null && a.Equals(b);
+    public static bool operator ==(Account? a, IAccount? b) => Equals(a, b);
 
     /// <summary>Inequality operator.</summary>
     /// <param name="a">The first account to compare.</param>
     /// <param name="b">The second account to compare.</param>
     /// <returns>True if the accounts are not equal, false otherwise.</returns>
-    public static bool operator !=(Account a, IAccount b) => a is null || b is null || !a.Equals(b);
+    public static bool operator !=(Account? a, IAccount? b) => !Equals(a, b);
 
     /// <summary>Less than operator.</summary>
     /// <param name="a">The first account to compare.</param>
     /// <param name="b">The second account to compare.</param>
     /// <returns>True if the first account is less than the second one, false otherwise.</returns>
-    public static bool operator <(Account a, IAccount b) => a is not null && b is not null && a.CompareTo(b) < 0;
+    public static bool operator <(Account? a, IAccount? b) => NullSafeCompareTo(a, b) < 0;
 
     /// <summary>Less than or equal to operator.</summary>
     /// <param name="a">The first account to compare.</param>
     /// <param name="b">The second account to compare.</param>
     /// <returns>True if the first account is less than or equal to the second one, false otherwise.</returns>
-    public static bool operator <=(Account a, IAccount b) => a is not null && b is not null && a.CompareTo(b) <= 0;
+    public static bool operator <=(Account? a, IAccount? b) => NullSafeCompareTo(a, b) <= 0;
 
     /// <summary>Greater than operator.</summary>
     /// <param name="a">The first account to compare.</param>
     /// <param name="b">The second account to compare.</param>
     /// <returns>True if the first account is greater than the second one, false otherwise.</returns>
-    public static bool operator >(Account a, IAccount b) => a is not null && b is not null && a.CompareTo(b) > 0;
+    public static bool operator >(Account? a, IAccount? b) => NullSafeCompareTo(a, b) > 0;
 
     /// <summary>Greater than or equal to operator.</summary>
     /// <param name="a">The first account to compare.</param>
     /// <param name="b">The second account to compare.</param>
     /// <returns>True if the first account is greater than or equal to the second one, false otherwise.</returns>
-    public static bool operator >=(Account a, IAccount b) => a is not null && b is not null && a.CompareTo(b) >= 0;
+    public static bool operator >=(Account? a, IAccount? b) => NullSafeCompareTo(a, b) >= 0;
 
     /// <inheritdoc />
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || obj is IAccount other && Equals(other);
@@ -109,8 +109,10 @@ public sealed class Account : IAccount
     }
 
     /// <inheritdoc />
-    // ReSharper disable once NonReadonlyMemberInGetHashCode
-    public override int GetHashCode() => StringComparer.OrdinalIgnoreCase.GetHashCode(Id);
+    public override int GetHashCode() =>
+        // ReSharper disable once NonReadonlyMemberInGetHashCode
+        // Id can only be set by internal methods.
+        StringComparer.OrdinalIgnoreCase.GetHashCode(Id);
 
     private int CompareTo(Account? other)
     {
@@ -119,4 +121,13 @@ public sealed class Account : IAccount
     }
 
     private int CompareTo(AccountDetails? other) => other is null ? 1 : string.Compare(Shorthand, other.Domain, StringComparison.Ordinal);
+
+    private static int NullSafeCompareTo(Account? a, IAccount? b)
+    {
+        if (a is not null)
+            return b is null ? 1 : a.CompareTo(b);
+        if (b is null)
+            return 0;
+        return -1;
+    }
 }

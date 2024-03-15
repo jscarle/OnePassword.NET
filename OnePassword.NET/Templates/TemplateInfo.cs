@@ -15,37 +15,37 @@ public sealed class TemplateInfo : ITemplate
     /// <param name="a">The <see cref="TemplateInfo" /> object.</param>
     /// <param name="b">The <see cref="ITemplate" /> object to compare.</param>
     /// <returns>True if the <paramref name="a" /> is equal to <paramref name="b" />; otherwise, false.</returns>
-    public static bool operator ==(TemplateInfo a, ITemplate b) => a is not null && b is not null && a.Equals(b);
+    public static bool operator ==(TemplateInfo? a, ITemplate? b) => Equals(a, b);
 
     /// <summary>Inequality operator.</summary>
     /// <param name="a">The <see cref="TemplateInfo" /> object.</param>
     /// <param name="b">The <see cref="ITemplate" /> object to compare.</param>
     /// <returns>True if the <paramref name="a" /> is not equal to <paramref name="b" />; otherwise, false.</returns>
-    public static bool operator !=(TemplateInfo a, ITemplate b) => a is null || b is null || !a.Equals(b);
+    public static bool operator !=(TemplateInfo? a, ITemplate? b) => !Equals(a, b);
 
     /// <summary>Less than operator.</summary>
     /// <param name="a">The <see cref="TemplateInfo" /> object.</param>
     /// <param name="b">The <see cref="ITemplate" /> object to compare.</param>
     /// <returns>True if the <paramref name="a" /> is less than <paramref name="b" />; otherwise, false.</returns>
-    public static bool operator <(TemplateInfo a, ITemplate b) => a is not null && b is not null && a.CompareTo(b) < 0;
+    public static bool operator <(TemplateInfo? a, ITemplate? b) => NullSafeCompareTo(a, b) < 0;
 
     /// <summary>Less than or equal to operator.</summary>
     /// <param name="a">The <see cref="TemplateInfo" /> object.</param>
     /// <param name="b">The <see cref="ITemplate" /> object to compare.</param>
     /// <returns>True if the <paramref name="a" /> is less than or equal to <paramref name="b" />; otherwise, false.</returns>
-    public static bool operator <=(TemplateInfo a, ITemplate b) => a is not null && b is not null && a.CompareTo(b) <= 0;
+    public static bool operator <=(TemplateInfo? a, ITemplate? b) => NullSafeCompareTo(a, b) <= 0;
 
     /// <summary>Greater than operator.</summary>
     /// <param name="a">The <see cref="TemplateInfo" /> object.</param>
     /// <param name="b">The <see cref="ITemplate" /> object to compare.</param>
     /// <returns>True if the <paramref name="a" /> is greater than <paramref name="b" />; otherwise, false.</returns>
-    public static bool operator >(TemplateInfo a, ITemplate b) => a is not null && b is not null && a.CompareTo(b) > 0;
+    public static bool operator >(TemplateInfo? a, ITemplate? b) => NullSafeCompareTo(a, b) > 0;
 
     /// <summary>Greater than or equal to operator.</summary>
     /// <param name="a">The <see cref="TemplateInfo" /> object.</param>
     /// <param name="b">The <see cref="ITemplate" /> object to compare.</param>
     /// <returns>True if the <paramref name="a" /> is greater than or equal to <paramref name="b" />; otherwise, false.</returns>
-    public static bool operator >=(TemplateInfo a, ITemplate b) => a is not null && b is not null && a.CompareTo(b) >= 0;
+    public static bool operator >=(TemplateInfo? a, ITemplate? b) => NullSafeCompareTo(a, b) >= 0;
 
     /// <inheritdoc />
     public override bool Equals(object? obj) => ReferenceEquals(this, obj) || obj is ITemplate other && Equals(other);
@@ -77,4 +77,13 @@ public sealed class TemplateInfo : ITemplate
         // ReSharper disable once NonReadonlyMemberInGetHashCode
         // Name can only be set by internal methods.
         StringComparer.OrdinalIgnoreCase.GetHashCode(Name);
+
+    private static int NullSafeCompareTo(TemplateInfo? a, ITemplate? b)
+    {
+        if (a is not null)
+            return b is null ? 1 : a.CompareTo(b);
+        if (b is null)
+            return 0;
+        return -1;
+    }
 }
