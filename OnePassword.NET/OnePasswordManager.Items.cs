@@ -219,4 +219,80 @@ public sealed partial class OnePasswordManager
         var command = $"item delete {itemId} --vault {vaultId}";
         Op(command);
     }
+
+    /// <inheritdoc />
+    public void MoveItem(IItem item, IVault currentVault, IVault destinationVault)
+    {
+        if (item is null || item.Id.Length == 0)
+            throw new ArgumentException($"{nameof(item.Id)} cannot be empty.", nameof(item));
+        if (currentVault is null || currentVault.Id.Length == 0)
+            throw new ArgumentException($"{nameof(currentVault.Id)} cannot be empty.", nameof(currentVault));
+        if (destinationVault is null || destinationVault.Id.Length == 0)
+            throw new ArgumentException($"{nameof(destinationVault.Id)} cannot be empty.", nameof(destinationVault));
+
+        MoveItem(item.Id, currentVault.Id, destinationVault.Id);
+    }
+
+    /// <inheritdoc />
+    public void MoveItem(string itemId, string currentVaultId, string destinationVaultId)
+    {
+        if (itemId is null || itemId.Length == 0)
+            throw new ArgumentException($"{nameof(itemId)} cannot be empty.", nameof(itemId));
+        if (currentVaultId is null || currentVaultId.Length == 0)
+            throw new ArgumentException($"{nameof(currentVaultId)} cannot be empty.", nameof(currentVaultId));
+        if (destinationVaultId is null || destinationVaultId.Length == 0)
+            throw new ArgumentException($"{nameof(destinationVaultId)} cannot be empty.", nameof(destinationVaultId));
+
+        var command = $"item move {itemId} --current-vault {{currentVaultId}} --destination-vault {{destinationVaultId}}";
+        Op(command);
+    }
+
+    /// <inheritdoc />
+    public void ShareItem(IItem item, IVault vault, string emailAddress, TimeSpan? expiresIn = null, bool? viewOnce = null)
+    {
+        if (item is null || item.Id.Length == 0)
+            throw new ArgumentException($"{nameof(item.Id)} cannot be empty.", nameof(item));
+        if (vault is null || vault.Id.Length == 0)
+            throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
+
+        ShareItem(item.Id, vault.Id, [emailAddress], expiresIn, viewOnce);
+    }
+
+    /// <inheritdoc />
+    public void ShareItem(string itemId, string vaultId, string emailAddress, TimeSpan? expiresIn = null, bool? viewOnce = null)
+    {
+        if (itemId is null || itemId.Length == 0)
+            throw new ArgumentException($"{nameof(itemId)} cannot be empty.", nameof(itemId));
+        if (vaultId is null || vaultId.Length == 0)
+            throw new ArgumentException($"{nameof(vaultId)} cannot be empty.", nameof(vaultId));
+
+        ShareItem(itemId, vaultId, [emailAddress], expiresIn, viewOnce);
+    }
+
+    /// <inheritdoc />
+    public void ShareItem(IItem item, IVault vault, IReadOnlyCollection<string> emailAddresses, TimeSpan? expiresIn = null, bool? viewOnce = null)
+    {
+        if (item is null || item.Id.Length == 0)
+            throw new ArgumentException($"{nameof(item.Id)} cannot be empty.", nameof(item));
+        if (vault is null || vault.Id.Length == 0)
+            throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
+
+        ShareItem(item.Id, vault.Id, emailAddresses, expiresIn, viewOnce);
+    }
+
+    /// <inheritdoc />
+    public void ShareItem(string itemId, string vaultId, IReadOnlyCollection<string> emailAddresses, TimeSpan? expiresIn = null, bool? viewOnce = null)
+    {
+        if (itemId is null || itemId.Length == 0)
+            throw new ArgumentException($"{nameof(itemId)} cannot be empty.", nameof(itemId));
+        if (vaultId is null || vaultId.Length == 0)
+            throw new ArgumentException($"{nameof(vaultId)} cannot be empty.", nameof(vaultId));
+
+        var command = $"item share {itemId} --vault {vaultId}";
+        if (expiresIn is not null)
+            command += $" --expires-in {expiresIn.Value.ToHumanReadable()}";
+        if (viewOnce is not null && viewOnce.Value)
+            command += " --view-once";
+        Op(command);
+    }
 }

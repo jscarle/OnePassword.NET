@@ -37,6 +37,8 @@
     "globalMetadata": {
       "_appName": "OnePassword.NET",
       "_appTitle": "OnePassword.NET",
+      "_appLogoPath": "images/Logo.png",
+      "_appFaviconPath": "images/Icon.png",
       "_appFooter": "Developed and maintained by Jean-Sebastien Carle — <a href=\"https://jscarle.dev\">jscarle.dev</a>",
       "_enableSearch": true
     }

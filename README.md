@@ -1,3 +1,5 @@
+[![Banner](https://raw.githubusercontent.com/jscarle/OnePassword.NET/main/Banner.png)](https://github.com/jscarle/OnePassword.NET)
+
 # OnePassword.NET - 1Password CLI Wrapper
 
 This library serves as a .NET wrapper for the [1Password](https://1password.com/) command-line tool
@@ -165,3 +167,7 @@ Environment variables which are integers must contain only numbers and those whi
 | OPT_ACCOUNT_SECRET_KEY        | The secret key to use when authenticating.                                    | string |                       |
 | OPT_TEST_USER_EMAIL           | The test user's email address.                                                | string |                       |
 | OPT_TEST_USER_CONFIRM_TIMEOUT | The time (in minutes) to wait for manual confirmation of the test user.       | int    | `OPT_COMMAND_TIMEOUT` |
+
+> #### Disclaimer
+>
+> While the use of the 1Password name and logo is authorized, it's important to note that this library is not an official product developed or maintained by AgileBits, Inc.
