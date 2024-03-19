@@ -128,4 +128,54 @@ public partial interface IOnePasswordManager
     /// <param name="vaultId">The ID of the vault that contains the item to delete.</param>
     /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
     public void DeleteItem(string itemId, string vaultId);
+
+    /// <summary>Moves an item.</summary>
+    /// <param name="item">The item to move.</param>
+    /// <param name="currentVault">The vault that contains the item to move.</param>
+    /// <param name="destinationVault">The destination vault to move the item to.</param>
+    /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
+    public void MoveItem(IItem item, IVault currentVault, IVault destinationVault);
+
+    /// <summary>Moves an item.</summary>
+    /// <param name="itemId">The ID of the item to move.</param>
+    /// <param name="currentVaultId">The ID of the vault that contains the item to move.</param>
+    /// <param name="destinationVaultId">The ID of the destination vault to move the item to.</param>
+    /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
+    public void MoveItem(string itemId, string currentVaultId, string destinationVaultId);
+
+    /// <summary>Shares an item.</summary>
+    /// <param name="item">The item to share.</param>
+    /// <param name="vault">The vault that contains the item to share.</param>
+    /// <param name="emailAddress">The email address to share the item with.</param>
+    /// <param name="expiresIn">The delay before the link expires.</param>
+    /// <param name="viewOnce">Expires the link after a single view.</param>
+    /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
+    public void ShareItem(IItem item, IVault vault, string emailAddress, TimeSpan? expiresIn = null, bool? viewOnce = null);
+
+    /// <summary>Shares an item.</summary>
+    /// <param name="itemId">The ID of the item to share.</param>
+    /// <param name="vaultId">The ID of the vault that contains the item to share.</param>
+    /// <param name="emailAddress">The email address to share the item with.</param>
+    /// <param name="expiresIn">The delay before the link expires.</param>
+    /// <param name="viewOnce">Expires the link after a single view.</param>
+    /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
+    public void ShareItem(string itemId, string vaultId, string emailAddress, TimeSpan? expiresIn = null, bool? viewOnce = null);
+
+    /// <summary>Shares an item.</summary>
+    /// <param name="item">The item to share.</param>
+    /// <param name="vault">The vault that contains the item to share.</param>
+    /// <param name="emailAddresses">The email address to share the item with.</param>
+    /// <param name="expiresIn">The delay before the link expires.</param>
+    /// <param name="viewOnce">Expires the link after a single view.</param>
+    /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
+    public void ShareItem(IItem item, IVault vault, IReadOnlyCollection<string> emailAddresses, TimeSpan? expiresIn = null, bool? viewOnce = null);
+
+    /// <summary>Shares an item.</summary>
+    /// <param name="itemId">The ID of the item to share.</param>
+    /// <param name="vaultId">The ID of the vault that contains the item to share.</param>
+    /// <param name="emailAddresses">The email address to share the item with.</param>
+    /// <param name="expiresIn">The delay before the link expires.</param>
+    /// <param name="viewOnce">Expires the link after a single view.</param>
+    /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
+    public void ShareItem(string itemId, string vaultId, IReadOnlyCollection<string> emailAddresses, TimeSpan? expiresIn = null, bool? viewOnce = null);
 }

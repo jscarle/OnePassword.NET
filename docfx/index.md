@@ -2,6 +2,8 @@
 _layout: landing
 ---
 
+[![Banner](https://raw.githubusercontent.com/jscarle/OnePassword.NET/main/Banner.png)](https://github.com/jscarle/OnePassword.NET)
+
 # OnePassword.NET - 1Password CLI Wrapper
 
 This library serves as a .NET wrapper for the [1Password](https://1password.com/) command-line tool
@@ -18,3 +20,7 @@ This library targets .NET 6.0, .NET 7.0, and .NET 8.0.
 ## Dependencies
 
 This library has no dependencies.
+
+> #### Disclaimer
+> 
+> While the use of the 1Password name and logo is authorized, it's important to note that this library is not an official product developed or maintained by AgileBits, Inc.

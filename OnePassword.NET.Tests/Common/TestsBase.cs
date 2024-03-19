@@ -25,9 +25,16 @@ public class TestsBase
     private static readonly string ServiceAccountToken = GetEnv("OPT_SERVICE_ACCOUNT_TOKEN", "");
     private protected static readonly int TestUserConfirmTimeout = int.Parse(GetEnv("OPT_TEST_USER_CONFIRM_TIMEOUT", GetEnv("OPT_COMMAND_TIMEOUT", "2")), CultureInfo.InvariantCulture) * 60 * 1000;
     private static readonly SemaphoreSlim SemaphoreSlim = new(1, 1);
-    private protected static readonly CancellationTokenSource SetUpCancellationTokenSource = new();
     private static readonly CancellationTokenSource TestCancellationTokenSource = new();
     private static readonly CancellationTokenSource TearDownCancellationTokenSource = new();
+    private static readonly bool IsLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
+    private static readonly Uri DownloadSource = IsLinux ?
+        new Uri("https://cache.agilebits.com/dist/1P/op2/pkg/v2.26.0/op_linux_amd64_v2.26.0.zip") :
+        new Uri("https://cache.agilebits.com/dist/1P/op2/pkg/v2.26.0/op_windows_amd64_v2.26.0.zip");
+    private static readonly string ExecutableName = IsLinux ? "op" : "op.exe";
+    private static bool _initialSetupDone;
+
+    private protected static readonly CancellationTokenSource SetUpCancellationTokenSource = new();
     private protected static OnePasswordManager OnePassword = null!;
     private protected static IUser TestUser = null!;
     private protected static IGroup TestGroup = null!;
@@ -36,19 +43,7 @@ public class TestsBase
     private protected static Template TestTemplate = null!;
     private protected static Item TestItem = null!;
     private protected static bool DoFinalTearDown;
-    private static readonly bool IsLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
-    private static readonly Uri DownloadSource = IsLinux ?
-        new Uri("https://cache.agilebits.com/dist/1P/op2/pkg/v2.25.1/op_linux_amd64_v2.25.1.zip") :
-        new Uri("https://cache.agilebits.com/dist/1P/op2/pkg/v2.25.1/op_windows_amd64_v2.25.1.zip");
-    private static readonly string ExecutableName = IsLinux ? "op" : "op.exe";
     private protected static readonly string WorkingDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
-    private static bool _initialSetupDone;
-
-    private static string GetEnv(string name, string value) =>
-        Environment.GetEnvironmentVariable(name, EnvironmentVariableTarget.Machine)
-        ?? Environment.GetEnvironmentVariable(name, EnvironmentVariableTarget.User)
-        ?? Environment.GetEnvironmentVariable(name, EnvironmentVariableTarget.Process)
-        ?? value;
 
     [OneTimeSetUp]
     public async Task Setup()
@@ -115,6 +110,10 @@ public class TestsBase
             SemaphoreSlim.Release();
         }
     }
+
+    private static string GetEnv(string name, string value) =>
+        Environment.GetEnvironmentVariable(name, EnvironmentVariableTarget.Machine)
+        ?? Environment.GetEnvironmentVariable(name, EnvironmentVariableTarget.User) ?? Environment.GetEnvironmentVariable(name, EnvironmentVariableTarget.Process) ?? value;
 
     protected enum RunType
     {
