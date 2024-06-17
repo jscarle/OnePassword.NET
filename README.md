@@ -62,10 +62,6 @@ Subsequently, the following commands are not used or supported when using servic
 For more information, see the documentation
 on [1Password Service Accounts](https://developer.1password.com/docs/service-accounts).
 
-```csharp
-var onePassword = new OnePasswordManager(serviceAccountToken: token);
-```
-
 ### Getting all vaults
 
 ```csharp
