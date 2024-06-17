@@ -8,7 +8,6 @@ namespace OnePassword.Items;
 public abstract class ItemBase : ITracked
 {
     private string _categoryId = "";
-    private bool _categoryIdChanged;
     private string _title = "";
 
     /// <summary>
@@ -37,7 +36,7 @@ public abstract class ItemBase : ITracked
         set
         {
             _categoryId = value;
-            _categoryIdChanged = true;
+            CategoryIdChanged = true;
         }
     }
 
@@ -81,9 +80,14 @@ public abstract class ItemBase : ITracked
     /// </summary>
     internal bool TitleChanged { get; private set; }
 
+    /// <summary>
+    /// Returns <see langword="true" /> when the categoryId has changed, <see langword="false" /> otherwise.
+    /// </summary>
+    internal bool CategoryIdChanged { get; private set; }
+
     /// <inheritdoc />
     bool ITracked.Changed => TitleChanged
-        || _categoryIdChanged
+        || CategoryIdChanged
         || ((ITracked)Sections).Changed
         || ((ITracked)Fields).Changed
         || ((ITracked)Urls).Changed
@@ -93,7 +97,7 @@ public abstract class ItemBase : ITracked
     void ITracked.AcceptChanges()
     {
         TitleChanged = false;
-        _categoryIdChanged = false;
+        CategoryIdChanged = false;
         ((ITracked)Sections).AcceptChanges();
         ((ITracked)Fields).AcceptChanges();
         ((ITracked)Urls).AcceptChanges();
