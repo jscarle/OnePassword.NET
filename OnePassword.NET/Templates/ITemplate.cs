@@ -8,7 +8,7 @@ public interface ITemplate : IEquatable<ITemplate>, IComparable<ITemplate>, ICom
     /// <summary>
     /// The template UUID.
     /// </summary>
-    string UUID { get; }
+    string Uuid { get; }
 
     /// <summary>
     /// The template name.
