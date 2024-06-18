@@ -55,15 +55,14 @@ public class TestTemplates : TestsBase
 
         Run(RunType.Test, () =>
         {
-            foreach (var enumValue in Enum.GetValues(typeof(Category)))
+            foreach (var enumValue in Enum.GetValues<Category>())
             {
-                var enumMember = (Category)enumValue;
-                if (enumMember is Category.Custom or Category.Unknown)
+                if (enumValue is Category.Custom or Category.Unknown)
                     continue;
 
-                var enumMemberString = enumMember.ToEnumString();
+                var enumMemberString = enumValue.ToEnumString();
 
-                var template = OnePassword.GetTemplate(enumMember);
+                var template = OnePassword.GetTemplate(enumValue);
 
                 Assert.Multiple(() =>
                 {

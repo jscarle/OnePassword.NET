@@ -8,6 +8,11 @@ public sealed class Template : ItemBase, ITemplate, ICloneable
 {
     /// <inheritdoc />
     [JsonInclude]
+    [JsonPropertyName("uuid")]
+    public string Uuid { get; internal set; } = "";
+
+    /// <inheritdoc />
+    [JsonInclude]
     [JsonPropertyName("name")]
     public string Name { get; internal set; } = "";
 
@@ -67,7 +72,7 @@ public sealed class Template : ItemBase, ITemplate, ICloneable
     public bool Equals(ITemplate? other)
     {
         if (other is null) return false;
-        return ReferenceEquals(this, other) || string.Equals(Name, other.Name, StringComparison.OrdinalIgnoreCase);
+        return ReferenceEquals(this, other) || string.Equals(Uuid, other.Uuid, StringComparison.OrdinalIgnoreCase);
     }
 
     /// <inheritdoc />
@@ -82,14 +87,14 @@ public sealed class Template : ItemBase, ITemplate, ICloneable
     public int CompareTo(ITemplate? other)
     {
         if (other is null) return 1;
-        return ReferenceEquals(this, other) ? 0 : string.Compare(Name, other.Name, StringComparison.Ordinal);
+        return ReferenceEquals(this, other) ? 0 : string.Compare(Uuid, other.Uuid, StringComparison.Ordinal);
     }
 
     /// <inheritdoc />
     public override int GetHashCode() =>
         // ReSharper disable once NonReadonlyMemberInGetHashCode
         // Name can only be set by internal methods.
-        StringComparer.OrdinalIgnoreCase.GetHashCode(Name);
+        StringComparer.OrdinalIgnoreCase.GetHashCode(Uuid) + StringComparer.OrdinalIgnoreCase.GetHashCode(Name);
 
     /// <inheritdoc />
     object ICloneable.Clone() => Clone();
