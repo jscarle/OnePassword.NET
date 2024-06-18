@@ -288,7 +288,7 @@ public sealed partial class OnePasswordManager
         if (vaultId is null || vaultId.Length == 0)
             throw new ArgumentException($"{nameof(vaultId)} cannot be empty.", nameof(vaultId));
 
-        var command = $"item share {itemId} --vault {vaultId}";
+        var command = $"item share {itemId} --vault {vaultId} --emails {string.Join(',', emailAddresses)}";
         if (expiresIn is not null)
             command += $" --expires-in {expiresIn.Value.ToHumanReadable()}";
         if (viewOnce is not null && viewOnce.Value)
