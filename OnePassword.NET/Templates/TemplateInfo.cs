@@ -5,11 +5,16 @@ public sealed class TemplateInfo : ITemplate
 {
     /// <inheritdoc />
     [JsonInclude]
+    [JsonPropertyName("uuid")]
+    public string UUID { get; internal set; } = "";
+
+    /// <inheritdoc />
+    [JsonInclude]
     [JsonPropertyName("name")]
     public string Name { get; internal set; } = "";
 
     /// <inheritdoc />
-    public override string ToString() => Name;
+    public override string ToString() => $"{Name} ({UUID})";
 
     /// <summary>Equality operator.</summary>
     /// <param name="a">The <see cref="TemplateInfo" /> object.</param>
@@ -54,7 +59,7 @@ public sealed class TemplateInfo : ITemplate
     public bool Equals(ITemplate? other)
     {
         if (other is null) return false;
-        return ReferenceEquals(this, other) || string.Equals(Name, other.Name, StringComparison.OrdinalIgnoreCase);
+        return ReferenceEquals(this, other) || string.Equals(UUID, other.UUID, StringComparison.OrdinalIgnoreCase);
     }
 
     /// <inheritdoc />
@@ -69,14 +74,14 @@ public sealed class TemplateInfo : ITemplate
     public int CompareTo(ITemplate? other)
     {
         if (other is null) return 1;
-        return ReferenceEquals(this, other) ? 0 : string.Compare(Name, other.Name, StringComparison.Ordinal);
+        return ReferenceEquals(this, other) ? 0 : string.Compare(UUID, other.UUID, StringComparison.Ordinal);
     }
 
     /// <inheritdoc />
     public override int GetHashCode() =>
         // ReSharper disable once NonReadonlyMemberInGetHashCode
         // Name can only be set by internal methods.
-        StringComparer.OrdinalIgnoreCase.GetHashCode(Name);
+        StringComparer.OrdinalIgnoreCase.GetHashCode(UUID) + StringComparer.OrdinalIgnoreCase.GetHashCode(Name);
 
     private static int NullSafeCompareTo(TemplateInfo? a, ITemplate? b)
     {
