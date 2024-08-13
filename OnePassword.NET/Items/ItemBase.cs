@@ -76,6 +76,13 @@ public abstract class ItemBase : ITracked
     public TrackedList<string> Tags { get; internal set; } = [];
 
     /// <summary>
+    /// The files associated with the item.
+    /// </summary>
+    [JsonInclude]
+    [JsonPropertyName("files")]
+    public TrackedList<File> Files { get; internal set; } = [];
+
+    /// <summary>
     /// Returns <see langword="true" /> when the title has changed, <see langword="false" /> otherwise.
     /// </summary>
     internal bool TitleChanged { get; private set; }
