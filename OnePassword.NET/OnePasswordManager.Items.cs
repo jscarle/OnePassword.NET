@@ -1,4 +1,5 @@
-﻿using OnePassword.Common;
+﻿using System.Text.Json;
+using OnePassword.Common;
 using OnePassword.Items;
 using OnePassword.Templates;
 using OnePassword.Vaults;

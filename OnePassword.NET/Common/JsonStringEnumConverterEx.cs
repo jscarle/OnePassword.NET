@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using System.Text.Json;
 
 namespace OnePassword.Common;
 
@@ -13,10 +14,10 @@ internal sealed class JsonStringEnumConverterEx<TEnum> : JsonConverter<TEnum> wh
     private readonly Dictionary<string, TEnum> _stringToEnum = [];
 
     /// <summary>Initializes a new instance of <see cref="JsonStringEnumConverterEx{TEnum}" />.</summary>
-    [UnconditionalSuppressMessage("AssemblyLoadTrimming", "IL2090:'this' argument does not satisfy 'DynamicallyAccessedMembersAttribute' in call to 'target method'.", Justification = "https://github.com/dotnet/runtime/issues/97737")]
+    [SuppressMessage("AssemblyLoadTrimming", "IL2090:'this' argument does not satisfy 'DynamicallyAccessedMembersAttribute' in call to 'target method'.", Justification = "https://github.com/dotnet/runtime/issues/97737")]
     public JsonStringEnumConverterEx()
     {
-        foreach (var enumMemberValue in Enum.GetValues<TEnum>())
+        foreach (TEnum enumMemberValue in Enum.GetValues(typeof(TEnum)))
         {
             var enumMemberName = enumMemberValue.ToString();
 

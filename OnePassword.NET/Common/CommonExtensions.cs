@@ -12,7 +12,7 @@ internal static class CommonExtensions
     /// <returns>A string representation of the enum field.</returns>
     /// <exception cref="ArgumentNullException">Thrown when field is null.</exception>
     /// <exception cref="NotImplementedException">Thrown when field is not correctly annotated with a <see cref="EnumMemberAttribute" />.</exception>
-    [UnconditionalSuppressMessage("AssemblyLoadTrimming", "IL2090:'this' argument does not satisfy 'DynamicallyAccessedMembersAttribute' in call to 'target method'.",
+    [SuppressMessage("AssemblyLoadTrimming", "IL2090:'this' argument does not satisfy 'DynamicallyAccessedMembersAttribute' in call to 'target method'.",
         Justification = "https://github.com/dotnet/runtime/issues/97737")]
     internal static string ToEnumString<TField>(this TField field) where TField : Enum
     {
