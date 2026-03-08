@@ -245,7 +245,7 @@ public sealed partial class OnePasswordManager
         if (permissions is null || permissions.Count == 0)
             throw new ArgumentException($"{nameof(permissions)} cannot be empty.", nameof(permissions));
 
-        var command = $"vault user revoke --vault {vaultId} --group {groupId} --permissions \"{permissions.ToCommaSeparated()}\"";
+        var command = $"vault group revoke --vault {vaultId} --group {groupId} --permissions \"{permissions.ToCommaSeparated()}\"";
         Op(command);
     }
 

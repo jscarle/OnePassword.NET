@@ -27,11 +27,8 @@ public class TestsBase
     private static readonly SemaphoreSlim SemaphoreSlim = new(1, 1);
     private static readonly CancellationTokenSource TestCancellationTokenSource = new();
     private static readonly CancellationTokenSource TearDownCancellationTokenSource = new();
-    private static readonly bool IsLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
-    private static readonly Uri DownloadSource = IsLinux ?
-        new Uri("https://cache.agilebits.com/dist/1P/op2/pkg/v2.26.0/op_linux_amd64_v2.26.0.zip") :
-        new Uri("https://cache.agilebits.com/dist/1P/op2/pkg/v2.26.0/op_windows_amd64_v2.26.0.zip");
-    private static readonly string ExecutableName = IsLinux ? "op" : "op.exe";
+    private static readonly Uri DownloadSource = GetDownloadSource();
+    private static readonly string ExecutableName = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "op.exe" : "op";
     private static bool _initialSetupDone;
 
     private protected static readonly CancellationTokenSource SetUpCancellationTokenSource = new();
@@ -144,6 +141,18 @@ public class TestsBase
         }
 
         return value;
+    }
+
+    private static Uri GetDownloadSource()
+    {
+        const string version = "v2.26.0";
+
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            return new Uri($"https://cache.agilebits.com/dist/1P/op2/pkg/{version}/op_windows_amd64_{version}.zip");
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            return new Uri($"https://cache.agilebits.com/dist/1P/op2/pkg/{version}/op_darwin_amd64_{version}.zip");
+
+        return new Uri($"https://cache.agilebits.com/dist/1P/op2/pkg/{version}/op_linux_amd64_{version}.zip");
     }
 
     private protected static void MarkManagementUnsupported()

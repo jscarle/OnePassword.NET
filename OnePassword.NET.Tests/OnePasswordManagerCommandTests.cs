@@ -1,4 +1,6 @@
 using System.Globalization;
+using System.IO.Compression;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using OnePassword.Common;
 using OnePassword.Documents;
@@ -20,6 +22,15 @@ public class OnePasswordManagerCommandTests
         var manager = fakeCli.CreateManager();
 
         Assert.That(manager.Version, Is.EqualTo("2.32.1"));
+    }
+
+    [Test]
+    public void DefaultExecutableNameMatchesCurrentPlatform()
+    {
+        var method = typeof(OnePasswordManagerOptions).GetMethod("GetDefaultExecutableName", BindingFlags.NonPublic | BindingFlags.Static);
+
+        Assert.That(method, Is.Not.Null);
+        Assert.That(method!.Invoke(null, null), Is.EqualTo(RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "op.exe" : "op"));
     }
 
     [Test]
@@ -106,6 +117,63 @@ public class OnePasswordManagerCommandTests
             if (rootDirectory is not null && Directory.Exists(rootDirectory))
                 Directory.Delete(rootDirectory, true);
         }
+    }
+
+    [Test]
+    public void GetSecretUsesTrimmedReference()
+    {
+        using var fakeCli = new FakeCli();
+        var manager = fakeCli.CreateManager();
+
+        manager.GetSecret("  op://vault/item/field  ");
+
+        Assert.That(fakeCli.LastArguments, Does.StartWith("read op://vault/item/field --no-newline"));
+    }
+
+    [Test]
+    public void SaveSecretUsesTrimmedReference()
+    {
+        using var fakeCli = new FakeCli();
+        var manager = fakeCli.CreateManager();
+        var outputPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+
+        try
+        {
+            manager.SaveSecret("  op://vault/item/field  ", outputPath);
+
+            Assert.That(fakeCli.LastArguments, Does.StartWith($"read op://vault/item/field --no-newline --force --out-file \"{outputPath}\""));
+        }
+        finally
+        {
+            if (File.Exists(outputPath))
+                File.Delete(outputPath);
+        }
+    }
+
+    [Test]
+    public void RevokeGroupPermissionsUsesVaultGroupCommand()
+    {
+        using var fakeCli = new FakeCli();
+        var manager = fakeCli.CreateManager();
+
+        manager.RevokeGroupPermissions("vault-id", "group-id", [VaultPermission.ViewItems]);
+
+        Assert.That(fakeCli.LastArguments, Does.StartWith("vault group revoke --vault vault-id --group group-id --permissions \"View Items\""));
+    }
+
+    [Test]
+    public void UpdateExtractsCurrentPlatformExecutablePayload()
+    {
+        using var fakeCli = new FakeCli(updateVersionOutput: "2.33.0\n");
+        var manager = fakeCli.CreateManager();
+
+        var updated = manager.Update();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(updated, Is.True);
+            Assert.That(manager.Version, Is.EqualTo("2.33.0"));
+        });
     }
 
     [Test]
@@ -243,21 +311,33 @@ public class OnePasswordManagerCommandTests
         private readonly string _argumentsPath;
         private readonly string _directoryPath;
         private readonly string _nextOutputPath;
+        private readonly string _updateMessagePath;
+        private readonly string _updatePayloadPath;
+        private readonly string _updatedVersionOutputPath;
         private readonly string _versionOutputPath;
 
-        public FakeCli(string versionOutput = "2.32.1\n", string nextOutput = "{}")
+        public FakeCli(string versionOutput = "2.32.1\n", string nextOutput = "{}", string? updateVersionOutput = null)
         {
             _directoryPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
             _argumentsPath = Path.Combine(_directoryPath, "last-arguments.txt");
             _nextOutputPath = Path.Combine(_directoryPath, "next-output.txt");
+            _updateMessagePath = Path.Combine(_directoryPath, "update-output.txt");
+            _updatePayloadPath = Path.Combine(_directoryPath, "update-payload.zip");
+            _updatedVersionOutputPath = Path.Combine(_directoryPath, "updated-version-output.txt");
             _versionOutputPath = Path.Combine(_directoryPath, "version-output.txt");
 
             Directory.CreateDirectory(_directoryPath);
             File.WriteAllText(_nextOutputPath, nextOutput);
             File.WriteAllText(_versionOutputPath, versionOutput);
+            if (updateVersionOutput is not null)
+            {
+                File.WriteAllText(_updateMessagePath, $"Version {updateVersionOutput.Trim()} is now available.");
+                File.WriteAllText(_updatedVersionOutputPath, updateVersionOutput);
+                CreateUpdatePayload();
+            }
 
             var executablePath = Path.Combine(_directoryPath, ExecutableName);
-            File.WriteAllText(executablePath, GetScript());
+            File.WriteAllText(executablePath, GetScript("version-output.txt"));
             if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 File.SetUnixFileMode(executablePath,
@@ -287,30 +367,63 @@ public class OnePasswordManagerCommandTests
                 Directory.Delete(_directoryPath, true);
         }
 
-        private static string GetScript()
+        private void CreateUpdatePayload()
+        {
+            var updatedExecutablePath = Path.Combine(_directoryPath, PackagedExecutableName);
+            File.WriteAllText(updatedExecutablePath, GetScript("updated-version-output.txt"));
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                File.SetUnixFileMode(updatedExecutablePath,
+                    UnixFileMode.UserRead
+                    | UnixFileMode.UserWrite
+                    | UnixFileMode.UserExecute);
+            }
+
+            using var zipArchive = ZipFile.Open(_updatePayloadPath, ZipArchiveMode.Create);
+            zipArchive.CreateEntryFromFile(updatedExecutablePath, PackagedExecutableName);
+            File.Delete(updatedExecutablePath);
+        }
+
+        private static string GetScript(string versionOutputFileName)
         {
             return RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
                 ? """
                   @echo off
                   setlocal
                   > "%~dp0last-arguments.txt" echo %*
+                  if "%~1"=="update" (
+                    if exist "%~dp0update-payload.zip" copy /y "%~dp0update-payload.zip" "%~3\update-payload.zip" > nul
+                    if exist "%~dp0update-output.txt" type "%~dp0update-output.txt"
+                    exit /b 0
+                  )
                   if "%~1"=="--version" (
-                    type "%~dp0version-output.txt"
+                    type "%~dp0VERSION_OUTPUT_PLACEHOLDER"
                     exit /b 0
                   )
                   type "%~dp0next-output.txt"
-                  """
+                  """.Replace("VERSION_OUTPUT_PLACEHOLDER", versionOutputFileName)
                 : """
                   #!/bin/sh
                   script_dir=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
                   printf '%s' "$*" > "$script_dir/last-arguments.txt"
+                  if [ "$1" = "update" ]; then
+                    if [ -f "$script_dir/update-payload.zip" ]; then
+                      cp "$script_dir/update-payload.zip" "$3/update-payload.zip"
+                    fi
+                    if [ -f "$script_dir/update-output.txt" ]; then
+                      cat "$script_dir/update-output.txt"
+                    fi
+                    exit 0
+                  fi
                   if [ "$1" = "--version" ]; then
-                    cat "$script_dir/version-output.txt"
+                    cat "$script_dir/VERSION_OUTPUT_PLACEHOLDER"
                     exit 0
                   fi
                   cat "$script_dir/next-output.txt"
-                  """;
+                  """.Replace("VERSION_OUTPUT_PLACEHOLDER", versionOutputFileName);
         }
+
+        private static string PackagedExecutableName => RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "op.exe" : "op";
     }
 
     private sealed class TestDocument(string id) : IDocument

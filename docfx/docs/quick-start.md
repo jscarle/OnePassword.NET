@@ -8,6 +8,8 @@
 var onePassword = new OnePasswordManager();
 ```
 
+The default executable name is `op.exe` on Windows and `op` on other platforms. If the CLI isn't in the current working directory, set `options.Path` and, if needed, `options.Executable`.
+
 ### Adding your account and signing in for the first time
 
 ```csharp
