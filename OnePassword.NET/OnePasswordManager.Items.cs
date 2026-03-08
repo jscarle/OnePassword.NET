@@ -250,7 +250,7 @@ public sealed partial class OnePasswordManager
     }
 
     /// <inheritdoc />
-    public ItemShareResult ShareItem(IItem item, IVault vault, string emailAddress, TimeSpan? expiresIn = null, bool? viewOnce = null)
+    public ItemShare ShareItem(IItem item, IVault vault, string emailAddress, TimeSpan? expiresIn = null, bool? viewOnce = null)
     {
         if (item is null || item.Id.Length == 0)
             throw new ArgumentException($"{nameof(item.Id)} cannot be empty.", nameof(item));
@@ -266,7 +266,7 @@ public sealed partial class OnePasswordManager
     }
 
     /// <inheritdoc />
-    public ItemShareResult ShareItem(string itemId, string vaultId, string emailAddress, TimeSpan? expiresIn = null, bool? viewOnce = null)
+    public ItemShare ShareItem(string itemId, string vaultId, string emailAddress, TimeSpan? expiresIn = null, bool? viewOnce = null)
     {
         if (itemId is null || itemId.Length == 0)
             throw new ArgumentException($"{nameof(itemId)} cannot be empty.", nameof(itemId));
@@ -282,7 +282,7 @@ public sealed partial class OnePasswordManager
     }
 
     /// <inheritdoc />
-    public ItemShareResult ShareItem(IItem item, IVault vault, IReadOnlyCollection<string>? emailAddresses = null, TimeSpan? expiresIn = null, bool? viewOnce = null)
+    public ItemShare ShareItem(IItem item, IVault vault, IReadOnlyCollection<string>? emailAddresses = null, TimeSpan? expiresIn = null, bool? viewOnce = null)
     {
         if (item is null || item.Id.Length == 0)
             throw new ArgumentException($"{nameof(item.Id)} cannot be empty.", nameof(item));
@@ -293,7 +293,7 @@ public sealed partial class OnePasswordManager
     }
 
     /// <inheritdoc />
-    public ItemShareResult ShareItem(string itemId, string vaultId, IReadOnlyCollection<string>? emailAddresses = null, TimeSpan? expiresIn = null, bool? viewOnce = null)
+    public ItemShare ShareItem(string itemId, string vaultId, IReadOnlyCollection<string>? emailAddresses = null, TimeSpan? expiresIn = null, bool? viewOnce = null)
     {
         if (itemId is null || itemId.Length == 0)
             throw new ArgumentException($"{nameof(itemId)} cannot be empty.", nameof(itemId));
@@ -308,7 +308,7 @@ public sealed partial class OnePasswordManager
             command += $" --expires-in {expiresIn.Value.ToHumanReadable()}";
         if (viewOnce is not null && viewOnce.Value)
             command += " --view-once";
-        return ParseItemShareResult(Op(command));
+        return ParseItemShare(Op(command));
     }
 
     private static DateTimeOffset? GetDateTimeOffsetProperty(JsonElement root, params string[] propertyNames)
@@ -393,11 +393,11 @@ public sealed partial class OnePasswordManager
             .Select(static emailAddress => emailAddress.Trim())];
     }
 
-    private static ItemShareResult ParseItemShareResult(string result)
+    private static ItemShare ParseItemShare(string result)
     {
         var trimmedResult = result.Trim();
         if (trimmedResult.Length == 0)
-            return new ItemShareResult();
+            return new ItemShare();
 
         try
         {
@@ -406,16 +406,16 @@ public sealed partial class OnePasswordManager
 
             if (root.ValueKind == JsonValueKind.String)
             {
-                return new ItemShareResult
+                return new ItemShare
                 {
                     Url = Uri.TryCreate(root.GetString(), UriKind.Absolute, out var uri) ? uri : null
                 };
             }
 
             if (root.ValueKind != JsonValueKind.Object)
-                return new ItemShareResult();
+                return new ItemShare();
 
-            return new ItemShareResult
+            return new ItemShare
             {
                 Url = GetUriProperty(root, "url", "link", "share_link", "shareLink"),
                 ExpiresAt = GetDateTimeOffsetProperty(root, "expires_at", "expiresAt", "expiry", "expires"),
@@ -425,7 +425,7 @@ public sealed partial class OnePasswordManager
         }
         catch (JsonException)
         {
-            return new ItemShareResult
+            return new ItemShare
             {
                 Url = Uri.TryCreate(trimmedResult, UriKind.Absolute, out var uri) ? uri : null
             };

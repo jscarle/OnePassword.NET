@@ -3,7 +3,7 @@ namespace OnePassword.Items;
 /// <summary>
 /// Represents the result of sharing a 1Password item.
 /// </summary>
-public sealed class ItemShareResult
+public sealed class ItemShare
 {
     /// <summary>
     /// The generated share URL.

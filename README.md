@@ -19,7 +19,7 @@ This library has no dependencies.
 
 ## Breaking changes for the next x.x.x release
 
-- `ShareItem(...)` now returns `ItemShareResult` instead of `void`.
+- `ShareItem(...)` now returns `ItemShare` instead of `void`.
 
 ## Quick start
 
