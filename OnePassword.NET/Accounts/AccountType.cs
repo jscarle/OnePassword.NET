@@ -33,10 +33,10 @@ public enum AccountType
     Personal,
 
     /// <summary>
-    /// 1Password Teams Account
+    /// 1Password Team Account
     /// </summary>
-    [EnumMember(Value = "Teams")]
-    Teams,
+    [EnumMember(Value = "Team")]
+    Team,
 
     /// <summary>
     /// The account type is unknown.

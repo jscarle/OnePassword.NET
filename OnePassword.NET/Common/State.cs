@@ -19,6 +19,12 @@ public enum State
     Inactive,
 
     /// <summary>
+    /// Pending
+    /// </summary>
+    [EnumMember(Value = "Pending")]
+    Pending,
+
+    /// <summary>
     /// Suspended
     /// </summary>
     [EnumMember(Value = "Suspended")]
