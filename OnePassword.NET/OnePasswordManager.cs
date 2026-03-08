@@ -172,7 +172,7 @@ public sealed partial class OnePasswordManager : IOnePasswordManager
     private string GetVersion()
     {
         const string command = "--version";
-        return Op(command);
+        return Op(command).Trim();
     }
 
     private static string GetStandardError(Process process)

@@ -1,5 +1,7 @@
 # Quick start
 
+> Starting with the next x.x.x release, `ShareItem(...)` returns `ItemShareResult` and the single-email overloads are removed. Pass a collection of email addresses for restricted links, or omit the collection entirely for unrestricted links.
+
 ### Creating an instance of the manager
 
 ```csharp
@@ -43,10 +45,6 @@ Subsequently, the following commands are not used or supported when using servic
 For more information, see the documentation
 on [1Password Service Accounts](https://developer.1password.com/docs/service-accounts).
 
-```csharp
-var onePassword = new OnePasswordManager(serviceAccountToken: token);
-```
-
 ### Getting all vaults
 
 ```csharp
@@ -81,6 +79,8 @@ var server2 = serverTemplate.Clone();
 
 ### Getting all items in a vault
 
+`GetItems(...)` returns summary items. Fetch the item details with `GetItem(...)` before relying on `Fields`, `Sections`, or other hydrated properties.
+
 ```csharp
 var items = onePassword.GetItems(vault);
 ```
@@ -88,7 +88,8 @@ var items = onePassword.GetItems(vault);
 ### Selecting a specific item
 
 ```csharp
-var item = items.First(x => x.Title == "Your Item's Title");
+var itemSummary = items.First(x => x.Title == "Your Item's Title");
+var item = onePassword.GetItem(itemSummary, vault);
 ```
 
 ### Editing a specific item
@@ -96,6 +97,36 @@ var item = items.First(x => x.Title == "Your Item's Title");
 ```csharp
 item.Fields.First(x => x.Label == "password").Value = "newpass";
 onePassword.EditItem(item, vault);
+```
+
+### Adding a field to an existing item
+
+```csharp
+var itemToExtend = onePassword.GetItem(itemSummary, vault);
+itemToExtend.Fields.Add(new Field("Environment", FieldType.String, "Production"));
+
+onePassword.EditItem(itemToExtend, vault);
+```
+
+### Sharing an item without email restrictions
+
+```csharp
+var share = onePassword.ShareItem(item, vault);
+
+Console.WriteLine(share.Url);
+```
+
+### Sharing an item with email restrictions
+
+```csharp
+var share = onePassword.ShareItem(
+    item,
+    vault,
+    new[] { "recipient@example.com" },
+    expiresIn: TimeSpan.FromDays(7),
+    viewOnce: true);
+
+Console.WriteLine(share.Url);
 ```
 
 ### Archiving an item
