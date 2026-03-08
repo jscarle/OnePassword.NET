@@ -145,7 +145,7 @@ public class TestsBase
 
     private static Uri GetDownloadSource()
     {
-        const string version = "v2.26.0";
+        const string version = "v2.32.1";
 
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             return new Uri($"https://cache.agilebits.com/dist/1P/op2/pkg/{version}/op_windows_amd64_{version}.zip");

@@ -61,34 +61,6 @@ public sealed partial class OnePasswordManager : IOnePasswordManager
         Version = GetVersion();
     }
 
-    /// <summary>Initializes a new instance of <see cref="OnePasswordManager" /> for the specified 1Password CLI executable.</summary>
-    /// <param name="path">The path to the 1Password CLI executable.</param>
-    /// <param name="executable">The name of the 1Password CLI executable.</param>
-    /// <param name="verbose">When <see langword="true" />, commands sent to the 1Password CLI executable are output to the console.</param>
-    /// <param name="appIntegrated">
-    /// Set to <see langword="true" /> when authentication is integrated into the 1Password desktop application (see <a href="https://developer.1password.com/docs/cli/get-started/#sign-in">documentation</a>). When
-    /// <see langword="false" />, a password will be required to sign in.
-    /// </param>
-    /// <exception cref="FileNotFoundException">Thrown when the 1Password CLI executable cannot be found.</exception>
-    [Obsolete($"This constructor is deprecated. Please use the constructor overload with '{nameof(OnePasswordManagerOptions)}' as argument.")]
-    public OnePasswordManager(string path = "", string executable = "", bool verbose = false, bool appIntegrated = false)
-    {
-        var resolvedExecutable = string.IsNullOrWhiteSpace(executable) ? OnePasswordManagerOptions.GetDefaultExecutableName() : executable.Trim();
-
-        _opPath = path is not null && path.Length > 0 ? Path.Combine(path, resolvedExecutable) : Path.Combine(Directory.GetCurrentDirectory(), resolvedExecutable);
-        if (!File.Exists(_opPath))
-            throw new FileNotFoundException($"The 1Password CLI executable ({resolvedExecutable}) was not found in folder \"{Path.GetDirectoryName(_opPath)}\".");
-
-        _verbose = verbose;
-
-        if (appIntegrated)
-            _mode = Mode.AppIntegrated;
-
-        _serviceAccountToken = "";
-
-        Version = GetVersion();
-    }
-
     /// <inheritdoc />
     public bool Update()
     {
