@@ -44,7 +44,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v2
+        uses: github/codeql-action/init@v3
         with:
           languages: 'csharp'
       - name: Setup .NET 6.0
@@ -75,4 +75,4 @@ jobs:
           OPT_TEST_USER_EMAIL: ${{ secrets.OPT_TEST_USER_EMAIL }}
         run: dotnet test --configuration Release --no-build --verbosity normal
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v2
+        uses: github/codeql-action/analyze@v3
