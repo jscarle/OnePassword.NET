@@ -12,6 +12,8 @@ public class TearDownUser : TestsBase
     {
         if (!RunLiveTests || !CreateTestUser)
             Assert.Ignore();
+        if (!UserManagementSupported)
+            Assert.Ignore();
 
         Run(RunType.TearDown, () => { OnePassword.DeleteUser(TestUser); });
     }

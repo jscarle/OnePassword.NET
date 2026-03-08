@@ -18,10 +18,20 @@ public class SetUpUser : TestsBase
     {
         if (!RunLiveTests || !CreateTestUser)
             Assert.Ignore();
+        if (!UserManagementSupported)
+            Assert.Ignore();
 
         Run(RunType.SetUp, () =>
         {
-            _initialUser = OnePassword.ProvisionUser(InitialName, TestUserEmail, Language.English);
+            try
+            {
+                _initialUser = OnePassword.ProvisionUser(InitialName, TestUserEmail, Language.English);
+            }
+            catch (InvalidOperationException ex) when (ex.Message.Contains("(403) Forbidden", StringComparison.Ordinal))
+            {
+                MarkManagementUnsupported();
+                Assert.Ignore("User management is not authorized for the current account.");
+            }
 
             Assert.Multiple(() =>
             {
@@ -42,6 +52,8 @@ public class SetUpUser : TestsBase
     public void ConfirmUser()
     {
         if (!RunLiveTests || !CreateTestUser)
+            Assert.Ignore();
+        if (!UserManagementSupported)
             Assert.Ignore();
 
         Run(RunType.SetUp, () =>
@@ -70,6 +82,8 @@ public class SetUpUser : TestsBase
     {
         if (!RunLiveTests || !CreateTestUser)
             Assert.Ignore();
+        if (!UserManagementSupported)
+            Assert.Ignore();
 
         Run(RunType.SetUp, () => { OnePassword.EditUser(_initialUser, FinalName, false); });
     }
@@ -79,6 +93,8 @@ public class SetUpUser : TestsBase
     public void GetUsers()
     {
         if (!RunLiveTests || !CreateTestUser)
+            Assert.Ignore();
+        if (!UserManagementSupported)
             Assert.Ignore();
 
         Run(RunType.SetUp, () =>
@@ -108,6 +124,8 @@ public class SetUpUser : TestsBase
     {
         if (!RunLiveTests || !CreateTestUser)
             Assert.Ignore();
+        if (!UserManagementSupported)
+            Assert.Ignore();
 
         Run(RunType.SetUp, () =>
         {
@@ -133,6 +151,8 @@ public class SetUpUser : TestsBase
     {
         if (!RunLiveTests || !CreateTestUser)
             Assert.Ignore();
+        if (!UserManagementSupported)
+            Assert.Ignore();
 
         Run(RunType.SetUp, () => { OnePassword.SuspendUser(TestUser, 1); });
     }
@@ -142,6 +162,8 @@ public class SetUpUser : TestsBase
     public void ReactivateUser()
     {
         if (!RunLiveTests || !CreateTestUser)
+            Assert.Ignore();
+        if (!UserManagementSupported)
             Assert.Ignore();
 
         Run(RunType.SetUp, () => { OnePassword.ReactivateUser(TestUser); });

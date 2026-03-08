@@ -79,6 +79,10 @@ public sealed partial class OnePasswordManager
             Environment.SetEnvironmentVariable("OP_DEVICE", deviceUuid);
             Op(command, password);
         }
+        else if (result.StartsWith("[ERROR]", StringComparison.InvariantCulture))
+        {
+            throw new InvalidOperationException(result.Length > 28 ? result[28..].Trim() : result.Trim());
+        }
 
         _account = trimmedShorthand.Length > 0 ? trimmedShorthand : trimmedAddress;
     }
@@ -125,7 +129,10 @@ public sealed partial class OnePasswordManager
         var command = "signout";
         if (all)
             command += " --all";
+        else if (_account.Length > 0)
+            command += $" --account \"{_account}\"";
         Op(command);
+        _session = "";
     }
 
     /// <inheritdoc />
@@ -135,6 +142,9 @@ public sealed partial class OnePasswordManager
             throw new InvalidOperationException($"{nameof(ForgetAccount)} is not supported when using service accounts.");
 
         var accounts = ImmutableList.CreateBuilder<string>();
+
+        if (_session.Length > 0)
+            SignOut(all);
 
         var command = "account forget";
         command += all ? " --all" : $" \"{_account}\"";
@@ -146,6 +156,8 @@ public sealed partial class OnePasswordManager
                 accounts.Add(match.Groups[1].Value);
         else
             accounts.Add(_account);
+
+        _account = "";
 
         return accounts.ToImmutable();
     }

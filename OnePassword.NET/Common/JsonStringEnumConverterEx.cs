@@ -46,7 +46,10 @@ internal sealed class JsonStringEnumConverterEx<TEnum> : JsonConverter<TEnum> wh
         if (_stringToEnum.TryGetValue(enumMemberString, out var enumValue))
             return enumValue;
 
-        throw new NotImplementedException("Could not convert string value to its enum representation.");
+        if (_stringToEnum.TryGetValue("UNKNOWN", out var unknownValue))
+            return unknownValue;
+
+        throw new NotImplementedException($"Could not convert string value '{stringValue}' to its enum representation.");
     }
 
     /// <inheritdoc />
