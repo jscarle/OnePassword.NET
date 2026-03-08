@@ -19,3 +19,8 @@ This repository contains `OnePassword.NET`, a .NET wrapper for the 1Password CLI
 - Use the GitHub CLI (`gh`) for GitHub-related operations whenever possible.
 - Prefer `gh` for pull request workflows, including creating, viewing, checking out, and reviewing pull requests.
 - If `gh` is unavailable or unauthenticated, note that clearly before falling back to another approach.
+
+## Generated Assets
+
+- Do not read, search, or summarize generated documentation/site assets unless the user explicitly asks for them.
+- In particular, avoid generated docfx output and bundled vendor assets such as minified JavaScript, CSS, or copied third-party files; prefer the markdown and source files under `docfx/` instead.

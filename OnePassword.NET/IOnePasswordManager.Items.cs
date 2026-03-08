@@ -6,13 +6,15 @@ namespace OnePassword;
 
 public partial interface IOnePasswordManager
 {
-    /// <summary>Gets a vault's items.</summary>
+    /// <summary>Gets a vault's items as summary records.</summary>
+    /// <remarks>Use <see cref="GetItem(IItem,IVault)" /> or <see cref="GetItem(string,string)" /> to retrieve hydrated field data before reading or editing fields.</remarks>
     /// <param name="vault">The vault that contains the items to retrieve.</param>
     /// <returns>The vault's items.</returns>
     /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
     public ImmutableList<Item> GetItems(IVault vault);
 
-    /// <summary>Gets a vault's items.</summary>
+    /// <summary>Gets a vault's items as summary records.</summary>
+    /// <remarks>Use <see cref="GetItem(IItem,IVault)" /> or <see cref="GetItem(string,string)" /> to retrieve hydrated field data before reading or editing fields.</remarks>
     /// <param name="vaultId">The ID of the vault that contains the items to retrieve.</param>
     /// <returns>The vault's items.</returns>
     /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
@@ -146,36 +148,20 @@ public partial interface IOnePasswordManager
     /// <summary>Shares an item.</summary>
     /// <param name="item">The item to share.</param>
     /// <param name="vault">The vault that contains the item to share.</param>
-    /// <param name="emailAddress">The email address to share the item with.</param>
+    /// <param name="emailAddresses">The recipient email addresses. Leave <see langword="null" /> or empty to create an unrestricted share link.</param>
     /// <param name="expiresIn">The delay before the link expires.</param>
     /// <param name="viewOnce">Expires the link after a single view.</param>
+    /// <returns>The created share result.</returns>
     /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
-    public void ShareItem(IItem item, IVault vault, string emailAddress, TimeSpan? expiresIn = null, bool? viewOnce = null);
+    public ItemShareResult ShareItem(IItem item, IVault vault, IReadOnlyCollection<string>? emailAddresses = null, TimeSpan? expiresIn = null, bool? viewOnce = null);
 
     /// <summary>Shares an item.</summary>
     /// <param name="itemId">The ID of the item to share.</param>
     /// <param name="vaultId">The ID of the vault that contains the item to share.</param>
-    /// <param name="emailAddress">The email address to share the item with.</param>
+    /// <param name="emailAddresses">The recipient email addresses. Leave <see langword="null" /> or empty to create an unrestricted share link.</param>
     /// <param name="expiresIn">The delay before the link expires.</param>
     /// <param name="viewOnce">Expires the link after a single view.</param>
+    /// <returns>The created share result.</returns>
     /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
-    public void ShareItem(string itemId, string vaultId, string emailAddress, TimeSpan? expiresIn = null, bool? viewOnce = null);
-
-    /// <summary>Shares an item.</summary>
-    /// <param name="item">The item to share.</param>
-    /// <param name="vault">The vault that contains the item to share.</param>
-    /// <param name="emailAddresses">The email address to share the item with.</param>
-    /// <param name="expiresIn">The delay before the link expires.</param>
-    /// <param name="viewOnce">Expires the link after a single view.</param>
-    /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
-    public void ShareItem(IItem item, IVault vault, IReadOnlyCollection<string> emailAddresses, TimeSpan? expiresIn = null, bool? viewOnce = null);
-
-    /// <summary>Shares an item.</summary>
-    /// <param name="itemId">The ID of the item to share.</param>
-    /// <param name="vaultId">The ID of the vault that contains the item to share.</param>
-    /// <param name="emailAddresses">The email address to share the item with.</param>
-    /// <param name="expiresIn">The delay before the link expires.</param>
-    /// <param name="viewOnce">Expires the link after a single view.</param>
-    /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
-    public void ShareItem(string itemId, string vaultId, IReadOnlyCollection<string> emailAddresses, TimeSpan? expiresIn = null, bool? viewOnce = null);
+    public ItemShareResult ShareItem(string itemId, string vaultId, IReadOnlyCollection<string>? emailAddresses = null, TimeSpan? expiresIn = null, bool? viewOnce = null);
 }

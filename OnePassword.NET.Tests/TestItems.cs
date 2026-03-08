@@ -21,6 +21,8 @@ public class TestItems : TestsBase
     private const string FinalUsername = "Test Username";
     private const FieldType FinalType = FieldType.Concealed;
     private const string FinalValue = "Test Value";
+    private const string AddedField = "Added Field";
+    private const string AddedValue = "Added Value";
     private const string Tag1 = "Tag1";
     private const string Tag2 = "Tag2";
 
@@ -99,6 +101,24 @@ public class TestItems : TestsBase
 
     [Test]
     [Order(3)]
+    public void EditItemAddsNewField()
+    {
+        if (!RunLiveTests)
+            Assert.Ignore();
+
+        Run(RunType.Test, () =>
+        {
+            var item = OnePassword.GetItem(_initialItem, TestVault);
+            item.Fields.Add(new Field(AddedField, FieldType.String, AddedValue));
+
+            var editedItem = OnePassword.EditItem(item, TestVault);
+
+            Assert.That(editedItem.Fields.FirstOrDefault(x => x.Label == AddedField)?.Value, Is.EqualTo(AddedValue));
+        });
+    }
+
+    [Test]
+    [Order(4)]
     public void GetItems()
     {
         if (!RunLiveTests)
@@ -123,7 +143,7 @@ public class TestItems : TestsBase
     }
 
     [Test]
-    [Order(4)]
+    [Order(5)]
     public void GetItem()
     {
         if (!RunLiveTests)
@@ -140,6 +160,7 @@ public class TestItems : TestsBase
                 Assert.That(item.Created, Is.Not.EqualTo(default));
                 Assert.That(item.Fields.First(x => x.Label == "username").Value, Is.EqualTo(FinalUsername));
                 Assert.That(item.Fields.First(x => x.Section?.Label == EditSection && x.Label == EditField).Value, Is.EqualTo(FinalValue));
+                Assert.That(item.Fields.First(x => x.Label == AddedField).Value, Is.EqualTo(AddedValue));
                 Assert.That(item.Fields.FirstOrDefault(x => x.Section?.Label == DeleteSection && x.Label == DeleteField), Is.Null);
             });
         });

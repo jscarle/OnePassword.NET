@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using System.Globalization;
 using OnePassword.Common;
 using OnePassword.Items;
 using OnePassword.Templates;
@@ -249,51 +250,161 @@ public sealed partial class OnePasswordManager
     }
 
     /// <inheritdoc />
-    public void ShareItem(IItem item, IVault vault, string emailAddress, TimeSpan? expiresIn = null, bool? viewOnce = null)
+    public ItemShareResult ShareItem(IItem item, IVault vault, IReadOnlyCollection<string>? emailAddresses = null, TimeSpan? expiresIn = null, bool? viewOnce = null)
     {
         if (item is null || item.Id.Length == 0)
             throw new ArgumentException($"{nameof(item.Id)} cannot be empty.", nameof(item));
         if (vault is null || vault.Id.Length == 0)
             throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
 
-        ShareItem(item.Id, vault.Id, [emailAddress], expiresIn, viewOnce);
+        return ShareItem(item.Id, vault.Id, emailAddresses, expiresIn, viewOnce);
     }
 
     /// <inheritdoc />
-    public void ShareItem(string itemId, string vaultId, string emailAddress, TimeSpan? expiresIn = null, bool? viewOnce = null)
+    public ItemShareResult ShareItem(string itemId, string vaultId, IReadOnlyCollection<string>? emailAddresses = null, TimeSpan? expiresIn = null, bool? viewOnce = null)
     {
         if (itemId is null || itemId.Length == 0)
             throw new ArgumentException($"{nameof(itemId)} cannot be empty.", nameof(itemId));
         if (vaultId is null || vaultId.Length == 0)
             throw new ArgumentException($"{nameof(vaultId)} cannot be empty.", nameof(vaultId));
 
-        ShareItem(itemId, vaultId, [emailAddress], expiresIn, viewOnce);
-    }
-
-    /// <inheritdoc />
-    public void ShareItem(IItem item, IVault vault, IReadOnlyCollection<string> emailAddresses, TimeSpan? expiresIn = null, bool? viewOnce = null)
-    {
-        if (item is null || item.Id.Length == 0)
-            throw new ArgumentException($"{nameof(item.Id)} cannot be empty.", nameof(item));
-        if (vault is null || vault.Id.Length == 0)
-            throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
-
-        ShareItem(item.Id, vault.Id, emailAddresses, expiresIn, viewOnce);
-    }
-
-    /// <inheritdoc />
-    public void ShareItem(string itemId, string vaultId, IReadOnlyCollection<string> emailAddresses, TimeSpan? expiresIn = null, bool? viewOnce = null)
-    {
-        if (itemId is null || itemId.Length == 0)
-            throw new ArgumentException($"{nameof(itemId)} cannot be empty.", nameof(itemId));
-        if (vaultId is null || vaultId.Length == 0)
-            throw new ArgumentException($"{nameof(vaultId)} cannot be empty.", nameof(vaultId));
-
-        var command = $"item share {itemId} --vault {vaultId} --emails {string.Join(',', emailAddresses)}";
+        var command = $"item share {itemId} --vault {vaultId}";
+        var normalizedEmailAddresses = NormalizeEmailAddresses(emailAddresses);
+        if (normalizedEmailAddresses.Count > 0)
+            command += $" --emails {string.Join(',', normalizedEmailAddresses)}";
         if (expiresIn is not null)
             command += $" --expires-in {expiresIn.Value.ToHumanReadable()}";
         if (viewOnce is not null && viewOnce.Value)
             command += " --view-once";
-        Op(command);
+        return ParseItemShareResult(Op(command));
+    }
+
+    private static DateTimeOffset? GetDateTimeOffsetProperty(JsonElement root, params string[] propertyNames)
+    {
+        var stringValue = GetStringProperty(root, propertyNames);
+        return DateTimeOffset.TryParse(stringValue, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var dateTimeOffset) ? dateTimeOffset : null;
+    }
+
+    private static Uri? GetUriProperty(JsonElement root, params string[] propertyNames)
+    {
+        var stringValue = GetStringProperty(root, propertyNames);
+        return Uri.TryCreate(stringValue, UriKind.Absolute, out var uri) ? uri : null;
+    }
+
+    private static bool? GetBooleanProperty(JsonElement root, params string[] propertyNames)
+    {
+        foreach (var propertyName in propertyNames)
+        {
+            if (!root.TryGetProperty(propertyName, out var property))
+                continue;
+
+            return property.ValueKind switch
+            {
+                JsonValueKind.True => true,
+                JsonValueKind.False => false,
+                JsonValueKind.String when bool.TryParse(property.GetString(), out var value) => value,
+                _ => null
+            };
+        }
+
+        return null;
+    }
+
+    private static string? GetStringProperty(JsonElement root, params string[] propertyNames)
+    {
+        foreach (var propertyName in propertyNames)
+        {
+            if (!root.TryGetProperty(propertyName, out var property))
+                continue;
+
+            if (property.ValueKind == JsonValueKind.String)
+                return property.GetString();
+        }
+
+        return null;
+    }
+
+    private static ImmutableList<string> GetRecipients(JsonElement root, params string[] propertyNames)
+    {
+        foreach (var propertyName in propertyNames)
+        {
+            if (!root.TryGetProperty(propertyName, out var property))
+                continue;
+
+            return property.ValueKind switch
+            {
+                JsonValueKind.String => property.GetString() is { Length: > 0 } recipient ? [recipient] : [],
+                JsonValueKind.Array => [.. property
+                    .EnumerateArray()
+                    .Select(static recipient => recipient.ValueKind switch
+                    {
+                        JsonValueKind.String => recipient.GetString(),
+                        JsonValueKind.Object => GetStringProperty(recipient, "email", "address", "recipient", "value"),
+                        _ => null
+                    })
+                    .Where(static recipient => !string.IsNullOrWhiteSpace(recipient))
+                    .Select(static recipient => recipient!)],
+                _ => []
+            };
+        }
+
+        return [];
+    }
+
+    private static ImmutableList<string> NormalizeEmailAddresses(IReadOnlyCollection<string>? emailAddresses)
+    {
+        if (emailAddresses is null || emailAddresses.Count == 0)
+            return [];
+
+        return [.. emailAddresses
+            .Where(static emailAddress => !string.IsNullOrWhiteSpace(emailAddress))
+            .Select(static emailAddress => emailAddress.Trim())];
+    }
+
+    private static ItemShareResult ParseItemShareResult(string result)
+    {
+        var trimmedResult = result.Trim();
+        if (trimmedResult.Length == 0)
+            return new ItemShareResult();
+
+        try
+        {
+            using var jsonDocument = JsonDocument.Parse(trimmedResult);
+            var root = jsonDocument.RootElement;
+
+            if (root.ValueKind == JsonValueKind.String)
+            {
+                return new ItemShareResult
+                {
+                    Url = Uri.TryCreate(root.GetString(), UriKind.Absolute, out var uri) ? uri : null,
+                    RawResponse = trimmedResult
+                };
+            }
+
+            if (root.ValueKind != JsonValueKind.Object)
+            {
+                return new ItemShareResult
+                {
+                    RawResponse = trimmedResult
+                };
+            }
+
+            return new ItemShareResult
+            {
+                Url = GetUriProperty(root, "url", "link", "share_link", "shareLink"),
+                ExpiresAt = GetDateTimeOffsetProperty(root, "expires_at", "expiresAt", "expiry", "expires"),
+                Recipients = GetRecipients(root, "recipients", "emails", "email_addresses", "emailAddresses"),
+                ViewOnce = GetBooleanProperty(root, "view_once", "viewOnce"),
+                RawResponse = trimmedResult
+            };
+        }
+        catch (JsonException)
+        {
+            return new ItemShareResult
+            {
+                Url = Uri.TryCreate(trimmedResult, UriKind.Absolute, out var uri) ? uri : null,
+                RawResponse = trimmedResult
+            };
+        }
     }
 }
