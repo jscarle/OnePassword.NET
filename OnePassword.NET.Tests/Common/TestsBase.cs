@@ -12,10 +12,10 @@ namespace OnePassword.Common;
 
 public class TestsBase
 {
-    private static readonly int CommandTimeout = int.Parse(GetEnv("OPT_COMMAND_TIMEOUT", "2"), CultureInfo.InvariantCulture) * 60 * 1000;
-    private protected static readonly int RateLimit = int.Parse(GetEnv("OPT_RATE_LIMIT", "250"), CultureInfo.InvariantCulture);
-    private protected static readonly bool RunLiveTests = bool.Parse(GetEnv("OPT_RUN_LIVE_TESTS", "false"));
-    private protected static readonly bool CreateTestUser = bool.Parse(GetEnv("OPT_CREATE_TEST_USER", "false"));
+    private static readonly int CommandTimeout = GetIntEnv("OPT_COMMAND_TIMEOUT", 2) * 60 * 1000;
+    private protected static readonly int RateLimit = GetIntEnv("OPT_RATE_LIMIT", 250);
+    private protected static readonly bool RunLiveTests = GetBoolEnv("OPT_RUN_LIVE_TESTS", false);
+    private protected static readonly bool CreateTestUser = GetBoolEnv("OPT_CREATE_TEST_USER", false);
     private protected static readonly string AccountAddress = GetEnv("OPT_ACCOUNT_ADDRESS", "");
     private protected static readonly string AccountEmail = GetEnv("OPT_ACCOUNT_EMAIL", "");
     private protected static readonly string AccountName = GetEnv("OPT_ACCOUNT_NAME", "");
@@ -23,7 +23,7 @@ public class TestsBase
     private protected static readonly string AccountSecretKey = GetEnv("OPT_ACCOUNT_SECRET_KEY", "");
     private protected static readonly string TestUserEmail = GetEnv("OPT_TEST_USER_EMAIL", "");
     private static readonly string ServiceAccountToken = GetEnv("OPT_SERVICE_ACCOUNT_TOKEN", "");
-    private protected static readonly int TestUserConfirmTimeout = int.Parse(GetEnv("OPT_TEST_USER_CONFIRM_TIMEOUT", GetEnv("OPT_COMMAND_TIMEOUT", "2")), CultureInfo.InvariantCulture) * 60 * 1000;
+    private protected static readonly int TestUserConfirmTimeout = GetIntEnv("OPT_TEST_USER_CONFIRM_TIMEOUT", GetIntEnv("OPT_COMMAND_TIMEOUT", 2)) * 60 * 1000;
     private static readonly SemaphoreSlim SemaphoreSlim = new(1, 1);
     private static readonly CancellationTokenSource TestCancellationTokenSource = new();
     private static readonly CancellationTokenSource TearDownCancellationTokenSource = new();
@@ -117,9 +117,34 @@ public class TestsBase
         }
     }
 
-    private static string GetEnv(string name, string value) =>
-        Environment.GetEnvironmentVariable(name, EnvironmentVariableTarget.Machine)
-        ?? Environment.GetEnvironmentVariable(name, EnvironmentVariableTarget.User) ?? Environment.GetEnvironmentVariable(name, EnvironmentVariableTarget.Process) ?? value;
+    private static bool GetBoolEnv(string name, bool value)
+    {
+        var environmentValue = GetEnv(name, value.ToString(CultureInfo.InvariantCulture).ToLowerInvariant());
+        return bool.TryParse(environmentValue, out var parsedValue) ? parsedValue : value;
+    }
+
+    private static int GetIntEnv(string name, int value)
+    {
+        var environmentValue = GetEnv(name, value.ToString(CultureInfo.InvariantCulture));
+        return int.TryParse(environmentValue, NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsedValue) ? parsedValue : value;
+    }
+
+    private static string GetEnv(string name, string value)
+    {
+        foreach (var target in new[]
+                 {
+                     EnvironmentVariableTarget.Machine,
+                     EnvironmentVariableTarget.User,
+                     EnvironmentVariableTarget.Process
+                 })
+        {
+            var environmentValue = Environment.GetEnvironmentVariable(name, target);
+            if (!string.IsNullOrWhiteSpace(environmentValue))
+                return environmentValue;
+        }
+
+        return value;
+    }
 
     private protected static void MarkManagementUnsupported()
     {

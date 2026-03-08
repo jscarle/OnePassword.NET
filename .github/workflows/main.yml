@@ -11,8 +11,11 @@ jobs:
   validate:
     name: Validate
     runs-on: ubuntu-latest
+    outputs:
+      has_secrets: ${{ steps.check-secrets.outputs.has_secrets }}
     steps:
       - name: Check secrets
+        id: check-secrets
         env:
           OPT_ACCOUNT_ADDRESS: ${{ secrets.OPT_ACCOUNT_ADDRESS }}
           OPT_ACCOUNT_EMAIL: ${{ secrets.OPT_ACCOUNT_EMAIL }}
@@ -23,9 +26,9 @@ jobs:
           OPT_TEST_USER_EMAIL: ${{ secrets.OPT_TEST_USER_EMAIL }}
         run: |
           if [[ -n "$OPT_ACCOUNT_ADDRESS" && -n "$OPT_ACCOUNT_EMAIL" && -n "$OPT_ACCOUNT_NAME" && -n "$OPT_ACCOUNT_PASSWORD" && -n "$OPT_ACCOUNT_SECRET_KEY" && -n "$OPT_CREATE_TEST_USER" && -n "$OPT_TEST_USER_EMAIL" ]]; then
-            echo "HAS_SECRETS=true" >> "$GITHUB_ENV"
+            echo "has_secrets=true" >> "$GITHUB_OUTPUT"
           else
-            echo "HAS_SECRETS=false" >> "$GITHUB_ENV"
+            echo "has_secrets=false" >> "$GITHUB_OUTPUT"
           fi
 
   build:
@@ -71,7 +74,7 @@ jobs:
           OPT_ACCOUNT_PASSWORD: ${{ secrets.OPT_ACCOUNT_PASSWORD }}
           OPT_ACCOUNT_SECRET_KEY: ${{ secrets.OPT_ACCOUNT_SECRET_KEY }}
           OPT_CREATE_TEST_USER: ${{ secrets.OPT_CREATE_TEST_USER }}
-          OPT_RUN_LIVE_TESTS: ${{ env.HAS_SECRETS }}
+          OPT_RUN_LIVE_TESTS: ${{ needs.validate.outputs.has_secrets }}
           OPT_TEST_USER_EMAIL: ${{ secrets.OPT_TEST_USER_EMAIL }}
         run: dotnet test --configuration Release --no-build --verbosity normal
       - name: Perform CodeQL Analysis
