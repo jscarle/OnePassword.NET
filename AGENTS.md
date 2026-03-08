@@ -12,7 +12,7 @@ This repository contains `OnePassword.NET`, a .NET wrapper for the 1Password CLI
 - Commit messages must be written as a proper sentence and must end with a period.
 - Do not use multiline commit messages, bullet lists, prefixes, or issue numbers in the commit message unless the user explicitly asks for them.
 - After creating the commit, push the branch and its commits to `origin` unless the user explicitly says not to push.
-- When the user says a pull request was merged, switch the owning repository back to `develop`, pull the latest changes from `origin`, prune deleted remote refs, and remove any local branches that no longer exist at `origin`.
+- When the user says a pull request was merged, switch the owning repository back to the default branch, which is currently `develop` in this repository, pull the latest changes from `origin`, prune deleted remote refs, and remove any local branches that no longer exist at `origin`.
 
 ## GitHub CLI
 
