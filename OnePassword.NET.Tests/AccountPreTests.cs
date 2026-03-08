@@ -103,7 +103,7 @@ public class AccountPreTests : TestsBase
                 Assert.That(account.Id, Is.Not.Empty);
                 Assert.That(account.Name, Is.EqualTo(AccountName));
                 Assert.That(account.Domain, Is.EqualTo(AccountAddress[..AccountAddress.IndexOf('.', StringComparison.Ordinal)]));
-                Assert.That(account.Type, Is.EqualTo(AccountType.Business));
+                Assert.That(account.Type, Is.Not.EqualTo(AccountType.Unknown));
                 Assert.That(account.State, Is.EqualTo(State.Active));
                 Assert.That(account.Created, Is.Not.EqualTo(default));
             });

@@ -12,6 +12,8 @@ public class TearDownGroup : TestsBase
     {
         if (!RunLiveTests)
             Assert.Ignore();
+        if (!GroupManagementSupported)
+            Assert.Ignore();
 
         Run(RunType.TearDown, () => { OnePassword.DeleteGroup(TestGroup); });
     }

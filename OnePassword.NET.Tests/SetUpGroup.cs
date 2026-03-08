@@ -19,10 +19,20 @@ public class SetUpGroup : TestsBase
     {
         if (!RunLiveTests)
             Assert.Ignore();
+        if (!GroupManagementSupported)
+            Assert.Ignore();
 
         Run(RunType.SetUp, () =>
         {
-            _initialGroup = OnePassword.CreateGroup(InitialName, InitialDescription);
+            try
+            {
+                _initialGroup = OnePassword.CreateGroup(InitialName, InitialDescription);
+            }
+            catch (InvalidOperationException ex) when (ex.Message.Contains("(403) Forbidden", StringComparison.Ordinal))
+            {
+                MarkManagementUnsupported();
+                Assert.Ignore("Group management is not authorized for the current account.");
+            }
 
             Assert.Multiple(() =>
             {
@@ -44,6 +54,8 @@ public class SetUpGroup : TestsBase
     {
         if (!RunLiveTests)
             Assert.Ignore();
+        if (!GroupManagementSupported)
+            Assert.Ignore();
 
         Run(RunType.SetUp, () => { OnePassword.EditGroup(_initialGroup, FinalName, FinalDescription); });
     }
@@ -53,6 +65,8 @@ public class SetUpGroup : TestsBase
     public void GetGroups()
     {
         if (!RunLiveTests)
+            Assert.Ignore();
+        if (!GroupManagementSupported)
             Assert.Ignore();
 
         Run(RunType.SetUp, () =>
@@ -78,6 +92,8 @@ public class SetUpGroup : TestsBase
     public void GetGroup()
     {
         if (!RunLiveTests)
+            Assert.Ignore();
+        if (!GroupManagementSupported)
             Assert.Ignore();
 
         Run(RunType.SetUp, () =>

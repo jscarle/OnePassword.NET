@@ -21,6 +21,12 @@ public enum AccountType
     Family,
 
     /// <summary>
+    /// 1Password Individual Account
+    /// </summary>
+    [EnumMember(Value = "Individual")]
+    Individual,
+
+    /// <summary>
     /// 1Password Personal Account
     /// </summary>
     [EnumMember(Value = "Personal")]

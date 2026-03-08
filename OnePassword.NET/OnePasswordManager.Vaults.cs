@@ -106,7 +106,7 @@ public sealed partial class OnePasswordManager
         if (name is null && description is null && icon is VaultIcon.Default or VaultIcon.Unknown && travelMode is null)
             throw new InvalidOperationException("Nothing to edit.");
 
-        EditVault(vault.Id);
+        EditVault(vault.Id, name, description, icon, travelMode);
     }
 
     /// <inheritdoc />

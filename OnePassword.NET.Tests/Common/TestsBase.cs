@@ -42,6 +42,8 @@ public class TestsBase
     private protected static IDocument TestDocument = null!;
     private protected static Template TestTemplate = null!;
     private protected static Item TestItem = null!;
+    private protected static bool GroupManagementSupported = true;
+    private protected static bool UserManagementSupported = true;
     private protected static bool DoFinalTearDown;
     private protected static readonly string WorkingDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
 
@@ -99,6 +101,10 @@ public class TestsBase
         {
             action();
         }
+        catch (NUnit.Framework.IgnoreException)
+        {
+            throw;
+        }
         catch (Exception)
         {
             tokenSource.Cancel();
@@ -114,6 +120,12 @@ public class TestsBase
     private static string GetEnv(string name, string value) =>
         Environment.GetEnvironmentVariable(name, EnvironmentVariableTarget.Machine)
         ?? Environment.GetEnvironmentVariable(name, EnvironmentVariableTarget.User) ?? Environment.GetEnvironmentVariable(name, EnvironmentVariableTarget.Process) ?? value;
+
+    private protected static void MarkManagementUnsupported()
+    {
+        GroupManagementSupported = false;
+        UserManagementSupported = false;
+    }
 
     protected enum RunType
     {
