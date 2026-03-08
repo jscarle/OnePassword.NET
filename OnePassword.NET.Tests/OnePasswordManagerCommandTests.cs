@@ -84,7 +84,33 @@ public class OnePasswordManagerCommandTests
     }
 
     [Test]
-    public void ShareItemWithSingleEmailUsesEmailsFlag()
+    public void ShareItemStringSingleEmailOverloadUsesEmailsFlag()
+    {
+        using var fakeCli = new FakeCli();
+        var manager = fakeCli.CreateManager();
+
+        var result = manager.ShareItem("item-id", "vault-id", "recipient@example.com");
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.RawResponse, Is.EqualTo("{}"));
+            Assert.That(fakeCli.LastArguments, Does.Contain("--emails recipient@example.com"));
+        });
+    }
+
+    [Test]
+    public void ShareItemObjectSingleEmailOverloadUsesEmailsFlag()
+    {
+        using var fakeCli = new FakeCli();
+        var manager = fakeCli.CreateManager();
+
+        manager.ShareItem(new TestItem("item-id"), new TestVault("vault-id"), "recipient@example.com");
+
+        Assert.That(fakeCli.LastArguments, Does.Contain("--emails recipient@example.com"));
+    }
+
+    [Test]
+    public void ShareItemWithSingleEmailCollectionUsesEmailsFlag()
     {
         using var fakeCli = new FakeCli();
         var manager = fakeCli.CreateManager();

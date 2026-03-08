@@ -250,6 +250,38 @@ public sealed partial class OnePasswordManager
     }
 
     /// <inheritdoc />
+    public ItemShareResult ShareItem(IItem item, IVault vault, string emailAddress, TimeSpan? expiresIn = null, bool? viewOnce = null)
+    {
+        if (item is null || item.Id.Length == 0)
+            throw new ArgumentException($"{nameof(item.Id)} cannot be empty.", nameof(item));
+        if (vault is null || vault.Id.Length == 0)
+            throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
+        if (emailAddress is null || emailAddress.Length == 0)
+            throw new ArgumentException($"{nameof(emailAddress)} cannot be empty.", nameof(emailAddress));
+        var trimmedEmailAddress = emailAddress.Trim();
+        if (trimmedEmailAddress.Length == 0)
+            throw new ArgumentException($"{nameof(trimmedEmailAddress)} cannot be empty.", nameof(emailAddress));
+
+        return ShareItem(item.Id, vault.Id, trimmedEmailAddress, expiresIn, viewOnce);
+    }
+
+    /// <inheritdoc />
+    public ItemShareResult ShareItem(string itemId, string vaultId, string emailAddress, TimeSpan? expiresIn = null, bool? viewOnce = null)
+    {
+        if (itemId is null || itemId.Length == 0)
+            throw new ArgumentException($"{nameof(itemId)} cannot be empty.", nameof(itemId));
+        if (vaultId is null || vaultId.Length == 0)
+            throw new ArgumentException($"{nameof(vaultId)} cannot be empty.", nameof(vaultId));
+        if (emailAddress is null || emailAddress.Length == 0)
+            throw new ArgumentException($"{nameof(emailAddress)} cannot be empty.", nameof(emailAddress));
+        var trimmedEmailAddress = emailAddress.Trim();
+        if (trimmedEmailAddress.Length == 0)
+            throw new ArgumentException($"{nameof(trimmedEmailAddress)} cannot be empty.", nameof(emailAddress));
+
+        return ShareItem(itemId, vaultId, new[] { trimmedEmailAddress }, expiresIn, viewOnce);
+    }
+
+    /// <inheritdoc />
     public ItemShareResult ShareItem(IItem item, IVault vault, IReadOnlyCollection<string>? emailAddresses = null, TimeSpan? expiresIn = null, bool? viewOnce = null)
     {
         if (item is null || item.Id.Length == 0)

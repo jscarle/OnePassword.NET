@@ -148,6 +148,26 @@ public partial interface IOnePasswordManager
     /// <summary>Shares an item.</summary>
     /// <param name="item">The item to share.</param>
     /// <param name="vault">The vault that contains the item to share.</param>
+    /// <param name="emailAddress">The recipient email address.</param>
+    /// <param name="expiresIn">The delay before the link expires.</param>
+    /// <param name="viewOnce">Expires the link after a single view.</param>
+    /// <returns>The created share result.</returns>
+    /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
+    public ItemShareResult ShareItem(IItem item, IVault vault, string emailAddress, TimeSpan? expiresIn = null, bool? viewOnce = null);
+
+    /// <summary>Shares an item.</summary>
+    /// <param name="itemId">The ID of the item to share.</param>
+    /// <param name="vaultId">The ID of the vault that contains the item to share.</param>
+    /// <param name="emailAddress">The recipient email address.</param>
+    /// <param name="expiresIn">The delay before the link expires.</param>
+    /// <param name="viewOnce">Expires the link after a single view.</param>
+    /// <returns>The created share result.</returns>
+    /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
+    public ItemShareResult ShareItem(string itemId, string vaultId, string emailAddress, TimeSpan? expiresIn = null, bool? viewOnce = null);
+
+    /// <summary>Shares an item.</summary>
+    /// <param name="item">The item to share.</param>
+    /// <param name="vault">The vault that contains the item to share.</param>
     /// <param name="emailAddresses">The recipient email addresses. Leave <see langword="null" /> or empty to create an unrestricted share link.</param>
     /// <param name="expiresIn">The delay before the link expires.</param>
     /// <param name="viewOnce">Expires the link after a single view.</param>

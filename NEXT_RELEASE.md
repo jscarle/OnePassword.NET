@@ -3,7 +3,6 @@
 ## Breaking changes
 
 - `ShareItem(...)` now returns `ItemShareResult` instead of `void`.
-- The single-email `ShareItem(...)` overloads were removed. Use a collection of email addresses for restricted links, or omit the collection entirely for unrestricted links.
 
 ## Highlights
 
@@ -24,6 +23,6 @@ onePassword.ShareItem(item, vault, "recipient@example.com");
 After:
 
 ```csharp
-var restrictedShare = onePassword.ShareItem(item, vault, new[] { "recipient@example.com" });
+var restrictedShare = onePassword.ShareItem(item, vault, "recipient@example.com");
 var unrestrictedShare = onePassword.ShareItem(item, vault);
 ```

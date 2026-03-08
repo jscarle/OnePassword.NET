@@ -20,7 +20,6 @@ This library has no dependencies.
 ## Breaking changes for the next x.x.x release
 
 - `ShareItem(...)` now returns `ItemShareResult` instead of `void`.
-- The single-email `ShareItem(...)` overloads were removed. Pass a collection of email addresses for restricted links, or omit the collection entirely for unrestricted links.
 
 ## Quick start
 
@@ -144,9 +143,20 @@ Console.WriteLine(share.Url);
 var share = onePassword.ShareItem(
     item,
     vault,
-    new[] { "recipient@example.com" },
+    "recipient@example.com",
     expiresIn: TimeSpan.FromDays(7),
     viewOnce: true);
+
+Console.WriteLine(share.Url);
+```
+
+### Sharing an item with multiple email restrictions
+
+```csharp
+var share = onePassword.ShareItem(
+    item,
+    vault,
+    new[] { "recipient1@example.com", "recipient2@example.com" });
 
 Console.WriteLine(share.Url);
 ```
