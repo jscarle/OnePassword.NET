@@ -408,34 +408,26 @@ public sealed partial class OnePasswordManager
             {
                 return new ItemShareResult
                 {
-                    Url = Uri.TryCreate(root.GetString(), UriKind.Absolute, out var uri) ? uri : null,
-                    RawResponse = trimmedResult
+                    Url = Uri.TryCreate(root.GetString(), UriKind.Absolute, out var uri) ? uri : null
                 };
             }
 
             if (root.ValueKind != JsonValueKind.Object)
-            {
-                return new ItemShareResult
-                {
-                    RawResponse = trimmedResult
-                };
-            }
+                return new ItemShareResult();
 
             return new ItemShareResult
             {
                 Url = GetUriProperty(root, "url", "link", "share_link", "shareLink"),
                 ExpiresAt = GetDateTimeOffsetProperty(root, "expires_at", "expiresAt", "expiry", "expires"),
                 Recipients = GetRecipients(root, "recipients", "emails", "email_addresses", "emailAddresses"),
-                ViewOnce = GetBooleanProperty(root, "view_once", "viewOnce"),
-                RawResponse = trimmedResult
+                ViewOnce = GetBooleanProperty(root, "view_once", "viewOnce")
             };
         }
         catch (JsonException)
         {
             return new ItemShareResult
             {
-                Url = Uri.TryCreate(trimmedResult, UriKind.Absolute, out var uri) ? uri : null,
-                RawResponse = trimmedResult
+                Url = Uri.TryCreate(trimmedResult, UriKind.Absolute, out var uri) ? uri : null
             };
         }
     }

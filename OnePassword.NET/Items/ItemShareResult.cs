@@ -24,9 +24,4 @@ public sealed class ItemShareResult
     /// Whether the share is view-once, when returned by the CLI.
     /// </summary>
     public bool? ViewOnce { get; internal set; }
-
-    /// <summary>
-    /// The raw CLI response used to build the result.
-    /// </summary>
-    public string RawResponse { get; internal set; } = "";
 }

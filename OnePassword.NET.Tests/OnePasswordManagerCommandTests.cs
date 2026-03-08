@@ -77,7 +77,9 @@ public class OnePasswordManagerCommandTests
         Assert.Multiple(() =>
         {
             Assert.That(result.Url, Is.EqualTo(new Uri("https://share.example/item")));
-            Assert.That(result.RawResponse, Is.EqualTo("https://share.example/item"));
+            Assert.That(result.ExpiresAt, Is.Null);
+            Assert.That(result.Recipients, Is.Empty);
+            Assert.That(result.ViewOnce, Is.Null);
             Assert.That(fakeCli.LastArguments, Does.StartWith("item share item-id --vault vault-id"));
             Assert.That(fakeCli.LastArguments, Does.Not.Contain("--emails"));
         });
@@ -93,7 +95,8 @@ public class OnePasswordManagerCommandTests
 
         Assert.Multiple(() =>
         {
-            Assert.That(result.RawResponse, Is.EqualTo("{}"));
+            Assert.That(result.Url, Is.Null);
+            Assert.That(result.Recipients, Is.Empty);
             Assert.That(fakeCli.LastArguments, Does.Contain("--emails recipient@example.com"));
         });
     }
@@ -190,7 +193,6 @@ public class OnePasswordManagerCommandTests
             Assert.That(result.ExpiresAt, Is.EqualTo(DateTimeOffset.Parse("2026-03-15T12:00:00Z", CultureInfo.InvariantCulture)));
             Assert.That(result.ViewOnce, Is.True);
             Assert.That(result.Recipients, Is.EqualTo(ParsedRecipients));
-            Assert.That(result.RawResponse, Does.Contain("\"share_link\": \"https://share.example/item\""));
         });
     }
 
