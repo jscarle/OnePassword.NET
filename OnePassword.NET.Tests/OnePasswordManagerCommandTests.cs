@@ -67,6 +67,48 @@ public class OnePasswordManagerCommandTests
     }
 
     [Test]
+    public void MoveItemStringOverloadUsesResolvedVaultIds()
+    {
+        using var fakeCli = new FakeCli();
+        var manager = fakeCli.CreateManager();
+
+        manager.MoveItem("item-id", "current-vault-id", "destination-vault-id");
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(fakeCli.LastArguments, Does.StartWith("item move item-id --current-vault current-vault-id --destination-vault destination-vault-id"));
+            Assert.That(fakeCli.LastArguments, Does.Not.Contain("{currentVaultId}"));
+            Assert.That(fakeCli.LastArguments, Does.Not.Contain("{destinationVaultId}"));
+        });
+    }
+
+    [Test]
+    public void SearchForDocumentCreatesMissingOutputDirectory()
+    {
+        using var fakeCli = new FakeCli();
+        var manager = fakeCli.CreateManager();
+        var outputDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName(), Path.GetRandomFileName());
+        var outputFilePath = Path.Combine(outputDirectory, "document.txt");
+
+        try
+        {
+            manager.SearchForDocument("document-id", outputFilePath, "vault-id");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(Directory.Exists(outputDirectory), Is.True);
+                Assert.That(fakeCli.LastArguments, Does.StartWith($"document get document-id --out-file \"{outputFilePath}\" --force --vault vault-id"));
+            });
+        }
+        finally
+        {
+            var rootDirectory = Directory.GetParent(outputDirectory)?.FullName;
+            if (rootDirectory is not null && Directory.Exists(rootDirectory))
+                Directory.Delete(rootDirectory, true);
+        }
+    }
+
+    [Test]
     public void ShareItemWithoutEmailsOmitsEmailsFlag()
     {
         using var fakeCli = new FakeCli(nextOutput: "https://share.example/item\r\n");

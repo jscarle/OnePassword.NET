@@ -245,7 +245,7 @@ public sealed partial class OnePasswordManager
         if (destinationVaultId is null || destinationVaultId.Length == 0)
             throw new ArgumentException($"{nameof(destinationVaultId)} cannot be empty.", nameof(destinationVaultId));
 
-        var command = $"item move {itemId} --current-vault {{currentVaultId}} --destination-vault {{destinationVaultId}}";
+        var command = $"item move {itemId} --current-vault {currentVaultId} --destination-vault {destinationVaultId}";
         Op(command);
     }
 
