@@ -125,9 +125,11 @@ public sealed partial class OnePasswordManager
         if (vaultId is null || vaultId.Length == 0)
             throw new ArgumentException($"{nameof(vaultId)} cannot be empty.", nameof(vaultId));
 
-        var json = JsonSerializer.Serialize(template, JsonContext.Default.Template) + "\x04";
-
         var command = $"item create --vault {vaultId} -";
+        foreach (var assignmentStatement in GetFileAttachmentAssignmentStatements(template.Fields, template.FileAttachments))
+            command += $" {QuoteArgument(assignmentStatement)}";
+
+        var json = SerializeTemplateForItemCommand(template);
         ((ITracked)template).AcceptChanges();
         if (template.TitleChanged)
             command += $" --title \"{template.Title}\"";
@@ -155,14 +157,12 @@ public sealed partial class OnePasswordManager
         if (vaultId is null || vaultId.Length == 0)
             throw new ArgumentException($"{nameof(vaultId)} cannot be empty.", nameof(vaultId));
 
-        var json = JsonSerializer.Serialize(item
-#if NET7_0_OR_GREATER
-                , JsonContext.Default.Item
-#endif
-            )
-            + "\x04";
-
         var command = $"item edit {item.Id} --vault {vaultId}";
+        foreach (var assignmentStatement in GetFileAttachmentAssignmentStatements(item.Fields, item.FileAttachments)
+                     .Concat(GetDeletedFileAttachmentAssignmentStatements(item.FileAttachments)))
+            command += $" {QuoteArgument(assignmentStatement)}";
+
+        var json = SerializeItemForEditCommand(item);
         if (item.TitleChanged)
             command += $" --title \"{item.Title}\"";
         if (((ITracked)item.Tags).Changed)
@@ -174,6 +174,46 @@ public sealed partial class OnePasswordManager
         }
         ((ITracked)item).AcceptChanges();
         return Op(JsonContext.Default.Item, command, json);
+    }
+
+    /// <inheritdoc />
+    public string GetFileAttachmentReference(FileAttachment fileAttachment, IItem item, IVault vault)
+    {
+        if (fileAttachment is null || fileAttachment.Id.Length == 0)
+            throw new ArgumentException($"{nameof(fileAttachment.Id)} cannot be empty.", nameof(fileAttachment));
+        if (item is null || item.Id.Length == 0)
+            throw new ArgumentException($"{nameof(item.Id)} cannot be empty.", nameof(item));
+        if (vault is null || vault.Id.Length == 0)
+            throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
+
+        return GetFileAttachmentReference(fileAttachment.Id, item.Id, vault.Id);
+    }
+
+    /// <inheritdoc />
+    public string GetFileAttachmentReference(string fileAttachmentId, string itemId, string vaultId)
+    {
+        if (fileAttachmentId is null || fileAttachmentId.Length == 0)
+            throw new ArgumentException($"{nameof(fileAttachmentId)} cannot be empty.", nameof(fileAttachmentId));
+        if (itemId is null || itemId.Length == 0)
+            throw new ArgumentException($"{nameof(itemId)} cannot be empty.", nameof(itemId));
+        if (vaultId is null || vaultId.Length == 0)
+            throw new ArgumentException($"{nameof(vaultId)} cannot be empty.", nameof(vaultId));
+
+        return $"op://{vaultId}/{itemId}/{fileAttachmentId}?attr=content";
+    }
+
+    /// <inheritdoc />
+    public void SaveFileAttachmentContent(FileAttachment fileAttachment, IItem item, IVault vault, string filePath, string? fileMode = null)
+    {
+        var reference = GetFileAttachmentReference(fileAttachment, item, vault);
+        SaveSecret(reference, filePath, fileMode);
+    }
+
+    /// <inheritdoc />
+    public void SaveFileAttachmentContent(string fileAttachmentId, string itemId, string vaultId, string filePath, string? fileMode = null)
+    {
+        var reference = GetFileAttachmentReference(fileAttachmentId, itemId, vaultId);
+        SaveSecret(reference, filePath, fileMode);
     }
 
     /// <inheritdoc />
@@ -391,6 +431,111 @@ public sealed partial class OnePasswordManager
         return [.. emailAddresses
             .Where(static emailAddress => !string.IsNullOrWhiteSpace(emailAddress))
             .Select(static emailAddress => emailAddress.Trim())];
+    }
+
+    private static string SerializeTemplateForItemCommand(Template template)
+    {
+        var commandTemplate = template.Clone();
+        RemoveFileAttachmentFields(commandTemplate.Fields);
+        commandTemplate.FileAttachments = [];
+        return JsonSerializer.Serialize(commandTemplate, JsonContext.Default.Template) + "\x04";
+    }
+
+    private static string SerializeItemForEditCommand(Item item)
+    {
+        var json = JsonSerializer.Serialize(item
+#if NET7_0_OR_GREATER
+                , JsonContext.Default.Item
+#endif
+            );
+        var commandItem = JsonSerializer.Deserialize(json, JsonContext.Default.Item) ?? throw new SerializationException("Could not deserialize the item edit payload.");
+        RemoveFileAttachmentFields(commandItem.Fields);
+        commandItem.FileAttachments = [];
+
+        return JsonSerializer.Serialize(commandItem
+#if NET7_0_OR_GREATER
+                , JsonContext.Default.Item
+#endif
+            )
+            + "\x04";
+    }
+
+    private static void RemoveFileAttachmentFields(TrackedList<Field> fields)
+    {
+        foreach (var field in fields.Where(static field => field.Type == FieldType.File).ToList())
+            fields.Remove(field);
+    }
+
+    private static IEnumerable<string> GetFileAttachmentAssignmentStatements(IEnumerable<Field> fields, IEnumerable<FileAttachment> fileAttachments)
+    {
+        return fields
+            .Where(static field => field.Type == FieldType.File)
+            .Select(BuildFileAttachmentAssignmentStatement)
+            .Concat(fileAttachments
+                .Where(IsPendingFileAttachment)
+                .Select(BuildFileAttachmentAssignmentStatement));
+    }
+
+    private static IEnumerable<string> GetDeletedFileAttachmentAssignmentStatements(TrackedList<FileAttachment> fileAttachments)
+    {
+        return fileAttachments.Removed.Select(BuildDeleteFileAttachmentAssignmentStatement);
+    }
+
+    private static bool IsPendingFileAttachment(FileAttachment fileAttachment)
+    {
+        return fileAttachment.Id.Length == 0 && fileAttachment.ContentPath.Trim().Length > 0;
+    }
+
+    private static string BuildFileAttachmentAssignmentStatement(Field field)
+    {
+        var trimmedFilePath = field.Value.Trim();
+        if (trimmedFilePath.Length == 0)
+            throw new ArgumentException($"A file attachment field must include a local file path in {nameof(Field.Value)}.", nameof(field));
+        if (!global::System.IO.File.Exists(trimmedFilePath))
+            throw new ArgumentException($"File '{trimmedFilePath}' was not found or could not be accessed.", nameof(field));
+
+        var target = BuildFileAttachmentTarget(field.Label, field.Section, allowUnnamedAttachment: true);
+        return target.Length == 0 ? $"[file]={trimmedFilePath}" : $"{target}[file]={trimmedFilePath}";
+    }
+
+    private static string BuildFileAttachmentAssignmentStatement(FileAttachment fileAttachment)
+    {
+        var trimmedFilePath = fileAttachment.ContentPath.Trim();
+        if (trimmedFilePath.Length == 0)
+            throw new ArgumentException($"{nameof(FileAttachment.ContentPath)} cannot be empty for a new file attachment.", nameof(fileAttachment));
+        if (!global::System.IO.File.Exists(trimmedFilePath))
+            throw new ArgumentException($"File '{trimmedFilePath}' was not found or could not be accessed.", nameof(fileAttachment));
+
+        var target = BuildFileAttachmentTarget(fileAttachment.Name, fileAttachment.Section, allowUnnamedAttachment: true);
+        return target.Length == 0 ? $"[file]={trimmedFilePath}" : $"{target}[file]={trimmedFilePath}";
+    }
+
+    private static string BuildDeleteFileAttachmentAssignmentStatement(FileAttachment fileAttachment)
+    {
+        var target = BuildFileAttachmentTarget(fileAttachment.Name, fileAttachment.Section);
+        return $"{target}[delete]";
+    }
+
+    private static string BuildFileAttachmentTarget(string? name, Section? section, bool allowUnnamedAttachment = false)
+    {
+        var trimmedName = name?.Trim() ?? "";
+        var trimmedSection = section?.Label?.Trim() ?? "";
+
+        if (trimmedName.Length == 0)
+        {
+            if (trimmedSection.Length > 0)
+                throw new ArgumentException("A section-scoped file attachment must include a name.");
+            if (!allowUnnamedAttachment)
+                throw new ArgumentException("The file attachment name cannot be empty.");
+            return "";
+        }
+
+        return trimmedSection.Length == 0 ? trimmedName : $"{trimmedSection}.{trimmedName}";
+    }
+
+    private static string QuoteArgument(string argument)
+    {
+        return $"\"{argument.Replace("\"", "\\\"", StringComparison.InvariantCulture)}\"";
     }
 
     private static ItemShare ParseItemShare(string result)

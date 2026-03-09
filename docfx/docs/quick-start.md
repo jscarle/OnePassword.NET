@@ -110,6 +110,35 @@ itemToExtend.Fields.Add(new Field("Environment", FieldType.String, "Production")
 onePassword.EditItem(itemToExtend, vault);
 ```
 
+### Adding file attachments to an item
+
+```csharp
+var itemToAttach = onePassword.GetItem(itemSummary, vault);
+itemToAttach.FileAttachments.Add(new FileAttachment(@"C:\Files\Production.env", "Production Env"));
+
+onePassword.EditItem(itemToAttach, vault);
+```
+
+### Removing a file attachment from an item
+
+```csharp
+var itemToUpdate = onePassword.GetItem(itemSummary, vault);
+var attachment = itemToUpdate.FileAttachments.First(x => x.Name == "Production Env");
+itemToUpdate.FileAttachments.Remove(attachment);
+
+onePassword.EditItem(itemToUpdate, vault);
+```
+
+### Reading file attachment metadata and content
+
+`FileAttachments` are hydrated by `GetItem(...)` and expose attachment metadata returned by the CLI. Use `SaveFileAttachmentContent(...)` to download the attachment content, or `GetFileAttachmentReference(...)` when you need the secret reference built from the vault, item, and attachment IDs.
+
+```csharp
+var itemWithAttachments = onePassword.GetItem(itemSummary, vault);
+var attachment = itemWithAttachments.FileAttachments.First();
+onePassword.SaveFileAttachmentContent(attachment, itemWithAttachments, vault, @"C:\Files\Production.env");
+```
+
 ### Sharing an item without email restrictions
 
 ```csharp
