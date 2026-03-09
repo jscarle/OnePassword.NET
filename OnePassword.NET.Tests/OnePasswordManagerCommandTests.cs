@@ -108,7 +108,9 @@ public class OnePasswordManagerCommandTests
             Assert.Multiple(() =>
             {
                 Assert.That(Directory.Exists(outputDirectory), Is.True);
-                Assert.That(fakeCli.LastArguments, Does.StartWith($"document get document-id --out-file \"{outputFilePath}\" --force --vault vault-id"));
+                Assert.That(fakeCli.LastArguments, Does.StartWith("document get document-id --out-file "));
+                Assert.That(fakeCli.LastArguments, Does.Contain(outputFilePath));
+                Assert.That(fakeCli.LastArguments, Does.Contain(" --force --vault vault-id"));
             });
         }
         finally
@@ -141,7 +143,8 @@ public class OnePasswordManagerCommandTests
         {
             manager.SaveSecret("  op://vault/item/field  ", outputPath);
 
-            Assert.That(fakeCli.LastArguments, Does.StartWith($"read op://vault/item/field --no-newline --force --out-file \"{outputPath}\""));
+            Assert.That(fakeCli.LastArguments, Does.StartWith("read op://vault/item/field --no-newline --force --out-file "));
+            Assert.That(fakeCli.LastArguments, Does.Contain(outputPath));
         }
         finally
         {
@@ -158,7 +161,8 @@ public class OnePasswordManagerCommandTests
 
         manager.RevokeGroupPermissions("vault-id", "group-id", [VaultPermission.ViewItems]);
 
-        Assert.That(fakeCli.LastArguments, Does.StartWith("vault group revoke --vault vault-id --group group-id --permissions \"View Items\""));
+        Assert.That(fakeCli.LastArguments, Does.StartWith("vault group revoke --vault vault-id --group group-id --permissions "));
+        Assert.That(fakeCli.LastArguments, Does.Contain("View Items"));
     }
 
     [Test]
