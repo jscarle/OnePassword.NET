@@ -110,6 +110,8 @@ itemToExtend.Fields.Add(new Field("Environment", FieldType.String, "Production")
 onePassword.EditItem(itemToExtend, vault);
 ```
 
+The same hydrate-edit-save flow applies to items based on custom templates. Fetch the hydrated item with `GetItem(...)` before editing so the wrapper preserves the item's template-backed `category_id` in the edit payload.
+
 ### Adding file attachments to an item
 
 ```csharp
