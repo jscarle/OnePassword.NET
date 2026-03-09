@@ -76,6 +76,13 @@ public abstract class ItemBase : ITracked
     public TrackedList<string> Tags { get; internal set; } = [];
 
     /// <summary>
+    /// The file attachments associated with the item.
+    /// </summary>
+    [JsonInclude]
+    [JsonPropertyName("files")]
+    public TrackedList<FileAttachment> FileAttachments { get; internal set; } = [];
+
+    /// <summary>
     /// Returns <see langword="true" /> when the title has changed, <see langword="false" /> otherwise.
     /// </summary>
     internal bool TitleChanged { get; private set; }
@@ -91,7 +98,8 @@ public abstract class ItemBase : ITracked
         || ((ITracked)Sections).Changed
         || ((ITracked)Fields).Changed
         || ((ITracked)Urls).Changed
-        || ((ITracked)Tags).Changed;
+        || ((ITracked)Tags).Changed
+        || ((ITracked)FileAttachments).Changed;
 
     /// <inheritdoc />
     void ITracked.AcceptChanges()
@@ -102,5 +110,6 @@ public abstract class ItemBase : ITracked
         ((ITracked)Fields).AcceptChanges();
         ((ITracked)Urls).AcceptChanges();
         ((ITracked)Tags).AcceptChanges();
+        ((ITracked)FileAttachments).AcceptChanges();
     }
 }

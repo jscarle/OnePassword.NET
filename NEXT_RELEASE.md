@@ -10,6 +10,7 @@
 - Redesigned item sharing so unrestricted links are supported and the created share URL is returned to the caller.
 - Trimmed the CLI version string returned on Windows so `Version` no longer includes a trailing newline.
 - Clarified in the docs that `GetItems(...)` returns summary items and `GetItem(...)` should be used before working with hydrated fields.
+- Added `FileAttachments` support so item attachments can be created, listed, removed, and read through the wrapper.
 - Added regression coverage for archive behavior, item sharing, version handling, and adding a new field to an existing built-in item.
 
 ## Migration

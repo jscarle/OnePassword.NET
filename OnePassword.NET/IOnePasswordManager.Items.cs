@@ -107,6 +107,40 @@ public partial interface IOnePasswordManager
     /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
     public Item EditItem(Item item, string vaultId);
 
+    /// <summary>Builds a secret reference for the specified file attachment's content.</summary>
+    /// <param name="fileAttachment">The file attachment.</param>
+    /// <param name="item">The item that contains the file attachment.</param>
+    /// <param name="vault">The vault that contains the item.</param>
+    /// <returns>The secret reference for the file attachment content.</returns>
+    /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
+    public string GetFileAttachmentReference(FileAttachment fileAttachment, IItem item, IVault vault);
+
+    /// <summary>Builds a secret reference for the specified file attachment's content.</summary>
+    /// <param name="fileAttachmentId">The file attachment ID.</param>
+    /// <param name="itemId">The item ID.</param>
+    /// <param name="vaultId">The vault ID.</param>
+    /// <returns>The secret reference for the file attachment content.</returns>
+    /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
+    public string GetFileAttachmentReference(string fileAttachmentId, string itemId, string vaultId);
+
+    /// <summary>Saves a file attachment's content to disk.</summary>
+    /// <param name="fileAttachment">The file attachment.</param>
+    /// <param name="item">The item that contains the file attachment.</param>
+    /// <param name="vault">The vault that contains the item.</param>
+    /// <param name="filePath">The output file path.</param>
+    /// <param name="fileMode">The file mode to use when creating the file.</param>
+    /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
+    public void SaveFileAttachmentContent(FileAttachment fileAttachment, IItem item, IVault vault, string filePath, string? fileMode = null);
+
+    /// <summary>Saves a file attachment's content to disk.</summary>
+    /// <param name="fileAttachmentId">The file attachment ID.</param>
+    /// <param name="itemId">The item ID.</param>
+    /// <param name="vaultId">The vault ID.</param>
+    /// <param name="filePath">The output file path.</param>
+    /// <param name="fileMode">The file mode to use when creating the file.</param>
+    /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
+    public void SaveFileAttachmentContent(string fileAttachmentId, string itemId, string vaultId, string filePath, string? fileMode = null);
+
     /// <summary>Archives an item.</summary>
     /// <param name="item">The item to archive.</param>
     /// <param name="vault">The vault that contains the item to archive.</param>

@@ -4,7 +4,6 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using OnePassword.Common;
 using OnePassword.Documents;
-using OnePassword.Items;
 using OnePassword.Vaults;
 
 namespace OnePassword;
@@ -75,6 +74,38 @@ public class OnePasswordManagerCommandTests
         manager.ArchiveItem("item-id", "vault-id");
 
         Assert.That(fakeCli.LastArguments, Does.StartWith("item delete item-id --vault vault-id --archive"));
+    }
+
+    [Test]
+    public void GetFileAttachmentReferenceUsesIds()
+    {
+        using var fakeCli = new FakeCli();
+        var manager = fakeCli.CreateManager();
+
+        var reference = manager.GetFileAttachmentReference("file-id", "item-id", "vault-id");
+
+        Assert.That(reference, Is.EqualTo("op://vault-id/item-id/file-id?attr=content"));
+    }
+
+    [Test]
+    public void SaveFileAttachmentContentUsesGeneratedReference()
+    {
+        using var fakeCli = new FakeCli();
+        var manager = fakeCli.CreateManager();
+        var outputPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+
+        try
+        {
+            manager.SaveFileAttachmentContent("file-id", "item-id", "vault-id", outputPath);
+
+            Assert.That(fakeCli.LastArguments, Does.StartWith("read op://vault-id/item-id/file-id?attr=content --no-newline --force --out-file "));
+            Assert.That(fakeCli.LastArguments, Does.Contain(outputPath));
+        }
+        finally
+        {
+            if (File.Exists(outputPath))
+                File.Delete(outputPath);
+        }
     }
 
     [Test]
@@ -435,7 +466,7 @@ public class OnePasswordManagerCommandTests
         public string Id { get; } = id;
     }
 
-    private sealed class TestItem(string id) : IItem
+    private sealed class TestItem(string id) : OnePassword.Items.IItem
     {
         public string Id { get; } = id;
     }
