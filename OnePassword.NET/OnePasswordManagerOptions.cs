@@ -1,4 +1,6 @@
-﻿namespace OnePassword;
+using System.Runtime.InteropServices;
+
+namespace OnePassword;
 
 /// <summary>Represents the 1Password manager options.</summary>
 public class OnePasswordManagerOptions : IOnePasswordManagerOptions
@@ -10,7 +12,7 @@ public class OnePasswordManagerOptions : IOnePasswordManagerOptions
     public string Path { get; set; } = "";
 
     /// <inheritdoc />
-    public string Executable { get; set; } = "op.exe";
+    public string Executable { get; set; } = GetDefaultExecutableName();
 
     /// <inheritdoc />
     public bool Verbose { get; set; }
@@ -20,4 +22,6 @@ public class OnePasswordManagerOptions : IOnePasswordManagerOptions
 
     /// <inheritdoc />
     public string ServiceAccountToken { get; set; } = "";
+
+    internal static string GetDefaultExecutableName() => RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "op.exe" : "op";
 }

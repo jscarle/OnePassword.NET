@@ -6,7 +6,7 @@ public interface IOnePasswordManagerOptions
     /// <summary>The path to the 1Password CLI executable. Defaults to the current working directory.</summary>
     public string Path { get; set; }
 
-    /// <summary>The name of the 1Password CLI executable. Defaults to 'op.exe'.</summary>
+    /// <summary>The name of the 1Password CLI executable. Defaults to 'op.exe' on Windows and 'op' on other platforms.</summary>
     public string Executable { get; set; }
 
     /// <summary>When <see langword="true" />, commands sent to the 1Password CLI executable are output to the console. Defaults to <see langword="false" />.</summary>

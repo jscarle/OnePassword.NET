@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.IO.Compression;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
@@ -42,10 +43,11 @@ public sealed partial class OnePasswordManager : IOnePasswordManager
     public OnePasswordManager(OnePasswordManagerOptions? options = null)
     {
         var configuration = ValidateOptions(options);
+        var executable = string.IsNullOrWhiteSpace(configuration.Executable) ? OnePasswordManagerOptions.GetDefaultExecutableName() : configuration.Executable.Trim();
 
-        _opPath = configuration.Path.Length > 0 ? Path.Combine(configuration.Path, configuration.Executable) : Path.Combine(Directory.GetCurrentDirectory(), configuration.Executable);
+        _opPath = configuration.Path.Length > 0 ? Path.Combine(configuration.Path, executable) : Path.Combine(Directory.GetCurrentDirectory(), executable);
         if (!File.Exists(_opPath))
-            throw new FileNotFoundException($"The 1Password CLI executable ({configuration.Executable}) was not found in folder \"{Path.GetDirectoryName(_opPath)}\".");
+            throw new FileNotFoundException($"The 1Password CLI executable ({executable}) was not found in folder \"{Path.GetDirectoryName(_opPath)}\".");
 
         _verbose = configuration.Verbose;
 
@@ -59,36 +61,11 @@ public sealed partial class OnePasswordManager : IOnePasswordManager
         Version = GetVersion();
     }
 
-    /// <summary>Initializes a new instance of <see cref="OnePasswordManager" /> for the specified 1Password CLI executable.</summary>
-    /// <param name="path">The path to the 1Password CLI executable.</param>
-    /// <param name="executable">The name of the 1Password CLI executable.</param>
-    /// <param name="verbose">When <see langword="true" />, commands sent to the 1Password CLI executable are output to the console.</param>
-    /// <param name="appIntegrated">
-    /// Set to <see langword="true" /> when authentication is integrated into the 1Password desktop application (see <a href="https://developer.1password.com/docs/cli/get-started/#sign-in">documentation</a>). When
-    /// <see langword="false" />, a password will be required to sign in.
-    /// </param>
-    /// <exception cref="FileNotFoundException">Thrown when the 1Password CLI executable cannot be found.</exception>
-    [Obsolete($"This constructor is deprecated. Please use the constructor overload with '{nameof(OnePasswordManagerOptions)}' as argument.")]
-    public OnePasswordManager(string path = "", string executable = "op.exe", bool verbose = false, bool appIntegrated = false)
-    {
-        _opPath = path is not null && path.Length > 0 ? Path.Combine(path, executable) : Path.Combine(Directory.GetCurrentDirectory(), executable);
-        if (!File.Exists(_opPath))
-            throw new FileNotFoundException($"The 1Password CLI executable ({executable}) was not found in folder \"{Path.GetDirectoryName(_opPath)}\".");
-
-        _verbose = verbose;
-
-        if (appIntegrated)
-            _mode = Mode.AppIntegrated;
-
-        _serviceAccountToken = "";
-
-        Version = GetVersion();
-    }
-
     /// <inheritdoc />
     public bool Update()
     {
         var updated = false;
+        var packagedExecutableName = OnePasswordManagerOptions.GetDefaultExecutableName();
 
         var tempDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
         Directory.CreateDirectory(tempDirectory);
@@ -103,13 +80,15 @@ public sealed partial class OnePasswordManager : IOnePasswordManager
             {
                 using var zipArchive = ZipFile.Open(file, ZipArchiveMode.Read);
 
-                var entry = zipArchive.GetEntry("op.exe");
+                var entry = zipArchive.Entries.FirstOrDefault(zipEntry => string.Equals(Path.GetFileName(zipEntry.FullName), packagedExecutableName, StringComparison.OrdinalIgnoreCase));
                 if (entry is null)
                     continue;
                 entry.ExtractToFile(_opPath, true);
+                EnsureExecutablePermissions(_opPath);
 
                 Version = GetVersion();
                 updated = true;
+                break;
             }
         }
 
@@ -127,7 +106,7 @@ public sealed partial class OnePasswordManager : IOnePasswordManager
         if (trimmedReference.Length == 0)
             throw new ArgumentException($"{nameof(trimmedReference)} cannot be empty.", nameof(reference));
 
-        var command = $"read {reference} --no-newline";
+        var command = $"read {trimmedReference} --no-newline";
         return Op(command);
     }
 
@@ -146,7 +125,7 @@ public sealed partial class OnePasswordManager : IOnePasswordManager
             throw new ArgumentException($"{nameof(trimmedFilePath)} cannot be empty.", nameof(filePath));
 
         var trimmedFileMode = fileMode?.Trim();
-        var command = $"read {reference} --no-newline --force --out-file \"{trimmedFilePath}\"";
+        var command = $"read {trimmedReference} --no-newline --force --out-file \"{trimmedFilePath}\"";
         if (trimmedFileMode is not null && trimmedFileMode.Length > 0)
             command += $" --file-mode {trimmedFileMode}";
         Op(command);
@@ -173,6 +152,21 @@ public sealed partial class OnePasswordManager : IOnePasswordManager
     {
         const string command = "--version";
         return Op(command).Trim();
+    }
+
+    private static void EnsureExecutablePermissions(string executablePath)
+    {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            return;
+
+        using var chmod = Process.Start(new ProcessStartInfo("chmod", $"+x \"{executablePath}\"")
+        {
+            CreateNoWindow = true,
+            UseShellExecute = false,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true
+        });
+        chmod?.WaitForExit();
     }
 
     private static string GetStandardError(Process process)

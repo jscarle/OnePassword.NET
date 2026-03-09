@@ -96,8 +96,6 @@ public sealed partial class OnePasswordManager
         var trimmedFilePath = filePath.Trim();
         if (trimmedFilePath.Length == 0)
             throw new ArgumentException($"{nameof(trimmedFilePath)} cannot be empty.", nameof(filePath));
-        if (!File.Exists(trimmedFilePath))
-            throw new ArgumentException($"File '{trimmedFilePath}' was not found or could not be accessed.", nameof(filePath));
         if (vault is not null && vault.Id.Length == 0)
             throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
 
@@ -114,11 +112,10 @@ public sealed partial class OnePasswordManager
         var trimmedFilePath = filePath.Trim();
         if (trimmedFilePath.Length == 0)
             throw new ArgumentException($"{nameof(trimmedFilePath)} cannot be empty.", nameof(filePath));
-        if (!File.Exists(trimmedFilePath))
-            throw new ArgumentException($"File '{trimmedFilePath}' was not found or could not be accessed.", nameof(filePath));
         if (vaultId is not null && vaultId.Length == 0)
             throw new ArgumentException($"{nameof(vaultId)} cannot be empty.", nameof(vaultId));
 
+        EnsureOutputDirectoryExists(trimmedFilePath, nameof(filePath));
         var trimmedFileMode = fileMode?.Trim();
 
         // Not specifying --force will hang waiting for user input if the file exists.
@@ -130,6 +127,22 @@ public sealed partial class OnePasswordManager
         if (trimmedFileMode is not null)
             command += $" --file-mode {trimmedFileMode}";
         Op(command);
+    }
+
+    private static void EnsureOutputDirectoryExists(string filePath, string paramName)
+    {
+        try
+        {
+            var directoryPath = Path.GetDirectoryName(Path.GetFullPath(filePath));
+            if (directoryPath is null || directoryPath.Length == 0 || Directory.Exists(directoryPath))
+                return;
+
+            Directory.CreateDirectory(directoryPath);
+        }
+        catch (Exception ex) when (ex is UnauthorizedAccessException or IOException or ArgumentException or NotSupportedException)
+        {
+            throw new ArgumentException($"The output directory for '{filePath}' could not be created or accessed.", paramName, ex);
+        }
     }
 
     /// <inheritdoc />

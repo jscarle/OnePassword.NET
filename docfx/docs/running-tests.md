@@ -4,6 +4,8 @@ Due to the fact that this library acts as a wrapper for the CLI and in order for
 the majority of tests are integration tests which must run against an active 1Password account (preferably a Business
 account).
 
+The live test harness is pinned to and was last verified against 1Password CLI `2.32.1`.
+
 ### Effects on the active account
 
 The integration tests will sign in to the specified account, then create and update a test group, a test user
