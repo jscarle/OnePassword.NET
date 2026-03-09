@@ -64,7 +64,7 @@ public class TestItems : TestsBase
             {
                 Assert.That(_initialItem.Id, Is.Not.Empty);
                 Assert.That(_initialItem.Title, Is.EqualTo(InitialTitle));
-                Assert.That(_initialItem.Created, Is.Not.EqualTo(default));
+                Assert.That(_initialItem.Created, Is.Not.EqualTo(default(DateTimeOffset?)));
                 Assert.That(_initialItem.Fields.First(x => x.Label == "username").Value, Is.EqualTo(InitialUsername));
                 Assert.That(_initialItem.Fields.First(x => x.Section?.Label == EditSection && x.Label == EditField).Type, Is.EqualTo(InitialType));
                 Assert.That(_initialItem.Fields.First(x => x.Section?.Label == EditSection && x.Label == EditField).Value, Is.EqualTo(InitialValue));
@@ -100,7 +100,7 @@ public class TestItems : TestsBase
             {
                 Assert.That(item.Id, Is.Not.Empty);
                 Assert.That(item.Title, Is.EqualTo(FinalTitle));
-                Assert.That(item.Created, Is.Not.EqualTo(default));
+                Assert.That(item.Created, Is.Not.EqualTo(default(DateTimeOffset?)));
                 Assert.That(item.Fields.First(x => x.Label == "username").Value, Is.EqualTo(FinalUsername));
                 Assert.That(item.Fields.First(x => x.Section?.Label == EditSection && x.Label == EditField).Type, Is.EqualTo(FinalType));
                 Assert.That(item.Fields.First(x => x.Section?.Label == EditSection && x.Label == EditField).Value, Is.EqualTo(FinalValue));
@@ -220,7 +220,7 @@ public class TestItems : TestsBase
             {
                 Assert.That(item.Id, Is.Not.Empty);
                 Assert.That(item.Title, Is.EqualTo(FinalTitle));
-                Assert.That(item.Created, Is.Not.EqualTo(default));
+                Assert.That(item.Created, Is.Not.EqualTo(default(DateTimeOffset?)));
                 Assert.That(item.Fields.First(x => x.Label == "username").Value, Is.EqualTo(FinalUsername));
                 Assert.That(item.Fields.First(x => x.Section?.Label == EditSection && x.Label == EditField).Value, Is.EqualTo(FinalValue));
                 Assert.That(item.Fields.First(x => x.Label == AddedField).Value, Is.EqualTo(AddedValue));

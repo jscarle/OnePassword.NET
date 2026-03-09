@@ -1,4 +1,4 @@
-# Draft release description for x.x.x
+# Draft release description for 2.5.0
 
 ## Breaking changes
 

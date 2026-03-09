@@ -32,7 +32,7 @@ public class SetUpVault : TestsBase
                 Assert.That(_initialVault.Name, Is.EqualTo(InitialName));
                 Assert.That(_initialVault.Type, Is.EqualTo(VaultType.User));
                 Assert.That(_initialVault.Items, Is.EqualTo(0));
-                Assert.That(_initialVault.Created, Is.Not.EqualTo(default));
+                Assert.That(_initialVault.Created, Is.Not.EqualTo(default(DateTimeOffset)));
             });
         });
     }
@@ -89,7 +89,7 @@ public class SetUpVault : TestsBase
                 Assert.That(vault.Name, Is.EqualTo(FinalName));
                 Assert.That(vault.Type, Is.EqualTo(VaultType.User));
                 Assert.That(vault.Items, Is.EqualTo(0));
-                Assert.That(vault.Created, Is.Not.EqualTo(default));
+                Assert.That(vault.Created, Is.Not.EqualTo(default(DateTimeOffset)));
             });
         });
     }
