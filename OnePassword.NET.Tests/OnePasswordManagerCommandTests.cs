@@ -67,6 +67,37 @@ public class OnePasswordManagerCommandTests
     }
 
     [Test]
+    public void GetFileAttachmentReferenceUsesIds()
+    {
+        using var fakeCli = new FakeCli();
+        var manager = fakeCli.CreateManager();
+
+        var reference = manager.GetFileAttachmentReference("file-id", "item-id", "vault-id");
+
+        Assert.That(reference, Is.EqualTo("op://vault-id/item-id/file-id?attr=content"));
+    }
+
+    [Test]
+    public void SaveFileAttachmentContentUsesGeneratedReference()
+    {
+        using var fakeCli = new FakeCli();
+        var manager = fakeCli.CreateManager();
+        var outputPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+
+        try
+        {
+            manager.SaveFileAttachmentContent("file-id", "item-id", "vault-id", outputPath);
+
+            Assert.That(fakeCli.LastArguments, Does.StartWith($"read op://vault-id/item-id/file-id?attr=content --no-newline --force --out-file \"{outputPath}\""));
+        }
+        finally
+        {
+            if (File.Exists(outputPath))
+                File.Delete(outputPath);
+        }
+    }
+
+    [Test]
     public void ShareItemWithoutEmailsOmitsEmailsFlag()
     {
         using var fakeCli = new FakeCli(nextOutput: "https://share.example/item\r\n");
