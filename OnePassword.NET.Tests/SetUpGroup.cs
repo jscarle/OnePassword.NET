@@ -41,8 +41,8 @@ public class SetUpGroup : TestsBase
                 Assert.That(_initialGroup.Description, Is.EqualTo(InitialDescription));
                 Assert.That(_initialGroup.Type, Is.EqualTo(GroupType.User));
                 Assert.That(_initialGroup.State, Is.EqualTo(State.Inactive));
-                Assert.That(_initialGroup.Created, Is.Not.EqualTo(default));
-                Assert.That(_initialGroup.Updated, Is.Not.EqualTo(default));
+                Assert.That(_initialGroup.Created, Is.Not.EqualTo(default(DateTimeOffset)));
+                Assert.That(_initialGroup.Updated, Is.Not.EqualTo(default(DateTimeOffset)));
                 Assert.That(_initialGroup.Permissions, Has.Count.EqualTo(0));
             });
         });
@@ -107,8 +107,8 @@ public class SetUpGroup : TestsBase
                 Assert.That(group.Description, Is.EqualTo(FinalDescription));
                 Assert.That(group.Type, Is.EqualTo(GroupType.User));
                 Assert.That(group.State, Is.EqualTo(State.Active));
-                Assert.That(group.Created, Is.Not.EqualTo(default));
-                Assert.That(group.Updated, Is.Not.EqualTo(default));
+                Assert.That(group.Created, Is.Not.EqualTo(default(DateTimeOffset)));
+                Assert.That(group.Updated, Is.Not.EqualTo(default(DateTimeOffset)));
                 Assert.That(group.Permissions, Has.Count.EqualTo(0));
             });
         });

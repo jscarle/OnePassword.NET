@@ -1,6 +1,6 @@
 # Quick start
 
-> Starting with the next x.x.x release, `ShareItem(...)` returns `ItemShare` instead of `void`.
+> Starting with 2.5.0, `ShareItem(...)` returns `ItemShare` instead of `void`.
 
 ### Creating an instance of the manager
 

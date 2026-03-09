@@ -105,7 +105,7 @@ public class AccountPreTests : TestsBase
                 Assert.That(account.Domain, Is.EqualTo(AccountAddress[..AccountAddress.IndexOf('.', StringComparison.Ordinal)]));
                 Assert.That(account.Type, Is.Not.EqualTo(AccountType.Unknown));
                 Assert.That(account.State, Is.EqualTo(State.Active));
-                Assert.That(account.Created, Is.Not.EqualTo(default));
+                Assert.That(account.Created, Is.Not.EqualTo(default(DateTimeOffset)));
             });
         });
     }

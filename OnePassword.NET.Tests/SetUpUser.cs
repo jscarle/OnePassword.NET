@@ -40,9 +40,9 @@ public class SetUpUser : TestsBase
                 Assert.That(_initialUser.Email, Is.EqualTo(TestUserEmail));
                 Assert.That(_initialUser.Type, Is.EqualTo(UserType.Member));
                 Assert.That(_initialUser.State, Is.EqualTo(State.TransferPending));
-                Assert.That(_initialUser.Created, Is.Not.EqualTo(default));
-                Assert.That(_initialUser.Updated, Is.Not.EqualTo(default));
-                Assert.That(_initialUser.LastAuthentication, Is.EqualTo(null));
+                Assert.That(_initialUser.Created, Is.Not.EqualTo(default(DateTimeOffset)));
+                Assert.That(_initialUser.Updated, Is.Not.EqualTo(default(DateTimeOffset)));
+                Assert.That(_initialUser.LastAuthentication, Is.Null);
             });
         });
     }
@@ -138,9 +138,9 @@ public class SetUpUser : TestsBase
                 Assert.That(user.Email, Is.EqualTo(TestUserEmail));
                 Assert.That(user.Type, Is.EqualTo(UserType.Member));
                 Assert.That(user.State, Is.EqualTo(State.Active));
-                Assert.That(user.Created, Is.Not.EqualTo(default));
-                Assert.That(user.Updated, Is.Not.EqualTo(default));
-                Assert.That(user.LastAuthentication, Is.EqualTo(null));
+                Assert.That(user.Created, Is.Not.EqualTo(default(DateTimeOffset)));
+                Assert.That(user.Updated, Is.Not.EqualTo(default(DateTimeOffset)));
+                Assert.That(user.LastAuthentication, Is.Null);
             });
         });
     }

@@ -17,7 +17,7 @@ This library targets .NET Standard 2.1.
 
 This library has no dependencies.
 
-## Breaking changes for the next x.x.x release
+## Breaking changes for 2.5.0
 
 - `ShareItem(...)` now returns `ItemShare` instead of `void`.
 
