@@ -2,6 +2,7 @@ using System.Globalization;
 using System.IO.Compression;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text.Json;
 using OnePassword.Common;
 using OnePassword.Documents;
 using OnePassword.Items;
@@ -282,6 +283,30 @@ public class OnePasswordManagerCommandTests
     }
 
     [Test]
+    public void EditItemPreservesCustomTemplateCategoryIdInPayload()
+    {
+        using var fakeCli = new FakeCli();
+        var manager = fakeCli.CreateManager();
+        var item = CreateTrackedItem("item-id", "Custom Item");
+        item.CategoryId = "custom-template-uuid";
+        item.Fields.Add(new Field("Environment", FieldType.String, "Production"));
+
+        manager.EditItem(item, "vault-id");
+
+        using var jsonDocument = JsonDocument.Parse(fakeCli.LastInput);
+        var root = jsonDocument.RootElement;
+        var fields = root.GetProperty("fields").EnumerateArray().ToList();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(root.GetProperty("category_id").GetString(), Is.EqualTo("custom-template-uuid"));
+            Assert.That(fields.Any(field =>
+                field.GetProperty("label").GetString() == "Environment"
+                && field.GetProperty("value").GetString() == "Production"), Is.True);
+        });
+    }
+
+    [Test]
     public void ShareItemWithoutEmailsOmitsEmailsFlag()
     {
         using var fakeCli = new FakeCli(nextOutput: "https://share.example/item\r\n");
@@ -416,6 +441,7 @@ public class OnePasswordManagerCommandTests
         private readonly string _argumentsPath;
         private readonly string _directoryPath;
         private readonly string _errorOutputPath;
+        private readonly string _inputPath;
         private readonly string _nextOutputPath;
         private readonly string _updateMessagePath;
         private readonly string _updatePayloadPath;
@@ -427,6 +453,7 @@ public class OnePasswordManagerCommandTests
             _directoryPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
             _argumentsPath = Path.Combine(_directoryPath, "last-arguments.txt");
             _errorOutputPath = Path.Combine(_directoryPath, "error-output.txt");
+            _inputPath = Path.Combine(_directoryPath, "last-input.txt");
             _nextOutputPath = Path.Combine(_directoryPath, "next-output.txt");
             _updateMessagePath = Path.Combine(_directoryPath, "update-output.txt");
             _updatePayloadPath = Path.Combine(_directoryPath, "update-payload.zip");
@@ -459,6 +486,8 @@ public class OnePasswordManagerCommandTests
         public string ExecutableName { get; } = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "op.cmd" : "op";
 
         public string LastArguments => File.Exists(_argumentsPath) ? File.ReadAllText(_argumentsPath) : "";
+
+        public string LastInput => File.Exists(_inputPath) ? File.ReadAllText(_inputPath) : "";
 
         public OnePasswordManager CreateManager()
         {
@@ -500,6 +529,7 @@ public class OnePasswordManagerCommandTests
                   @echo off
                   setlocal
                   > "%~dp0last-arguments.txt" echo %*
+                  > "%~dp0last-input.txt" more
                   if "%~1"=="update" (
                     if exist "%~dp0update-payload.zip" copy /y "%~dp0update-payload.zip" "%~3\update-payload.zip" > nul
                     if exist "%~dp0update-output.txt" type "%~dp0update-output.txt"
@@ -519,6 +549,7 @@ public class OnePasswordManagerCommandTests
                   #!/bin/sh
                   script_dir=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
                   printf '%s' "$*" > "$script_dir/last-arguments.txt"
+                  cat > "$script_dir/last-input.txt"
                   if [ "$1" = "update" ]; then
                     if [ -f "$script_dir/update-payload.zip" ]; then
                       cp "$script_dir/update-payload.zip" "$3/update-payload.zip"
