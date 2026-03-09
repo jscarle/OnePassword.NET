@@ -4,6 +4,8 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using OnePassword.Common;
 using OnePassword.Documents;
+using OnePassword.Items;
+using OnePassword.Templates;
 using OnePassword.Vaults;
 
 namespace OnePassword;
@@ -212,6 +214,74 @@ public class OnePasswordManagerCommandTests
     }
 
     [Test]
+    public void AcceptChangesOnItemClearsNestedUrlChanges()
+    {
+        var item = CreateTrackedItem("item-id", "Original Title");
+        item.Urls.Add(new Url { Href = "https://initial.example.com" });
+
+        AcceptChanges(item);
+
+        Assert.That(IsTrackedChanged(item), Is.False);
+
+        item.Urls[0].Href = "https://updated.example.com";
+        Assert.That(IsTrackedChanged(item), Is.True);
+
+        AcceptChanges(item);
+
+        Assert.That(IsTrackedChanged(item), Is.False);
+    }
+
+    [Test]
+    public void AcceptChangesOnFieldClearsTypeChanges()
+    {
+        var field = new Field("Environment", FieldType.String, "Production");
+
+        AcceptChanges(field);
+
+        Assert.That(IsTrackedChanged(field), Is.False);
+
+        field.Type = FieldType.Concealed;
+        Assert.That(IsTrackedChanged(field), Is.True);
+
+        AcceptChanges(field);
+
+        Assert.That(IsTrackedChanged(field), Is.False);
+    }
+
+    [Test]
+    public void CreateItemFailureKeepsTemplateDirty()
+    {
+        using var fakeCli = new FakeCli(errorOutput: "[ERROR] create failed");
+        var manager = fakeCli.CreateManager();
+        var template = new Template
+        {
+            Title = "Original Title"
+        };
+
+        AcceptChanges(template);
+
+        template.Title = "Updated Title";
+
+        Assert.Throws<InvalidOperationException>(() => manager.CreateItem(template, "vault-id"));
+        Assert.That(IsTrackedChanged(template), Is.True);
+    }
+
+    [Test]
+    public void EditItemFailureKeepsItemDirty()
+    {
+        using var fakeCli = new FakeCli(errorOutput: "[ERROR] edit failed");
+        var manager = fakeCli.CreateManager();
+        var item = CreateTrackedItem("item-id", "Original Title");
+
+        AcceptChanges(item);
+
+        item.Title = "Updated Title";
+
+        Assert.Throws<InvalidOperationException>(() => manager.EditItem(item, "vault-id"));
+        Assert.That(IsTrackedChanged(item), Is.True);
+    }
+
+    [Test]
     public void ShareItemWithoutEmailsOmitsEmailsFlag()
     {
         using var fakeCli = new FakeCli(nextOutput: "https://share.example/item\r\n");
@@ -345,16 +415,18 @@ public class OnePasswordManagerCommandTests
     {
         private readonly string _argumentsPath;
         private readonly string _directoryPath;
+        private readonly string _errorOutputPath;
         private readonly string _nextOutputPath;
         private readonly string _updateMessagePath;
         private readonly string _updatePayloadPath;
         private readonly string _updatedVersionOutputPath;
         private readonly string _versionOutputPath;
 
-        public FakeCli(string versionOutput = "2.32.1\n", string nextOutput = "{}", string? updateVersionOutput = null)
+        public FakeCli(string versionOutput = "2.32.1\n", string nextOutput = "{}", string? updateVersionOutput = null, string? errorOutput = null)
         {
             _directoryPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
             _argumentsPath = Path.Combine(_directoryPath, "last-arguments.txt");
+            _errorOutputPath = Path.Combine(_directoryPath, "error-output.txt");
             _nextOutputPath = Path.Combine(_directoryPath, "next-output.txt");
             _updateMessagePath = Path.Combine(_directoryPath, "update-output.txt");
             _updatePayloadPath = Path.Combine(_directoryPath, "update-payload.zip");
@@ -364,6 +436,8 @@ public class OnePasswordManagerCommandTests
             Directory.CreateDirectory(_directoryPath);
             File.WriteAllText(_nextOutputPath, nextOutput);
             File.WriteAllText(_versionOutputPath, versionOutput);
+            if (errorOutput is not null)
+                File.WriteAllText(_errorOutputPath, errorOutput);
             if (updateVersionOutput is not null)
             {
                 File.WriteAllText(_updateMessagePath, $"Version {updateVersionOutput.Trim()} is now available.");
@@ -435,6 +509,10 @@ public class OnePasswordManagerCommandTests
                     type "%~dp0VERSION_OUTPUT_PLACEHOLDER"
                     exit /b 0
                   )
+                  if exist "%~dp0error-output.txt" (
+                    type "%~dp0error-output.txt" 1>&2
+                    exit /b 0
+                  )
                   type "%~dp0next-output.txt"
                   """.Replace("VERSION_OUTPUT_PLACEHOLDER", versionOutputFileName)
                 : """
@@ -454,11 +532,63 @@ public class OnePasswordManagerCommandTests
                     cat "$script_dir/VERSION_OUTPUT_PLACEHOLDER"
                     exit 0
                   fi
+                  if [ -f "$script_dir/error-output.txt" ]; then
+                    cat "$script_dir/error-output.txt" >&2
+                    exit 0
+                  fi
                   cat "$script_dir/next-output.txt"
                   """.Replace("VERSION_OUTPUT_PLACEHOLDER", versionOutputFileName);
         }
 
         private static string PackagedExecutableName => RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "op.exe" : "op";
+    }
+
+    private static Item CreateTrackedItem(string itemId, string title)
+    {
+        var item = new Item
+        {
+            Title = title
+        };
+        SetNonPublicProperty(item, nameof(Item.Id), itemId);
+        return item;
+    }
+
+    private static void SetNonPublicProperty(object target, string propertyName, object? value)
+    {
+        var property = target.GetType().GetProperty(propertyName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+            ?? throw new InvalidOperationException($"Could not find property '{propertyName}' on type {target.GetType().Name}.");
+        property.SetValue(target, value);
+    }
+
+    private static bool IsTrackedChanged(object tracked)
+    {
+        var interfaceType = GetTrackedInterface(tracked.GetType());
+        var changedProperty = interfaceType.GetProperty("Changed", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+            ?? throw new InvalidOperationException("Could not find ITracked.Changed.");
+        var interfaceMap = tracked.GetType().GetInterfaceMap(interfaceType);
+        var methodIndex = Array.IndexOf(interfaceMap.InterfaceMethods, changedProperty.GetMethod);
+        return methodIndex >= 0
+            ? (bool)(interfaceMap.TargetMethods[methodIndex].Invoke(tracked, null) ?? false)
+            : throw new InvalidOperationException("Could not resolve the ITracked.Changed implementation.");
+    }
+
+    private static void AcceptChanges(object tracked)
+    {
+        var interfaceType = GetTrackedInterface(tracked.GetType());
+        var acceptChangesMethod = interfaceType.GetMethod("AcceptChanges", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+            ?? throw new InvalidOperationException("Could not find ITracked.AcceptChanges.");
+        var interfaceMap = tracked.GetType().GetInterfaceMap(interfaceType);
+        var methodIndex = Array.IndexOf(interfaceMap.InterfaceMethods, acceptChangesMethod);
+        if (methodIndex < 0)
+            throw new InvalidOperationException("Could not resolve the ITracked.AcceptChanges implementation.");
+
+        interfaceMap.TargetMethods[methodIndex].Invoke(tracked, null);
+    }
+
+    private static Type GetTrackedInterface(Type type)
+    {
+        return type.GetInterfaces().FirstOrDefault(x => x.FullName == "OnePassword.Common.ITracked")
+            ?? throw new InvalidOperationException($"Type {type.Name} does not implement OnePassword.Common.ITracked.");
     }
 
     private sealed class TestDocument(string id) : IDocument

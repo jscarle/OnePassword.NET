@@ -27,6 +27,11 @@ This repository contains `OnePassword.NET`, a .NET wrapper for the 1Password CLI
 - Do not read, search, or summarize generated documentation/site assets unless the user explicitly asks for them.
 - In particular, avoid generated docfx output and bundled vendor assets such as minified JavaScript, CSS, or copied third-party files; prefer the markdown and source files under `docfx/` instead.
 
+## Tests
+
+- In this repository, skipped live tests usually mean the configured test account does not support the required operations for those scenarios.
+- When reporting test results, call out that capability limitation explicitly instead of treating those skips as product failures by default.
+
 ## API Abstraction
 
 - Never expose or leak raw 1Password CLI responses through the public API unless the user explicitly asks for that exact behavior.

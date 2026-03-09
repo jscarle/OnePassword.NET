@@ -93,6 +93,11 @@ public sealed class TrackedList<T> : IList<T>, IList, IReadOnlyList<T>, ITracked
     void ITracked.AcceptChanges()
     {
         _changed = false;
+        foreach (var item in _list)
+        {
+            if (item is ITracked tracked)
+                tracked.AcceptChanges();
+        }
         _initialList = new List<T>(_list);
     }
 

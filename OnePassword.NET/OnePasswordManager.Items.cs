@@ -130,12 +130,9 @@ public sealed partial class OnePasswordManager
             command += $" {QuoteArgument(assignmentStatement)}";
 
         var json = SerializeTemplateForItemCommand(template);
+        var createdItem = Op(JsonContext.Default.Item, command, json);
         ((ITracked)template).AcceptChanges();
-        if (template.TitleChanged)
-            command += $" --title \"{template.Title}\"";
-        if (((ITracked)template.Tags).Changed)
-            command += $" --tags \"{template.Tags.ToCommaSeparated()}\"";
-        return Op(JsonContext.Default.Item, command, json);
+        return createdItem;
     }
 
     /// <inheritdoc />
@@ -172,8 +169,9 @@ public sealed partial class OnePasswordManager
             var changedUrl = item.Urls.FirstOrDefault(url => url.Primary && ((ITracked)url).Changed);
             command += $" --url \"{changedUrl}\"";
         }
+        var editedItem = Op(JsonContext.Default.Item, command, json);
         ((ITracked)item).AcceptChanges();
-        return Op(JsonContext.Default.Item, command, json);
+        return editedItem;
     }
 
     /// <inheritdoc />

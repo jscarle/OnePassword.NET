@@ -99,6 +99,7 @@ public sealed class Field : ITracked
     /// <inheritdoc />
     void ITracked.AcceptChanges()
     {
+        TypeChanged = false;
         ValueChanged = false;
     }
 }
