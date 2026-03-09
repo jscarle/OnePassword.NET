@@ -2,7 +2,7 @@
 
 ## Breaking changes
 
-- `ShareItem(...)` now returns `ItemShareResult` instead of `void`.
+- `ShareItem(...)` now returns `ItemShare` instead of `void`.
 
 ## Highlights
 

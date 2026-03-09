@@ -7,7 +7,7 @@ _layout: landing
 # OnePassword.NET - 1Password CLI Wrapper
 
 This library serves as a .NET wrapper for the [1Password](https://1password.com/) command-line tool
-op.exe ( [Download](https://app-updates.agilebits.com/product_history/CLI2) | [Documentation](https://developer.1password.com/docs/cli/reference) ).
+`op` ( [Download](https://app-updates.agilebits.com/product_history/CLI2) | [Documentation](https://developer.1password.com/docs/cli/reference) ).
 
 [![main](https://img.shields.io/github/actions/workflow/status/jscarle/OnePassword.NET/main.yml?logo=github)](https://github.com/jscarle/OnePassword.NET)
 [![nuget](https://img.shields.io/nuget/v/OnePassword.NET)](https://www.nuget.org/packages/OnePassword.NET)
@@ -15,7 +15,7 @@ op.exe ( [Download](https://app-updates.agilebits.com/product_history/CLI2) | [D
 
 ## References
 
-This library targets .NET 6.0, .NET 7.0, and .NET 8.0.
+This library targets .NET Standard 2.1.
 
 ## Dependencies
 

@@ -8,6 +8,8 @@ This repository contains `OnePassword.NET`, a .NET wrapper for the 1Password CLI
 - If the current branch is not already a feature branch named in the format `feature/<appropriate-short-name>`, create one before committing.
 - Choose a short, specific branch suffix that describes the work. Keep it lowercase and hyphenated.
 - If already on an appropriate `feature/...` branch, do not create an additional branch unless the user asks for one.
+- Do not leave your own repository changes uncommitted; commit them before ending the work unless the user explicitly asks you not to commit.
+- When creating a commit, include all current unstaged changes in that repository in the commit unless the user explicitly asks to exclude something.
 - Commit messages must be a single-line short sentence in past tense that summarizes the commit.
 - Commit messages must be written as a proper sentence and must end with a period.
 - Do not use multiline commit messages, bullet lists, prefixes, or issue numbers in the commit message unless the user explicitly asks for them.
@@ -24,3 +26,8 @@ This repository contains `OnePassword.NET`, a .NET wrapper for the 1Password CLI
 
 - Do not read, search, or summarize generated documentation/site assets unless the user explicitly asks for them.
 - In particular, avoid generated docfx output and bundled vendor assets such as minified JavaScript, CSS, or copied third-party files; prefer the markdown and source files under `docfx/` instead.
+
+## API Abstraction
+
+- Never expose or leak raw 1Password CLI responses through the public API unless the user explicitly asks for that exact behavior.
+- Keep the wrapper abstraction stable and consumer-focused: parse CLI output into library models and shield consumers from CLI output-shape changes whenever practical.

@@ -3,7 +3,7 @@
 # OnePassword.NET - 1Password CLI Wrapper
 
 This library serves as a .NET wrapper for the [1Password](https://1password.com/) command-line tool
-op.exe ( [Download](https://app-updates.agilebits.com/product_history/CLI2) | [Documentation](https://developer.1password.com/docs/cli/reference) ).
+`op` ( [Download](https://app-updates.agilebits.com/product_history/CLI2) | [Documentation](https://developer.1password.com/docs/cli/reference) ).
 
 [![main](https://img.shields.io/github/actions/workflow/status/jscarle/OnePassword.NET/main.yml?logo=github)](https://github.com/jscarle/OnePassword.NET)
 [![nuget](https://img.shields.io/nuget/v/OnePassword.NET)](https://www.nuget.org/packages/OnePassword.NET)
@@ -11,7 +11,7 @@ op.exe ( [Download](https://app-updates.agilebits.com/product_history/CLI2) | [D
 
 ## References
 
-This library targets .NET 6.0, .NET 7.0, and .NET 8.0.
+This library targets .NET Standard 2.1.
 
 ## Dependencies
 
@@ -19,7 +19,7 @@ This library has no dependencies.
 
 ## Breaking changes for the next x.x.x release
 
-- `ShareItem(...)` now returns `ItemShareResult` instead of `void`.
+- `ShareItem(...)` now returns `ItemShare` instead of `void`.
 
 ## Quick start
 
@@ -28,6 +28,8 @@ This library has no dependencies.
 ```csharp
 var onePassword = new OnePasswordManager();
 ```
+
+The default executable name is `op.exe` on Windows and `op` on other platforms. If the CLI isn't in the current working directory, set `options.Path` and, if needed, `options.Executable`.
 
 ### Adding your account and signing in for the first time
 
@@ -213,6 +215,8 @@ onePassword.SignOut();
 Due to the fact that this library acts as a wrapper for the CLI and in order for tests to have any significant value,
 the majority of tests are integration tests which must run against an active 1Password account (preferably a Business
 account).
+
+The live test harness is pinned to and was last verified against 1Password CLI `2.32.1`.
 
 ### Effects on the active account
 

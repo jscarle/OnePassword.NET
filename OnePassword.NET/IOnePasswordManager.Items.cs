@@ -187,7 +187,7 @@ public partial interface IOnePasswordManager
     /// <param name="viewOnce">Expires the link after a single view.</param>
     /// <returns>The created share result.</returns>
     /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
-    public ItemShareResult ShareItem(IItem item, IVault vault, string emailAddress, TimeSpan? expiresIn = null, bool? viewOnce = null);
+    public ItemShare ShareItem(IItem item, IVault vault, string emailAddress, TimeSpan? expiresIn = null, bool? viewOnce = null);
 
     /// <summary>Shares an item.</summary>
     /// <param name="itemId">The ID of the item to share.</param>
@@ -197,7 +197,7 @@ public partial interface IOnePasswordManager
     /// <param name="viewOnce">Expires the link after a single view.</param>
     /// <returns>The created share result.</returns>
     /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
-    public ItemShareResult ShareItem(string itemId, string vaultId, string emailAddress, TimeSpan? expiresIn = null, bool? viewOnce = null);
+    public ItemShare ShareItem(string itemId, string vaultId, string emailAddress, TimeSpan? expiresIn = null, bool? viewOnce = null);
 
     /// <summary>Shares an item.</summary>
     /// <param name="item">The item to share.</param>
@@ -207,7 +207,7 @@ public partial interface IOnePasswordManager
     /// <param name="viewOnce">Expires the link after a single view.</param>
     /// <returns>The created share result.</returns>
     /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
-    public ItemShareResult ShareItem(IItem item, IVault vault, IReadOnlyCollection<string>? emailAddresses = null, TimeSpan? expiresIn = null, bool? viewOnce = null);
+    public ItemShare ShareItem(IItem item, IVault vault, IReadOnlyCollection<string>? emailAddresses = null, TimeSpan? expiresIn = null, bool? viewOnce = null);
 
     /// <summary>Shares an item.</summary>
     /// <param name="itemId">The ID of the item to share.</param>
@@ -217,5 +217,5 @@ public partial interface IOnePasswordManager
     /// <param name="viewOnce">Expires the link after a single view.</param>
     /// <returns>The created share result.</returns>
     /// <exception cref="ArgumentException">Thrown when there is an invalid argument.</exception>
-    public ItemShareResult ShareItem(string itemId, string vaultId, IReadOnlyCollection<string>? emailAddresses = null, TimeSpan? expiresIn = null, bool? viewOnce = null);
+    public ItemShare ShareItem(string itemId, string vaultId, IReadOnlyCollection<string>? emailAddresses = null, TimeSpan? expiresIn = null, bool? viewOnce = null);
 }

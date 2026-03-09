@@ -1,12 +1,14 @@
 # Quick start
 
-> Starting with the next x.x.x release, `ShareItem(...)` returns `ItemShareResult` instead of `void`.
+> Starting with the next x.x.x release, `ShareItem(...)` returns `ItemShare` instead of `void`.
 
 ### Creating an instance of the manager
 
 ```csharp
 var onePassword = new OnePasswordManager();
 ```
+
+The default executable name is `op.exe` on Windows and `op` on other platforms. If the CLI isn't in the current working directory, set `options.Path` and, if needed, `options.Executable`.
 
 ### Adding your account and signing in for the first time
 
