@@ -4,7 +4,6 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using OnePassword.Common;
 using OnePassword.Documents;
-using OnePassword.Items;
 using OnePassword.Vaults;
 
 namespace OnePassword;
@@ -435,7 +434,7 @@ public class OnePasswordManagerCommandTests
         public string Id { get; } = id;
     }
 
-    private sealed class TestItem(string id) : IItem
+    private sealed class TestItem(string id) : OnePassword.Items.IItem
     {
         public string Id { get; } = id;
     }
