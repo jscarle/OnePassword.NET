@@ -228,7 +228,7 @@ public sealed partial class OnePasswordManager
         if (vault is null || vault.Id.Length == 0)
             throw new ArgumentException($"{nameof(vault.Id)} cannot be empty.", nameof(vault));
 
-        DeleteDocument(document.Id, vault.Id);
+        ArchiveDocument(document.Id, vault.Id);
     }
 
     /// <inheritdoc />

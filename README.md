@@ -17,6 +17,10 @@ This library targets .NET 6.0, .NET 7.0, and .NET 8.0.
 
 This library has no dependencies.
 
+## Breaking changes for the next x.x.x release
+
+- `ShareItem(...)` now returns `ItemShareResult` instead of `void`.
+
 ## Quick start
 
 ### Creating an instance of the manager
@@ -96,6 +100,8 @@ var server2 = serverTemplate.Clone();
 
 ### Getting all items in a vault
 
+`GetItems(...)` returns summary items. Fetch the item details with `GetItem(...)` before relying on `Fields`, `Sections`, or other hydrated properties.
+
 ```csharp
 var items = onePassword.GetItems(vault);
 ```
@@ -103,7 +109,8 @@ var items = onePassword.GetItems(vault);
 ### Selecting a specific item
 
 ```csharp
-var item = items.First(x => x.Title == "Your Item's Title");
+var itemSummary = items.First(x => x.Title == "Your Item's Title");
+var item = onePassword.GetItem(itemSummary, vault);
 ```
 
 ### Editing a specific item
@@ -111,6 +118,47 @@ var item = items.First(x => x.Title == "Your Item's Title");
 ```csharp
 item.Fields.First(x => x.Label == "password").Value = "newpass";
 onePassword.EditItem(item, vault);
+```
+
+### Adding a field to an existing item
+
+```csharp
+var itemToExtend = onePassword.GetItem(itemSummary, vault);
+itemToExtend.Fields.Add(new Field("Environment", FieldType.String, "Production"));
+
+onePassword.EditItem(itemToExtend, vault);
+```
+
+### Sharing an item without email restrictions
+
+```csharp
+var share = onePassword.ShareItem(item, vault);
+
+Console.WriteLine(share.Url);
+```
+
+### Sharing an item with email restrictions
+
+```csharp
+var share = onePassword.ShareItem(
+    item,
+    vault,
+    "recipient@example.com",
+    expiresIn: TimeSpan.FromDays(7),
+    viewOnce: true);
+
+Console.WriteLine(share.Url);
+```
+
+### Sharing an item with multiple email restrictions
+
+```csharp
+var share = onePassword.ShareItem(
+    item,
+    vault,
+    new[] { "recipient1@example.com", "recipient2@example.com" });
+
+Console.WriteLine(share.Url);
 ```
 
 ### Archiving an item

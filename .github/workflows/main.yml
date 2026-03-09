@@ -2,17 +2,21 @@ name: Release
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "develop" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "develop" ]
   workflow_dispatch:
 
 jobs:
   validate:
     name: Validate
     runs-on: ubuntu-latest
+    outputs:
+      has_secrets: ${{ steps.check-secrets.outputs.has_secrets }}
+      run_live_tests: ${{ steps.check-secrets.outputs.run_live_tests }}
     steps:
       - name: Check secrets
+        id: check-secrets
         env:
           OPT_ACCOUNT_ADDRESS: ${{ secrets.OPT_ACCOUNT_ADDRESS }}
           OPT_ACCOUNT_EMAIL: ${{ secrets.OPT_ACCOUNT_EMAIL }}
@@ -20,12 +24,19 @@ jobs:
           OPT_ACCOUNT_PASSWORD: ${{ secrets.OPT_ACCOUNT_PASSWORD }}
           OPT_ACCOUNT_SECRET_KEY: ${{ secrets.OPT_ACCOUNT_SECRET_KEY }}
           OPT_CREATE_TEST_USER: ${{ secrets.OPT_CREATE_TEST_USER }}
+          OPT_RUN_LIVE_TESTS: ${{ secrets.OPT_RUN_LIVE_TESTS }}
           OPT_TEST_USER_EMAIL: ${{ secrets.OPT_TEST_USER_EMAIL }}
         run: |
           if [[ -n "$OPT_ACCOUNT_ADDRESS" && -n "$OPT_ACCOUNT_EMAIL" && -n "$OPT_ACCOUNT_NAME" && -n "$OPT_ACCOUNT_PASSWORD" && -n "$OPT_ACCOUNT_SECRET_KEY" && -n "$OPT_CREATE_TEST_USER" && -n "$OPT_TEST_USER_EMAIL" ]]; then
-            echo "HAS_SECRETS=true" >> "$GITHUB_ENV"
+            echo "has_secrets=true" >> "$GITHUB_OUTPUT"
           else
-            echo "HAS_SECRETS=false" >> "$GITHUB_ENV"
+            echo "has_secrets=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          if [[ -n "$OPT_ACCOUNT_ADDRESS" && -n "$OPT_ACCOUNT_EMAIL" && -n "$OPT_ACCOUNT_NAME" && -n "$OPT_ACCOUNT_PASSWORD" && -n "$OPT_ACCOUNT_SECRET_KEY" && -n "$OPT_CREATE_TEST_USER" && -n "$OPT_TEST_USER_EMAIL" && "${OPT_RUN_LIVE_TESTS,,}" == "true" ]]; then
+            echo "run_live_tests=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run_live_tests=false" >> "$GITHUB_OUTPUT"
           fi
 
   build:
@@ -42,21 +53,21 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v2
+        uses: github/codeql-action/init@v4
         with:
           languages: 'csharp'
       - name: Setup .NET 6.0
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: 6.0.x
       - name: Setup .NET 7.0
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: 7.0.x
       - name: Setup .NET 8.0
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: 8.0.x
       - name: Restore dependencies
@@ -71,8 +82,8 @@ jobs:
           OPT_ACCOUNT_PASSWORD: ${{ secrets.OPT_ACCOUNT_PASSWORD }}
           OPT_ACCOUNT_SECRET_KEY: ${{ secrets.OPT_ACCOUNT_SECRET_KEY }}
           OPT_CREATE_TEST_USER: ${{ secrets.OPT_CREATE_TEST_USER }}
-          OPT_RUN_LIVE_TESTS: ${{ env.HAS_SECRETS }}
+          OPT_RUN_LIVE_TESTS: ${{ needs.validate.outputs.run_live_tests }}
           OPT_TEST_USER_EMAIL: ${{ secrets.OPT_TEST_USER_EMAIL }}
         run: dotnet test --configuration Release --no-build --verbosity normal
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v2
+        uses: github/codeql-action/analyze@v4
