@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.IO.Compression;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -169,6 +169,21 @@ public sealed partial class OnePasswordManager : IOnePasswordManager
         chmod?.WaitForExit();
     }
 
+    private static void ApplyFileMode(string fileMode, string filePath)
+    {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            return;
+
+        using var chmod = Process.Start(new ProcessStartInfo("chmod", $"{fileMode} \"{filePath}\"")
+        {
+            CreateNoWindow = true,
+            UseShellExecute = false,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true
+        });
+        chmod?.WaitForExit();
+    }
+
     private static string GetStandardError(Process process)
     {
         var error = new StringBuilder();
@@ -194,12 +209,12 @@ public sealed partial class OnePasswordManager : IOnePasswordManager
         return obj;
     }
 
-    private string Op(string command, string? input = null, bool returnError = false) => Op(command, input is null ? Array.Empty<string>() : [input], returnError);
+    private string Op(string command, string? input = null, bool returnError = false, bool formatOutput = true) => Op(command, input is null ? Array.Empty<string>() : [input], returnError, formatOutput);
 
-    private string Op(string command, IEnumerable<string> input, bool returnError)
+    private string Op(string command, IEnumerable<string> input, bool returnError, bool formatOutput = true)
     {
         var arguments = command;
-        if (command != "--version")
+        if (command != "--version" && formatOutput)
             arguments += " --format json --no-color";
 
         switch (_mode)
