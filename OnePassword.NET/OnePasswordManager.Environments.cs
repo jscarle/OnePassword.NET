@@ -7,6 +7,7 @@ public sealed partial class OnePasswordManager
     /// <inheritdoc />
     public ImmutableList<EnvironmentVariable> GetEnvironmentVariables(string environmentId)
     {
+        ValidateEnvironmentId(environmentId);
         var result = ReadEnvironmentVariables(environmentId);
         return ParseEnvironmentVariables(result);
     }
@@ -47,7 +48,7 @@ public sealed partial class OnePasswordManager
             if (line.Length == 0)
                 continue;
 
-            var separatorIndex = line.IndexOf('=');
+            var separatorIndex = line.IndexOf('=', StringComparison.Ordinal);
             if (separatorIndex <= 0)
                 throw new SerializationException("Could not deserialize the command result.");
 
