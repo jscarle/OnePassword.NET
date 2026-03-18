@@ -188,6 +188,46 @@ public class OnePasswordManagerCommandTests
     }
 
     [Test]
+    public void GetEnvironmentVariablesUsesTrimmedEnvironmentIdAndParsesOutput()
+    {
+        using var fakeCli = new FakeCli(nextOutput: "API_URL=https://example.com\nCONNECTION=Server=db;Password=secret=\nEMPTY=\n");
+        var manager = fakeCli.CreateManager();
+
+        var variables = manager.GetEnvironmentVariables("  env-id  ");
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(fakeCli.LastArguments, Is.EqualTo("environment read env-id"));
+            Assert.That(variables.Select(x => x.Name), Is.EqualTo(new[] { "API_URL", "CONNECTION", "EMPTY" }));
+            Assert.That(variables.Select(x => x.Value), Is.EqualTo(new[] { "https://example.com", "Server=db;Password=secret=", "" }));
+        });
+    }
+
+    [Test]
+    public void SaveEnvironmentVariablesUsesTrimmedEnvironmentIdAndWritesOutput()
+    {
+        using var fakeCli = new FakeCli(nextOutput: "API_URL=https://example.com\n");
+        var manager = fakeCli.CreateManager();
+        var outputPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+
+        try
+        {
+            manager.SaveEnvironmentVariables("  env-id  ", outputPath);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(fakeCli.LastArguments, Is.EqualTo("environment read env-id"));
+                Assert.That(File.ReadAllText(outputPath), Is.EqualTo("API_URL=https://example.com\n"));
+            });
+        }
+        finally
+        {
+            if (File.Exists(outputPath))
+                File.Delete(outputPath);
+        }
+    }
+
+    [Test]
     public void RevokeGroupPermissionsUsesVaultGroupCommand()
     {
         using var fakeCli = new FakeCli();
