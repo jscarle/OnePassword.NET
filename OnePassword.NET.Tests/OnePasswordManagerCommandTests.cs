@@ -14,6 +14,8 @@ namespace OnePassword;
 [TestFixture]
 public class OnePasswordManagerCommandTests
 {
+    private static readonly string[] EnvironmentVariableNames = ["API_URL", "CONNECTION", "EMPTY"];
+    private static readonly string[] EnvironmentVariableValues = ["https://example.com", "Server=db;Password=secret=", ""];
     private static readonly string[] ParsedRecipients = ["one@example.com", "two@example.com"];
 
     [Test]
@@ -198,8 +200,8 @@ public class OnePasswordManagerCommandTests
         Assert.Multiple(() =>
         {
             Assert.That(fakeCli.LastArguments, Is.EqualTo("environment read env-id"));
-            Assert.That(variables.Select(x => x.Name), Is.EqualTo(new[] { "API_URL", "CONNECTION", "EMPTY" }));
-            Assert.That(variables.Select(x => x.Value), Is.EqualTo(new[] { "https://example.com", "Server=db;Password=secret=", "" }));
+            Assert.That(variables.Select(x => x.Name), Is.EqualTo(EnvironmentVariableNames));
+            Assert.That(variables.Select(x => x.Value), Is.EqualTo(EnvironmentVariableValues));
         });
     }
 
