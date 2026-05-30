@@ -20,7 +20,7 @@ public sealed partial class OnePasswordManager
         if (_mode == Mode.ServiceAccount)
             throw new InvalidOperationException($"{nameof(GetAccounts)} is not supported when using service accounts.");
 
-        const string command = "account list";
+        var command = new OpCommand("account", "list");
         return Op(JsonContext.Default.ImmutableListAccount, command);
     }
 
@@ -32,7 +32,9 @@ public sealed partial class OnePasswordManager
 
         var trimmedAccount = account?.Trim() ?? "";
 
-        var command = trimmedAccount.Length > 0 ? $"account get --account \"{trimmedAccount}\"" : "account get";
+        var command = new OpCommand("account", "get");
+        if (trimmedAccount.Length > 0)
+            command.Add("--account", trimmedAccount);
         return Op(JsonContext.Default.AccountDetails, command);
     }
 
@@ -68,9 +70,9 @@ public sealed partial class OnePasswordManager
 
         var trimmedShorthand = shorthand?.Trim() ?? "";
 
-        var command = $"account add --address \"{trimmedAddress}\" --email \"{trimmedEmail}\" --secret-key \"{trimmedSecretKey}\"";
+        var command = new OpCommand("account", "add", "--address", trimmedAddress, "--email", trimmedEmail, "--secret-key", trimmedSecretKey);
         if (trimmedShorthand.Length > 0)
-            command += $" --shorthand \"{trimmedShorthand}\"";
+            command.Add("--shorthand", trimmedShorthand);
 
         var result = Op(command, trimmedPassword, true);
         if (result.Contains("No saved device ID.", StringComparison.Ordinal))
@@ -115,7 +117,7 @@ public sealed partial class OnePasswordManager
                 throw new ArgumentException($"{nameof(password)} cannot be empty.", nameof(password));
         }
 
-        const string command = "signin --force --raw";
+        var command = new OpCommand("signin", "--force", "--raw");
         var result = Op(command, password?.Trim());
         _session = result.Trim();
     }
@@ -126,11 +128,11 @@ public sealed partial class OnePasswordManager
         if (_mode == Mode.ServiceAccount)
             throw new InvalidOperationException($"{nameof(SignOut)} is not supported when using service accounts.");
 
-        var command = "signout";
+        var command = new OpCommand("signout");
         if (all)
-            command += " --all";
+            command.Add("--all");
         else if (_account.Length > 0)
-            command += $" --account \"{_account}\"";
+            command.Add("--account", _account);
         Op(command);
         _session = "";
     }
@@ -146,8 +148,8 @@ public sealed partial class OnePasswordManager
         if (_session.Length > 0)
             SignOut(all);
 
-        var command = "account forget";
-        command += all ? " --all" : $" \"{_account}\"";
+        var command = new OpCommand("account", "forget");
+        command.Add(all ? "--all" : _account);
 
         var result = Op(command);
 

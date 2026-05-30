@@ -10,7 +10,7 @@ public sealed partial class OnePasswordManager
     /// <inheritdoc />
     public ImmutableList<Vault> GetVaults()
     {
-        const string command = "vault list";
+        var command = new OpCommand("vault", "list");
         return Op(JsonContext.Default.ImmutableListVault, command);
     }
 
@@ -38,7 +38,7 @@ public sealed partial class OnePasswordManager
         if (groupId is null || groupId.Length == 0)
             throw new ArgumentException($"{nameof(groupId)} cannot be empty.", nameof(groupId));
 
-        var command = $"vault list --group {groupId}";
+        var command = new OpCommand("vault", "list", "--group", groupId);
         return Op(JsonContext.Default.ImmutableListVault, command);
     }
 
@@ -48,7 +48,7 @@ public sealed partial class OnePasswordManager
         if (userId is null || userId.Length == 0)
             throw new ArgumentException($"{nameof(userId)} cannot be empty.", nameof(userId));
 
-        var command = $"vault list --user {userId}";
+        var command = new OpCommand("vault", "list", "--user", userId);
         return Op(JsonContext.Default.ImmutableListVault, command);
     }
 
@@ -67,7 +67,7 @@ public sealed partial class OnePasswordManager
         if (vaultId is null || vaultId.Length == 0)
             throw new ArgumentException($"{nameof(vaultId)} cannot be empty.", nameof(vaultId));
 
-        var command = $"vault get {vaultId}";
+        var command = new OpCommand("vault", "get", vaultId);
         return Op(JsonContext.Default.VaultDetails, command);
     }
 
@@ -83,13 +83,13 @@ public sealed partial class OnePasswordManager
 
         var trimmedDescription = description?.Trim();
 
-        var command = $"vault create \"{trimmedName}\"";
+        var command = new OpCommand("vault", "create", trimmedName);
         if (trimmedDescription is not null)
-            command += $" --description \"{trimmedDescription}\"";
+            command.Add("--description", trimmedDescription);
         if (icon != VaultIcon.Default && icon != VaultIcon.Unknown)
-            command += $" --icon \"{icon.ToEnumString()}\"";
+            command.Add("--icon", icon.ToEnumString());
         if (allowAdminsToManage.HasValue)
-            command += $" --allow-admins-to-manage {(allowAdminsToManage.Value ? "true" : "false")}";
+            command.Add("--allow-admins-to-manage", allowAdminsToManage.Value ? "true" : "false");
         return Op(JsonContext.Default.VaultDetails, command);
     }
 
@@ -124,15 +124,15 @@ public sealed partial class OnePasswordManager
         if (name is null && description is null && icon is VaultIcon.Default or VaultIcon.Unknown && travelMode is null)
             throw new InvalidOperationException("Nothing to edit.");
 
-        var command = $"vault edit {vaultId}";
+        var command = new OpCommand("vault", "edit", vaultId);
         if (trimmedName is not null)
-            command += $" --name \"{trimmedName}\"";
+            command.Add("--name", trimmedName);
         if (trimmedDescription is not null)
-            command += $" --description \"{trimmedDescription}\"";
+            command.Add("--description", trimmedDescription);
         if (icon != VaultIcon.Default && icon != VaultIcon.Unknown)
-            command += $" --icon \"{icon.ToEnumString()}\"";
+            command.Add("--icon", icon.ToEnumString());
         if (travelMode.HasValue)
-            command += $" --travel-mode {(travelMode.Value ? "on" : "off")}";
+            command.Add("--travel-mode", travelMode.Value ? "on" : "off");
         Op(command);
     }
 
@@ -151,7 +151,7 @@ public sealed partial class OnePasswordManager
         if (vaultId is null || vaultId.Length == 0)
             throw new ArgumentException($"{nameof(vaultId)} cannot be empty.", nameof(vaultId));
 
-        var command = $"vault delete {vaultId}";
+        var command = new OpCommand("vault", "delete", vaultId);
         Op(command);
     }
 
@@ -191,7 +191,7 @@ public sealed partial class OnePasswordManager
         if (permissions is null || permissions.Count == 0)
             throw new ArgumentException($"{nameof(permissions)} cannot be empty.", nameof(permissions));
 
-        var command = $"vault group grant --vault {vaultId} --group {groupId} --permissions \"{permissions.ToCommaSeparated()}\"";
+        var command = new OpCommand("vault", "group", "grant", "--vault", vaultId, "--group", groupId, "--permissions", permissions.ToCommaSeparated());
         Op(command);
     }
 
@@ -205,7 +205,7 @@ public sealed partial class OnePasswordManager
         if (permissions is null || permissions.Count == 0)
             throw new ArgumentException($"{nameof(permissions)} cannot be empty.", nameof(permissions));
 
-        var command = $"vault user grant --vault {vaultId} --user {userId} --permissions \"{permissions.ToCommaSeparated()}\"";
+        var command = new OpCommand("vault", "user", "grant", "--vault", vaultId, "--user", userId, "--permissions", permissions.ToCommaSeparated());
         Op(command);
     }
 
@@ -245,7 +245,7 @@ public sealed partial class OnePasswordManager
         if (permissions is null || permissions.Count == 0)
             throw new ArgumentException($"{nameof(permissions)} cannot be empty.", nameof(permissions));
 
-        var command = $"vault group revoke --vault {vaultId} --group {groupId} --permissions \"{permissions.ToCommaSeparated()}\"";
+        var command = new OpCommand("vault", "group", "revoke", "--vault", vaultId, "--group", groupId, "--permissions", permissions.ToCommaSeparated());
         Op(command);
     }
 
@@ -259,7 +259,7 @@ public sealed partial class OnePasswordManager
         if (permissions is null || permissions.Count == 0)
             throw new ArgumentException($"{nameof(permissions)} cannot be empty.", nameof(permissions));
 
-        var command = $"vault user revoke --vault {vaultId} --user {userId} --permissions \"{permissions.ToCommaSeparated()}\"";
+        var command = new OpCommand("vault", "user", "revoke", "--vault", vaultId, "--user", userId, "--permissions", permissions.ToCommaSeparated());
         Op(command);
     }
 }

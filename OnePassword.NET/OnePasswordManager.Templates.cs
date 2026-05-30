@@ -9,7 +9,7 @@ public sealed partial class OnePasswordManager
     /// <inheritdoc />
     public ImmutableList<TemplateInfo> GetTemplates()
     {
-        const string command = "item template list";
+        var command = new OpCommand("item", "template", "list");
         return Op(JsonContext.Default.ImmutableListTemplateInfo, command);
     }
 
@@ -19,7 +19,7 @@ public sealed partial class OnePasswordManager
         if (template is null || template.Name.Length == 0)
             throw new ArgumentException($"{nameof(template.Name)} cannot be empty.", nameof(template));
 
-        var command = $"item template get \"{template.Name}\"";
+        var command = new OpCommand("item", "template", "get", template.Name);
         var result = Op(JsonContext.Default.Template, command);
 
         result.Name = template.Name;
@@ -33,7 +33,7 @@ public sealed partial class OnePasswordManager
         if (string.IsNullOrEmpty(name))
             throw new ArgumentException($"{nameof(name)} cannot be empty.", nameof(name));
 
-        var command = $"item template get \"{name}\"";
+        var command = new OpCommand("item", "template", "get", name);
         var result = Op(JsonContext.Default.Template, command);
 
         result.Name = name;
@@ -49,7 +49,7 @@ public sealed partial class OnePasswordManager
 
         var templateName = category.ToEnumString();
 
-        var command = $"item template get \"{templateName}\"";
+        var command = new OpCommand("item", "template", "get", templateName);
         var result = Op(JsonContext.Default.Template, command);
 
         result.Name = templateName;

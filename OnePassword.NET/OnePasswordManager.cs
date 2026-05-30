@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Diagnostics;
 using System.IO.Compression;
 using System.Runtime.InteropServices;
@@ -20,12 +21,38 @@ public sealed partial class OnePasswordManager : IOnePasswordManager
 #else
     private static readonly Regex VersionRegex = new (@"Version ([^\s]+) is now available\.", RegexOptions.Compiled);
 #endif
-    private readonly string[] _excludedAccountCommands = ["--version", "update", "account list", "account add", "account forget", "signout --all"];
-    private readonly string[] _excludedSessionCommands = ["--version", "update", "account list", "account add", "account forget", "signin", "signout", "signout --all"];
+    private static readonly string[][] ExcludedAccountCommands =
+    [
+        ["--version"],
+        ["update"],
+        ["account", "list"],
+        ["account", "add"],
+        ["account", "forget"],
+        ["signout", "--all"]
+    ];
+
+    private static readonly string[][] ExcludedSessionCommands =
+    [
+        ["--version"],
+        ["update"],
+        ["account", "list"],
+        ["account", "add"],
+        ["account", "forget"],
+        ["signin"],
+        ["signout"],
+        ["signout", "--all"]
+    ];
+
+    private static readonly string[][] ServiceAccountUnsupportedCommands =
+    [
+        ["events-api"],
+        ["group"],
+        ["user"]
+    ];
+
     private readonly Mode _mode = Mode.Interactive;
     private readonly string _opPath;
     private readonly string _serviceAccountToken;
-    private readonly string[] _serviceAccountUnsupportedCommands = ["events-api", "group", "user"];
     private readonly bool _verbose;
     private string _account = "";
     private string _session = "";
@@ -70,7 +97,7 @@ public sealed partial class OnePasswordManager : IOnePasswordManager
         var tempDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
         Directory.CreateDirectory(tempDirectory);
 
-        var command = $"update --directory \"{tempDirectory}\"";
+        var command = new OpCommand("update", "--directory", tempDirectory);
         var result = Op(command);
 
         var match = VersionRegex.Match(result);
@@ -106,7 +133,7 @@ public sealed partial class OnePasswordManager : IOnePasswordManager
         if (trimmedReference.Length == 0)
             throw new ArgumentException($"{nameof(trimmedReference)} cannot be empty.", nameof(reference));
 
-        var command = $"read {trimmedReference} --no-newline";
+        var command = new OpCommand("read", trimmedReference, "--no-newline");
         return Op(command);
     }
 
@@ -125,9 +152,9 @@ public sealed partial class OnePasswordManager : IOnePasswordManager
             throw new ArgumentException($"{nameof(trimmedFilePath)} cannot be empty.", nameof(filePath));
 
         var trimmedFileMode = fileMode?.Trim();
-        var command = $"read {trimmedReference} --no-newline --force --out-file \"{trimmedFilePath}\"";
+        var command = new OpCommand("read", trimmedReference, "--no-newline", "--force", "--out-file", trimmedFilePath);
         if (trimmedFileMode is not null && trimmedFileMode.Length > 0)
-            command += $" --file-mode {trimmedFileMode}";
+            command.Add("--file-mode", trimmedFileMode);
         Op(command);
     }
 
@@ -150,7 +177,7 @@ public sealed partial class OnePasswordManager : IOnePasswordManager
 
     private string GetVersion()
     {
-        const string command = "--version";
+        var command = new OpCommand("--version");
         return Op(command).Trim();
     }
 
@@ -200,7 +227,7 @@ public sealed partial class OnePasswordManager : IOnePasswordManager
         return output.ToString();
     }
 
-    private TResult Op<TResult>(JsonTypeInfo<TResult> jsonTypeInfo, string command, string? input = null, bool returnError = false) where TResult : class
+    private TResult Op<TResult>(JsonTypeInfo<TResult> jsonTypeInfo, OpCommand command, string? input = null, bool returnError = false) where TResult : class
     {
         var result = Op(command, input is null ? Array.Empty<string>() : [input], returnError);
         var obj = JsonSerializer.Deserialize(result, jsonTypeInfo) ?? throw new SerializationException("Could not deserialize the command result.");
@@ -209,44 +236,44 @@ public sealed partial class OnePasswordManager : IOnePasswordManager
         return obj;
     }
 
-    private string Op(string command, string? input = null, bool returnError = false, bool formatOutput = true) => Op(command, input is null ? Array.Empty<string>() : [input], returnError, formatOutput);
+    private string Op(OpCommand command, string? input = null, bool returnError = false, bool formatOutput = true) => Op(command, input is null ? Array.Empty<string>() : [input], returnError, formatOutput);
 
-    private string Op(string command, IEnumerable<string> input, bool returnError, bool formatOutput = true)
+    private string Op(OpCommand command, IEnumerable<string> input, bool returnError, bool formatOutput = true)
     {
-        var arguments = command;
-        if (command != "--version" && formatOutput)
-            arguments += " --format json --no-color";
+        var arguments = command.Clone();
+        if (!command.StartsWith(["--version"]) && formatOutput)
+            arguments.Add("--format", "json", "--no-color");
 
         switch (_mode)
         {
             case Mode.ServiceAccount:
-                if (IsUnsupportedCommand(command, _serviceAccountUnsupportedCommands))
+                if (IsCommandMatch(command, ServiceAccountUnsupportedCommands))
                     throw new InvalidOperationException($"Unsupported command {command} when using ServiceAccount");
                 break;
             case Mode.Interactive:
             case Mode.AppIntegrated:
             default:
-                var excluded = IsExcludedCommand(command, _excludedAccountCommands);
+                var excluded = IsCommandMatch(command, ExcludedAccountCommands);
                 var requireAccount = _mode != Mode.AppIntegrated && !excluded;
                 var passAccount = _account.Length != 0 && !excluded;
                 if (requireAccount && !passAccount)
                     throw new InvalidOperationException("Cannot execute command because account has not been set.");
 
-                var passSession = !(_mode == Mode.AppIntegrated || IsExcludedCommand(command, _excludedSessionCommands));
+                var passSession = !(_mode == Mode.AppIntegrated || IsCommandMatch(command, ExcludedSessionCommands));
                 if (passSession && _session.Length == 0)
                     throw new InvalidOperationException("Cannot execute command because account has not been signed in.");
 
                 if (passAccount)
-                    arguments += $" --account {_account}";
+                    arguments.Add("--account", _account);
                 if (passSession)
-                    arguments += $" --session {_session}";
+                    arguments.Add("--session", _session);
                 break;
         }
 
         if (_verbose)
             Console.WriteLine($"{Path.GetDirectoryName(_opPath)}>op {arguments}");
 
-        var startInfo = new ProcessStartInfo(_opPath, arguments)
+        var startInfo = new ProcessStartInfo(_opPath)
         {
             CreateNoWindow = true,
             UseShellExecute = false,
@@ -256,6 +283,15 @@ public sealed partial class OnePasswordManager : IOnePasswordManager
             StandardOutputEncoding = Encoding.UTF8,
             StandardErrorEncoding = Encoding.UTF8
         };
+        if (IsWindowsCommandScript(_opPath))
+        {
+            startInfo.Arguments = arguments.ToString();
+        }
+        else
+        {
+            foreach (var argument in arguments)
+                startInfo.ArgumentList.Add(argument);
+        }
 
         if (_mode == Mode.ServiceAccount)
             startInfo.EnvironmentVariables["OP_SERVICE_ACCOUNT_TOKEN"] = _serviceAccountToken;
@@ -294,14 +330,59 @@ public sealed partial class OnePasswordManager : IOnePasswordManager
         throw new InvalidOperationException(error.Length > 28 ? error[28..].Trim() : error);
     }
 
-    private static bool IsExcludedCommand(string command, IEnumerable<string> excludedCommands)
+    private static bool IsCommandMatch(OpCommand command, IEnumerable<IReadOnlyList<string>> commandPrefixes)
     {
-        return excludedCommands.Any(x => command.StartsWith(x, StringComparison.InvariantCulture));
+        return commandPrefixes.Any(command.StartsWith);
     }
 
-    private static bool IsUnsupportedCommand(string command, IEnumerable<string> unsupportedCommands)
+    private static bool IsWindowsCommandScript(string filePath)
     {
-        return unsupportedCommands.Any(x => command.StartsWith(x, StringComparison.InvariantCulture));
+        var extension = Path.GetExtension(filePath);
+        return RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+               && (string.Equals(extension, ".cmd", StringComparison.OrdinalIgnoreCase)
+                   || string.Equals(extension, ".bat", StringComparison.OrdinalIgnoreCase));
+    }
+
+    private sealed class OpCommand : IEnumerable<string>
+    {
+        private readonly List<string> _arguments;
+
+        public OpCommand(params string[] arguments)
+        {
+            _arguments = [.. arguments];
+        }
+
+        private OpCommand(IEnumerable<string> arguments)
+        {
+            _arguments = [.. arguments];
+        }
+
+        public OpCommand Add(params string[] arguments)
+        {
+            _arguments.AddRange(arguments);
+            return this;
+        }
+
+        public OpCommand Clone() => new(_arguments);
+
+        public IEnumerator<string> GetEnumerator() => _arguments.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+        public bool StartsWith(IReadOnlyList<string> prefix)
+        {
+            return prefix.Count <= _arguments.Count
+                   && prefix.Select((argument, index) => string.Equals(argument, _arguments[index], StringComparison.Ordinal)).All(static matches => matches);
+        }
+
+        public override string ToString() => string.Join(" ", _arguments.Select(FormatArgument));
+
+        private static string FormatArgument(string argument)
+        {
+            return argument.Any(char.IsWhiteSpace) || argument.Contains('"', StringComparison.Ordinal)
+                ? $"\"{argument.Replace("\"", "\\\"", StringComparison.Ordinal)}\""
+                : argument;
+        }
     }
 #if NET7_0_OR_GREATER
 

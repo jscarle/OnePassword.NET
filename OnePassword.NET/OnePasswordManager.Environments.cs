@@ -34,7 +34,7 @@ public sealed partial class OnePasswordManager
     {
         ValidateEnvironmentId(environmentId);
         var trimmedEnvironmentId = environmentId.Trim();
-        var command = $"environment read {trimmedEnvironmentId}";
+        var command = new OpCommand("environment", "read", trimmedEnvironmentId);
         return Op(command, Array.Empty<string>(), false, false);
     }
 

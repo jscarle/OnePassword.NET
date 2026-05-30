@@ -21,7 +21,7 @@ public sealed partial class OnePasswordManager
         if (vaultId is null || vaultId.Length == 0)
             throw new ArgumentException($"{nameof(vaultId)} cannot be empty.", nameof(vaultId));
 
-        var command = $"document list --vault {vaultId}";
+        var command = new OpCommand("document", "list", "--vault", vaultId);
         return Op(JsonContext.Default.ImmutableListDocumentDetails, command);
     }
 
@@ -40,11 +40,11 @@ public sealed partial class OnePasswordManager
         if (vaultId is not null && vaultId.Length == 0)
             throw new ArgumentException($"{nameof(vaultId)} cannot be empty.", nameof(vaultId));
 
-        var command = "document list";
+        var command = new OpCommand("document", "list");
         if (vaultId is not null)
-            command += $" --vault {vaultId}";
+            command.Add("--vault", vaultId);
         if (includeArchive is not null && includeArchive.Value)
-            command += " --include-archive";
+            command.Add("--include-archive");
         return Op(JsonContext.Default.ImmutableListDocumentDetails, command);
     }
 
@@ -80,9 +80,9 @@ public sealed partial class OnePasswordManager
         var trimmedFileMode = fileMode?.Trim();
 
         // Not specifying --force will hang waiting for user input if the file exists.
-        var command = $"document get {documentId} --out-file \"{trimmedFilePath}\" --force --vault {vaultId}";
+        var command = new OpCommand("document", "get", documentId, "--out-file", trimmedFilePath, "--force", "--vault", vaultId);
         if (trimmedFileMode is not null)
-            command += $" --file-mode {trimmedFileMode}";
+            command.Add("--file-mode", trimmedFileMode);
         Op(command);
     }
 
@@ -119,13 +119,13 @@ public sealed partial class OnePasswordManager
         var trimmedFileMode = fileMode?.Trim();
 
         // Not specifying --force will hang waiting for user input if the file exists.
-        var command = $"document get {documentId} --out-file \"{trimmedFilePath}\" --force";
+        var command = new OpCommand("document", "get", documentId, "--out-file", trimmedFilePath, "--force");
         if (vaultId is not null)
-            command += $" --vault {vaultId}";
+            command.Add("--vault", vaultId);
         if (includeArchive is not null && includeArchive.Value)
-            command += " --include-archive";
+            command.Add("--include-archive");
         if (trimmedFileMode is not null)
-            command += $" --file-mode {trimmedFileMode}";
+            command.Add("--file-mode", trimmedFileMode);
         Op(command);
     }
 
@@ -177,13 +177,13 @@ public sealed partial class OnePasswordManager
         var trimmedFileName = fileName?.Trim();
         var trimmedTitle = title?.Trim();
 
-        var command = $"document create \"{trimmedFilePath}\" --vault {vaultId}";
+        var command = new OpCommand("document", "create", trimmedFilePath, "--vault", vaultId);
         if (trimmedFileName is not null)
-            command += $" --file-name \"{trimmedFileName}\"";
+            command.Add("--file-name", trimmedFileName);
         if (trimmedTitle is not null)
-            command += $" --title \"{trimmedTitle}\"";
+            command.Add("--title", trimmedTitle);
         if (tags is not null && tags.Count > 0)
-            command += $" --tags \"{tags.ToCommaSeparated()}\"";
+            command.Add("--tags", tags.ToCommaSeparated());
         return Op(JsonContext.Default.Document, command);
     }
 
@@ -223,13 +223,13 @@ public sealed partial class OnePasswordManager
         var trimmedFileName = fileName?.Trim();
         var trimmedTitle = title?.Trim();
 
-        var command = $"document edit {documentId} \"{trimmedFilePath}\" --vault {vaultId}";
+        var command = new OpCommand("document", "edit", documentId, trimmedFilePath, "--vault", vaultId);
         if (trimmedFileName is not null)
-            command += $" --file-name \"{trimmedFileName}\"";
+            command.Add("--file-name", trimmedFileName);
         if (trimmedTitle is not null)
-            command += $" --title \"{trimmedTitle}\"";
+            command.Add("--title", trimmedTitle);
         if (tags is not null && tags.Count > 0)
-            command += $" --tags \"{tags.ToCommaSeparated()}\"";
+            command.Add("--tags", tags.ToCommaSeparated());
         Op(command);
     }
 
@@ -252,7 +252,7 @@ public sealed partial class OnePasswordManager
         if (vaultId is null || vaultId.Length == 0)
             throw new ArgumentException($"{nameof(vaultId)} cannot be empty.", nameof(vaultId));
 
-        var command = $"document delete {documentId} --vault {vaultId} --archive";
+        var command = new OpCommand("document", "delete", documentId, "--vault", vaultId, "--archive");
         Op(command);
     }
 
@@ -275,7 +275,7 @@ public sealed partial class OnePasswordManager
         if (vaultId is null || vaultId.Length == 0)
             throw new ArgumentException($"{nameof(vaultId)} cannot be empty.", nameof(vaultId));
 
-        var command = $"document delete {documentId} --vault {vaultId}";
+        var command = new OpCommand("document", "delete", documentId, "--vault", vaultId);
         Op(command);
     }
 }
