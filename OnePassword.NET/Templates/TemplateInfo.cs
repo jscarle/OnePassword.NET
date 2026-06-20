@@ -79,7 +79,7 @@ public sealed class TemplateInfo : ITemplate
 
     /// <inheritdoc />
     public override int GetHashCode() =>
-        // ReSharper disable once NonReadonlyMemberInGetHashCode
+        // ReSharper disable NonReadonlyMemberInGetHashCode
         // Name can only be set by internal methods.
         StringComparer.OrdinalIgnoreCase.GetHashCode(Uuid) + StringComparer.OrdinalIgnoreCase.GetHashCode(Name);
 

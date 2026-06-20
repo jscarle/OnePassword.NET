@@ -131,7 +131,7 @@ public sealed partial class OnePasswordManager : IOnePasswordManager
         Op(command);
     }
 
-    private static OnePasswordManagerOptions ConfigureOptions(Action<OnePasswordManagerOptions> configure)
+    private static OnePasswordManagerOptions ConfigureOptions(Action<OnePasswordManagerOptions>? configure)
     {
         if (configure is null)
             return OnePasswordManagerOptions.Default;

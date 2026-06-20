@@ -33,7 +33,7 @@ public class SetUpUser : TestsBase
                 Assert.Ignore("User management is not authorized for the current account.");
             }
 
-            Assert.Multiple(() =>
+            Assert.Multiple((Action)delegate
             {
                 Assert.That(_initialUser.Id, Is.Not.Empty);
                 Assert.That(_initialUser.Name, Is.EqualTo(InitialName));
@@ -105,7 +105,7 @@ public class SetUpUser : TestsBase
 
             var user = users.First(x => x.Name == FinalName);
 
-            Assert.Multiple(() =>
+            Assert.Multiple((Action)delegate
             {
                 Assert.That(user.Id, Is.Not.Empty);
                 Assert.That(user.Name, Is.EqualTo(FinalName));
@@ -131,7 +131,7 @@ public class SetUpUser : TestsBase
         {
             var user = OnePassword.GetUser(TestUser);
 
-            Assert.Multiple(() =>
+            Assert.Multiple((Action)delegate
             {
                 Assert.That(user.Id, Is.Not.Empty);
                 Assert.That(user.Name, Is.EqualTo(FinalName));

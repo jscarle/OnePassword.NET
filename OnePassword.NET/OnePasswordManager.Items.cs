@@ -489,7 +489,7 @@ public sealed partial class OnePasswordManager
         var trimmedFilePath = field.Value.Trim();
         if (trimmedFilePath.Length == 0)
             throw new ArgumentException($"A file attachment field must include a local file path in {nameof(Field.Value)}.", nameof(field));
-        if (!global::System.IO.File.Exists(trimmedFilePath))
+        if (!File.Exists(trimmedFilePath))
             throw new ArgumentException($"File '{trimmedFilePath}' was not found or could not be accessed.", nameof(field));
 
         var target = BuildFileAttachmentTarget(field.Label, field.Section, allowUnnamedAttachment: true);
@@ -501,7 +501,7 @@ public sealed partial class OnePasswordManager
         var trimmedFilePath = fileAttachment.ContentPath.Trim();
         if (trimmedFilePath.Length == 0)
             throw new ArgumentException($"{nameof(FileAttachment.ContentPath)} cannot be empty for a new file attachment.", nameof(fileAttachment));
-        if (!global::System.IO.File.Exists(trimmedFilePath))
+        if (!File.Exists(trimmedFilePath))
             throw new ArgumentException($"File '{trimmedFilePath}' was not found or could not be accessed.", nameof(fileAttachment));
 
         var target = BuildFileAttachmentTarget(fileAttachment.Name, fileAttachment.Section, allowUnnamedAttachment: true);
@@ -517,7 +517,7 @@ public sealed partial class OnePasswordManager
     private static string BuildFileAttachmentTarget(string? name, Section? section, bool allowUnnamedAttachment = false)
     {
         var trimmedName = name?.Trim() ?? "";
-        var trimmedSection = section?.Label?.Trim() ?? "";
+        var trimmedSection = section?.Label.Trim() ?? "";
 
         if (trimmedName.Length == 0)
         {

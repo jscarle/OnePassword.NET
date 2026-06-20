@@ -76,7 +76,7 @@ public class AccountPreTests : TestsBase
 
             var account = accounts.First();
 
-            Assert.Multiple(() =>
+            Assert.Multiple((Action)delegate
             {
                 Assert.That(account.Id, Is.Not.Empty);
                 Assert.That(account.Url, Is.EqualTo($"https://{AccountAddress}"));
@@ -98,7 +98,7 @@ public class AccountPreTests : TestsBase
         {
             var account = OnePassword.GetAccount();
 
-            Assert.Multiple(() =>
+            Assert.Multiple((Action)delegate
             {
                 Assert.That(account.Id, Is.Not.Empty);
                 Assert.That(account.Name, Is.EqualTo(AccountName));

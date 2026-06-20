@@ -34,7 +34,7 @@ public class SetUpGroup : TestsBase
                 Assert.Ignore("Group management is not authorized for the current account.");
             }
 
-            Assert.Multiple(() =>
+            Assert.Multiple((Action)delegate
             {
                 Assert.That(_initialGroup.Id, Is.Not.Empty);
                 Assert.That(_initialGroup.Name, Is.EqualTo(InitialName));
@@ -77,7 +77,7 @@ public class SetUpGroup : TestsBase
 
             var group = groups.First(x => x.Name == FinalName);
 
-            Assert.Multiple(() =>
+            Assert.Multiple((Action)delegate
             {
                 Assert.That(group.Id, Is.Not.Empty);
                 Assert.That(group.Name, Is.EqualTo(FinalName));
@@ -100,7 +100,7 @@ public class SetUpGroup : TestsBase
         {
             var group = OnePassword.GetGroup(TestGroup);
 
-            Assert.Multiple(() =>
+            Assert.Multiple((Action)delegate
             {
                 Assert.That(group.Id, Is.Not.Empty);
                 Assert.That(group.Name, Is.EqualTo(FinalName));

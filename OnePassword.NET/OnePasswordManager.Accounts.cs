@@ -25,7 +25,7 @@ public sealed partial class OnePasswordManager
     }
 
     /// <inheritdoc />
-    public AccountDetails GetAccount(string account = "")
+    public AccountDetails GetAccount(string? account = "")
     {
         if (_mode == Mode.ServiceAccount)
             throw new InvalidOperationException($"{nameof(GetAccount)} is not supported when using service accounts.");
@@ -37,7 +37,7 @@ public sealed partial class OnePasswordManager
     }
 
     /// <inheritdoc />
-    public void AddAccount(string address, string email, string secretKey, string password, string shorthand = "")
+    public void AddAccount(string address, string email, string secretKey, string password, string? shorthand = "")
     {
         if (_mode == Mode.ServiceAccount)
             throw new InvalidOperationException($"{nameof(AddAccount)} is not supported when using service accounts.");
@@ -88,7 +88,7 @@ public sealed partial class OnePasswordManager
     }
 
     /// <inheritdoc />
-    public void UseAccount(string account)
+    public void UseAccount(string? account)
     {
         if (_mode == Mode.ServiceAccount)
             throw new InvalidOperationException($"{nameof(UseAccount)} is not supported when using service accounts.");

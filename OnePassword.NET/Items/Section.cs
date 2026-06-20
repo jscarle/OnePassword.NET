@@ -24,9 +24,9 @@ public sealed class Section
     /// <summary>Initializes a new instance of <see cref="Section" /> with the specified label.</summary>
     /// <param name="label">The section label.</param>
     [SuppressMessage("Globalization", "CA1308:Normalize strings to uppercase")]
-    public Section(string label)
+    public Section(string? label)
     {
-        Id = label?.ToLower(CultureInfo.InvariantCulture)?.Replace(" ", "_", StringComparison.InvariantCulture) ?? "";
+        Id = label?.ToLower(CultureInfo.InvariantCulture).Replace(" ", "_", StringComparison.InvariantCulture) ?? "";
         Label = label ?? "";
     }
 }

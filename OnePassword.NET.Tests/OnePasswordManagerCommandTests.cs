@@ -119,7 +119,7 @@ public class OnePasswordManagerCommandTests
 
         manager.MoveItem("item-id", "current-vault-id", "destination-vault-id");
 
-        Assert.Multiple(() =>
+        Assert.Multiple((Action)delegate
         {
             Assert.That(fakeCli.LastArguments, Does.StartWith("item move item-id --current-vault current-vault-id --destination-vault destination-vault-id"));
             Assert.That(fakeCli.LastArguments, Does.Not.Contain("{currentVaultId}"));
@@ -139,7 +139,7 @@ public class OnePasswordManagerCommandTests
         {
             manager.SearchForDocument("document-id", outputFilePath, "vault-id");
 
-            Assert.Multiple(() =>
+            Assert.Multiple((Action)delegate
             {
                 Assert.That(Directory.Exists(outputDirectory), Is.True);
                 Assert.That(fakeCli.LastArguments, Does.StartWith("document get document-id --out-file "));
@@ -207,7 +207,7 @@ public class OnePasswordManagerCommandTests
 
         var updated = manager.Update();
 
-        Assert.Multiple(() =>
+        Assert.Multiple((Action)delegate
         {
             Assert.That(updated, Is.True);
             Assert.That(manager.Version, Is.EqualTo("2.33.0"));
@@ -263,7 +263,10 @@ public class OnePasswordManagerCommandTests
 
         template.Title = "Updated Title";
 
-        Assert.Throws<InvalidOperationException>(() => manager.CreateItem(template, "vault-id"));
+        Assert.Throws<InvalidOperationException>((Action)delegate
+        {
+            manager.CreateItem(template, "vault-id");
+        });
         Assert.That(IsTrackedChanged(template), Is.True);
     }
 
@@ -278,7 +281,10 @@ public class OnePasswordManagerCommandTests
 
         item.Title = "Updated Title";
 
-        Assert.Throws<InvalidOperationException>(() => manager.EditItem(item, "vault-id"));
+        Assert.Throws<InvalidOperationException>((Action)delegate
+        {
+            manager.EditItem(item, "vault-id");
+        });
         Assert.That(IsTrackedChanged(item), Is.True);
     }
 
@@ -297,7 +303,7 @@ public class OnePasswordManagerCommandTests
         var root = jsonDocument.RootElement;
         var fields = root.GetProperty("fields").EnumerateArray().ToList();
 
-        Assert.Multiple(() =>
+        Assert.Multiple((Action)delegate
         {
             Assert.That(root.GetProperty("category_id").GetString(), Is.EqualTo("custom-template-uuid"));
             Assert.That(fields.Any(field =>
@@ -314,7 +320,7 @@ public class OnePasswordManagerCommandTests
 
         var result = manager.ShareItem("item-id", "vault-id");
 
-        Assert.Multiple(() =>
+        Assert.Multiple((Action)delegate
         {
             Assert.That(result.Url, Is.EqualTo(new Uri("https://share.example/item")));
             Assert.That(result.ExpiresAt, Is.Null);
@@ -333,7 +339,7 @@ public class OnePasswordManagerCommandTests
 
         var result = manager.ShareItem("item-id", "vault-id", "recipient@example.com");
 
-        Assert.Multiple(() =>
+        Assert.Multiple((Action)delegate
         {
             Assert.That(result.Url, Is.Null);
             Assert.That(result.Recipients, Is.Empty);
@@ -427,7 +433,7 @@ public class OnePasswordManagerCommandTests
 
         var result = manager.ShareItem("item-id", "vault-id");
 
-        Assert.Multiple(() =>
+        Assert.Multiple((Action)delegate
         {
             Assert.That(result.Url, Is.EqualTo(new Uri("https://share.example/item")));
             Assert.That(result.ExpiresAt, Is.EqualTo(DateTimeOffset.Parse("2026-03-15T12:00:00Z", CultureInfo.InvariantCulture)));

@@ -87,9 +87,9 @@ public sealed class Field : ITracked
     /// <param name="value">The field value.</param>
     /// <param name="section">The field section.</param>
     [SuppressMessage("Globalization", "CA1308:Normalize strings to uppercase")]
-    public Field(string label, FieldType type, string value, Section? section = null)
+    public Field(string? label, FieldType type, string value, Section? section = null)
     {
-        Id = label?.ToLower(CultureInfo.InvariantCulture)?.Replace(" ", "_", StringComparison.InvariantCulture) ?? "";
+        Id = label?.ToLower(CultureInfo.InvariantCulture).Replace(" ", "_", StringComparison.InvariantCulture) ?? "";
         Label = label ?? "";
         Type = type;
         Value = value;

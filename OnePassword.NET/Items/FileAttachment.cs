@@ -42,7 +42,7 @@ public sealed class FileAttachment : ITracked
     /// <param name="filePath">The local file path to attach.</param>
     /// <param name="name">The attachment name. Leave empty to preserve the source file name.</param>
     /// <param name="section">The section where the attachment should be added.</param>
-    public FileAttachment(string filePath, string? name = null, Section? section = null)
+    public FileAttachment(string? filePath, string? name = null, Section? section = null)
     {
         ContentPath = filePath ?? "";
         Name = name ?? "";

@@ -60,7 +60,7 @@ public class TestItems : TestsBase
 
             _initialItem = OnePassword.CreateItem(template, TestVault);
 
-            Assert.Multiple(() =>
+            Assert.Multiple((Action)delegate
             {
                 Assert.That(_initialItem.Id, Is.Not.Empty);
                 Assert.That(_initialItem.Title, Is.EqualTo(InitialTitle));
@@ -96,7 +96,7 @@ public class TestItems : TestsBase
 
             var item = OnePassword.EditItem(_initialItem, TestVault);
 
-            Assert.Multiple(() =>
+            Assert.Multiple((Action)delegate
             {
                 Assert.That(item.Id, Is.Not.Empty);
                 Assert.That(item.Title, Is.EqualTo(FinalTitle));
@@ -146,7 +146,7 @@ public class TestItems : TestsBase
 
             var editedItem = OnePassword.EditItem(item, TestVault);
 
-            Assert.Multiple(() =>
+            Assert.Multiple((Action)delegate
             {
                 Assert.That(editedItem.FileAttachments.Any(x => x.Name == InitialAttachmentName), Is.True);
                 Assert.That(editedItem.FileAttachments.Any(x => x.Name == AddedAttachmentName), Is.True);
@@ -170,7 +170,7 @@ public class TestItems : TestsBase
 
             var editedItem = OnePassword.EditItem(item, TestVault);
 
-            Assert.Multiple(() =>
+            Assert.Multiple((Action)delegate
             {
                 Assert.That(editedItem.FileAttachments.Any(x => x.Name == InitialAttachmentName), Is.False);
                 Assert.That(editedItem.FileAttachments.Any(x => x.Name == AddedAttachmentName), Is.True);
@@ -195,7 +195,7 @@ public class TestItems : TestsBase
 
             var item = items.First(x => x.Title == FinalTitle);
 
-            Assert.Multiple(() =>
+            Assert.Multiple((Action)delegate
             {
                 Assert.That(item.Id, Is.Not.Empty);
                 Assert.That(item.Title, Is.EqualTo(FinalTitle));
@@ -216,7 +216,7 @@ public class TestItems : TestsBase
         {
             var item = OnePassword.GetItem(TestItem, TestVault);
 
-            Assert.Multiple(() =>
+            Assert.Multiple((Action)delegate
             {
                 Assert.That(item.Id, Is.Not.Empty);
                 Assert.That(item.Title, Is.EqualTo(FinalTitle));

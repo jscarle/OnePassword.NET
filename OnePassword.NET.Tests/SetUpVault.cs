@@ -26,7 +26,7 @@ public class SetUpVault : TestsBase
         {
             _initialVault = OnePassword.CreateVault(InitialName, InitialDescription, InitialIcon, true);
 
-            Assert.Multiple(() =>
+            Assert.Multiple((Action)delegate
             {
                 Assert.That(_initialVault.Id, Is.Not.Empty);
                 Assert.That(_initialVault.Name, Is.EqualTo(InitialName));
@@ -62,7 +62,7 @@ public class SetUpVault : TestsBase
 
             var vault = vaults.First(x => x.Name == FinalName);
 
-            Assert.Multiple(() =>
+            Assert.Multiple((Action)delegate
             {
                 Assert.That(vault.Id, Is.Not.Empty);
                 Assert.That(vault.Name, Is.EqualTo(FinalName));
@@ -83,7 +83,7 @@ public class SetUpVault : TestsBase
         {
             var vault = OnePassword.GetVault(TestVault);
 
-            Assert.Multiple(() =>
+            Assert.Multiple((Action)delegate
             {
                 Assert.That(vault.Id, Is.Not.Empty);
                 Assert.That(vault.Name, Is.EqualTo(FinalName));

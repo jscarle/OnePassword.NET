@@ -38,7 +38,7 @@ public class TestTemplates : TestsBase
         {
             TestTemplate = OnePassword.GetTemplate(_template);
 
-            Assert.Multiple(() =>
+            Assert.Multiple((Action)delegate
             {
                 Assert.That(TestTemplate.Name, Is.EqualTo(_template.Name));
                 Assert.That(TestTemplate.Category, Is.Not.EqualTo(Category.Unknown));
@@ -64,7 +64,7 @@ public class TestTemplates : TestsBase
 
                 var template = OnePassword.GetTemplate(enumValue);
 
-                Assert.Multiple(() =>
+                Assert.Multiple((Action)delegate
                 {
                     Assert.That(template.Name, Is.EqualTo(enumMemberString));
                     Assert.That(template.Category, Is.Not.EqualTo(Category.Unknown));
