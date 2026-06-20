@@ -2,7 +2,8 @@ name: Publish
 
 on:
   release:
-    types: [published]
+    types:
+      - published
 
 jobs:
   build:
@@ -13,13 +14,13 @@ jobs:
       contents: read
       security-events: write
       id-token: write
-    
+
     strategy:
       fail-fast: false
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
     - name: Setup .NET 6.0
       uses: actions/setup-dotnet@v5
       with:
