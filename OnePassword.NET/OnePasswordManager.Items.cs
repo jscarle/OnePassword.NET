@@ -24,7 +24,7 @@ public sealed partial class OnePasswordManager
         if (vaultId is null || vaultId.Length == 0)
             throw new ArgumentException($"{nameof(vaultId)} cannot be empty.", nameof(vaultId));
 
-        var command = $"item list --vault {vaultId}";
+        var command = new OpCommand("item", "list", "--vault", vaultId);
         return Op(JsonContext.Default.ImmutableListItem, command);
     }
 
@@ -44,17 +44,17 @@ public sealed partial class OnePasswordManager
         if (vaultId is not null && vaultId.Length == 0)
             throw new ArgumentException($"{nameof(vaultId)} cannot be empty.", nameof(vaultId));
 
-        var command = "item list";
+        var command = new OpCommand("item", "list");
         if (vaultId is not null)
-            command += $" --vault {vaultId}";
+            command.Add("--vault", vaultId);
         if (includeArchive is not null && includeArchive.Value)
-            command += " --include-archive";
+            command.Add("--include-archive");
         if (favorite is not null && favorite.Value)
-            command += " --favorite";
+            command.Add("--favorite");
         if (categories is not null && categories.Count > 0)
-            command += $" --categories \"{categories.ToCommaSeparated(true)}\"";
+            command.Add("--categories", categories.ToCommaSeparated(true));
         if (tags is not null && tags.Count > 0)
-            command += $" --tags \"{tags.ToCommaSeparated()}\"";
+            command.Add("--tags", tags.ToCommaSeparated());
         return Op(JsonContext.Default.ImmutableListItem, command);
     }
 
@@ -77,7 +77,7 @@ public sealed partial class OnePasswordManager
         if (vaultId is null || vaultId.Length == 0)
             throw new ArgumentException($"{nameof(vaultId)} cannot be empty.", nameof(vaultId));
 
-        var command = $"item get {itemId} --vault {vaultId}";
+        var command = new OpCommand("item", "get", itemId, "--vault", vaultId);
         return Op(JsonContext.Default.Item, command);
     }
 
@@ -100,11 +100,11 @@ public sealed partial class OnePasswordManager
         if (vaultId is not null && vaultId.Length == 0)
             throw new ArgumentException($"{nameof(vaultId)} cannot be empty.", nameof(vaultId));
 
-        var command = $"item get {itemId}";
+        var command = new OpCommand("item", "get", itemId);
         if (vaultId is not null)
-            command += $" --vault {vaultId}";
+            command.Add("--vault", vaultId);
         if (includeArchive is not null && includeArchive.Value)
-            command += " --include-archive";
+            command.Add("--include-archive");
         return Op(JsonContext.Default.Item, command);
     }
 
@@ -125,9 +125,9 @@ public sealed partial class OnePasswordManager
         if (vaultId is null || vaultId.Length == 0)
             throw new ArgumentException($"{nameof(vaultId)} cannot be empty.", nameof(vaultId));
 
-        var command = $"item create --vault {vaultId} -";
+        var command = new OpCommand("item", "create", "--vault", vaultId, "-");
         foreach (var assignmentStatement in GetFileAttachmentAssignmentStatements(template.Fields, template.FileAttachments))
-            command += $" {QuoteArgument(assignmentStatement)}";
+            command.Add(assignmentStatement);
 
         var json = SerializeTemplateForItemCommand(template);
         var createdItem = Op(JsonContext.Default.Item, command, json);
@@ -154,20 +154,20 @@ public sealed partial class OnePasswordManager
         if (vaultId is null || vaultId.Length == 0)
             throw new ArgumentException($"{nameof(vaultId)} cannot be empty.", nameof(vaultId));
 
-        var command = $"item edit {item.Id} --vault {vaultId}";
+        var command = new OpCommand("item", "edit", item.Id, "--vault", vaultId);
         foreach (var assignmentStatement in GetFileAttachmentAssignmentStatements(item.Fields, item.FileAttachments)
                      .Concat(GetDeletedFileAttachmentAssignmentStatements(item.FileAttachments)))
-            command += $" {QuoteArgument(assignmentStatement)}";
+            command.Add(assignmentStatement);
 
         var json = SerializeItemForEditCommand(item);
         if (item.TitleChanged)
-            command += $" --title \"{item.Title}\"";
+            command.Add("--title", item.Title);
         if (((ITracked)item.Tags).Changed)
-            command += $" --tags \"{item.Tags.ToCommaSeparated()}\"";
+            command.Add("--tags", item.Tags.ToCommaSeparated());
         if (((ITracked)item.Urls).Changed)
         {
             var changedUrl = item.Urls.FirstOrDefault(url => url.Primary && ((ITracked)url).Changed);
-            command += $" --url \"{changedUrl}\"";
+            command.Add("--url", $"{changedUrl}");
         }
         var editedItem = Op(JsonContext.Default.Item, command, json);
         ((ITracked)item).AcceptChanges();
@@ -233,7 +233,7 @@ public sealed partial class OnePasswordManager
         if (vaultId is null || vaultId.Length == 0)
             throw new ArgumentException($"{nameof(vaultId)} cannot be empty.", nameof(vaultId));
 
-        var command = $"item delete {itemId} --vault {vaultId} --archive";
+        var command = new OpCommand("item", "delete", itemId, "--vault", vaultId, "--archive");
         Op(command);
     }
 
@@ -256,7 +256,7 @@ public sealed partial class OnePasswordManager
         if (vaultId is null || vaultId.Length == 0)
             throw new ArgumentException($"{nameof(vaultId)} cannot be empty.", nameof(vaultId));
 
-        var command = $"item delete {itemId} --vault {vaultId}";
+        var command = new OpCommand("item", "delete", itemId, "--vault", vaultId);
         Op(command);
     }
 
@@ -283,7 +283,7 @@ public sealed partial class OnePasswordManager
         if (destinationVaultId is null || destinationVaultId.Length == 0)
             throw new ArgumentException($"{nameof(destinationVaultId)} cannot be empty.", nameof(destinationVaultId));
 
-        var command = $"item move {itemId} --current-vault {currentVaultId} --destination-vault {destinationVaultId}";
+        var command = new OpCommand("item", "move", itemId, "--current-vault", currentVaultId, "--destination-vault", destinationVaultId);
         Op(command);
     }
 
@@ -338,14 +338,14 @@ public sealed partial class OnePasswordManager
         if (vaultId is null || vaultId.Length == 0)
             throw new ArgumentException($"{nameof(vaultId)} cannot be empty.", nameof(vaultId));
 
-        var command = $"item share {itemId} --vault {vaultId}";
+        var command = new OpCommand("item", "share", itemId, "--vault", vaultId);
         var normalizedEmailAddresses = NormalizeEmailAddresses(emailAddresses);
         if (normalizedEmailAddresses.Count > 0)
-            command += $" --emails {string.Join(',', normalizedEmailAddresses)}";
+            command.Add("--emails", string.Join(',', normalizedEmailAddresses));
         if (expiresIn is not null)
-            command += $" --expires-in {expiresIn.Value.ToHumanReadable()}";
+            command.Add("--expires-in", expiresIn.Value.ToHumanReadable());
         if (viewOnce is not null && viewOnce.Value)
-            command += " --view-once";
+            command.Add("--view-once");
         return ParseItemShare(Op(command));
     }
 
@@ -529,11 +529,6 @@ public sealed partial class OnePasswordManager
         }
 
         return trimmedSection.Length == 0 ? trimmedName : $"{trimmedSection}.{trimmedName}";
-    }
-
-    private static string QuoteArgument(string argument)
-    {
-        return $"\"{argument.Replace("\"", "\\\"", StringComparison.InvariantCulture)}\"";
     }
 
     private static ItemShare ParseItemShare(string result)

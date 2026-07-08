@@ -10,7 +10,7 @@ public sealed partial class OnePasswordManager
     /// <inheritdoc />
     public ImmutableList<User> GetUsers()
     {
-        const string command = "user list";
+        var command = new OpCommand("user", "list");
         return Op(JsonContext.Default.ImmutableListUser, command);
     }
 
@@ -38,7 +38,7 @@ public sealed partial class OnePasswordManager
         if (groupId is null || groupId.Length == 0)
             throw new ArgumentException($"{nameof(groupId)} cannot be empty.", nameof(groupId));
 
-        var command = $"group user list {groupId}";
+        var command = new OpCommand("group", "user", "list", groupId);
         return Op(JsonContext.Default.ImmutableListGroupUser, command);
     }
 
@@ -48,7 +48,7 @@ public sealed partial class OnePasswordManager
         if (vaultId is null || vaultId.Length == 0)
             throw new ArgumentException($"{nameof(vaultId)} cannot be empty.", nameof(vaultId));
 
-        var command = $"vault user list {vaultId}";
+        var command = new OpCommand("vault", "user", "list", vaultId);
         return Op(JsonContext.Default.ImmutableListVaultUser, command);
     }
 
@@ -67,7 +67,7 @@ public sealed partial class OnePasswordManager
         if (userId is null || userId.Length == 0)
             throw new ArgumentException($"{nameof(userId)} cannot be empty.", nameof(userId));
 
-        var command = $"user get {userId}";
+        var command = new OpCommand("user", "get", userId);
         return Op(JsonContext.Default.UserDetails, command);
     }
 
@@ -87,9 +87,9 @@ public sealed partial class OnePasswordManager
         if (trimmedEmailAddress.Length == 0)
             throw new ArgumentException($"{nameof(emailAddress)} cannot be empty.", nameof(emailAddress));
 
-        var command = $"user provision --name \"{trimmedName}\" --email \"{trimmedEmailAddress}\"";
+        var command = new OpCommand("user", "provision", "--name", trimmedName, "--email", trimmedEmailAddress);
         if (language != Language.Default)
-            command += $" --language \"{language.ToEnumString()}\"";
+            command.Add("--language", language.ToEnumString());
         return Op(JsonContext.Default.UserDetails, command);
     }
 
@@ -108,14 +108,14 @@ public sealed partial class OnePasswordManager
         if (userId is null || userId.Length == 0)
             throw new ArgumentException($"{nameof(userId)} cannot be empty.", nameof(userId));
 
-        var command = $"user confirm {userId}";
+        var command = new OpCommand("user", "confirm", userId);
         Op(command);
     }
 
     /// <inheritdoc />
     public void ConfirmAllUsers()
     {
-        const string command = "user confirm --all";
+        var command = new OpCommand("user", "confirm", "--all");
         Op(command);
     }
 
@@ -148,11 +148,11 @@ public sealed partial class OnePasswordManager
         if (name is null && travelMode is null)
             throw new InvalidOperationException("Nothing to edit.");
 
-        var command = $"user edit {userId}";
+        var command = new OpCommand("user", "edit", userId);
         if (trimmedName is not null)
-            command += $" --name \"{trimmedName}\"";
+            command.Add("--name", trimmedName);
         if (travelMode.HasValue)
-            command += $" --travel-mode {(travelMode.Value ? "on" : "off")}";
+            command.Add("--travel-mode", travelMode.Value ? "on" : "off");
         Op(command);
     }
 
@@ -171,7 +171,7 @@ public sealed partial class OnePasswordManager
         if (userId is null || userId.Length == 0)
             throw new ArgumentException($"{nameof(userId)} cannot be empty.", nameof(userId));
 
-        var command = $"user delete {userId}";
+        var command = new OpCommand("user", "delete", userId);
         Op(command);
     }
 
@@ -190,9 +190,9 @@ public sealed partial class OnePasswordManager
         if (userId is null || userId.Length == 0)
             throw new ArgumentException($"{nameof(userId)} cannot be empty.", nameof(userId));
 
-        var command = $"user suspend {userId}";
+        var command = new OpCommand("user", "suspend", userId);
         if (deauthorizeDevicesDelay is not null)
-            command += $" --deauthorize-devices-after {deauthorizeDevicesDelay.Value}s";
+            command.Add("--deauthorize-devices-after", $"{deauthorizeDevicesDelay.Value}s");
         Op(command);
     }
 
@@ -211,7 +211,7 @@ public sealed partial class OnePasswordManager
         if (userId is null || userId.Length == 0)
             throw new ArgumentException($"{nameof(userId)} cannot be empty.", nameof(userId));
 
-        var command = $"user reactivate {userId}";
+        var command = new OpCommand("user", "reactivate", userId);
         Op(command);
     }
 }

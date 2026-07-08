@@ -162,6 +162,25 @@ var attachment = itemWithAttachments.FileAttachments.First();
 onePassword.SaveFileAttachmentContent(attachment, itemWithAttachments, vault, @"C:\Files\Production.env");
 ```
 
+### Reading variables from a 1Password Environment
+
+This feature requires the beta 1Password CLI `2.33.0-beta.02` or later.
+
+```csharp
+var variables = onePassword.GetEnvironmentVariables("environment-id");
+
+foreach (var variable in variables)
+    Console.WriteLine($"{variable.Name}={variable.Value}");
+```
+
+### Saving variables from a 1Password Environment
+
+This writes the Environment output to disk using the same `KEY=value` format returned by the CLI.
+
+```csharp
+onePassword.SaveEnvironmentVariables("environment-id", @".env");
+```
+
 ### Sharing an item without email restrictions
 
 ```csharp

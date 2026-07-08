@@ -10,7 +10,7 @@ public sealed partial class OnePasswordManager
     /// <inheritdoc />
     public ImmutableList<Group> GetGroups()
     {
-        const string command = "group list";
+        var command = new OpCommand("group", "list");
         return Op(JsonContext.Default.ImmutableListGroup, command);
     }
 
@@ -38,7 +38,7 @@ public sealed partial class OnePasswordManager
         if (vaultId is null || vaultId.Length == 0)
             throw new ArgumentException($"{nameof(vaultId)} cannot be empty.", nameof(vaultId));
 
-        var command = $"vault group list {vaultId}";
+        var command = new OpCommand("vault", "group", "list", vaultId);
         return Op(JsonContext.Default.ImmutableListVaultGroup, command);
     }
 
@@ -48,7 +48,7 @@ public sealed partial class OnePasswordManager
         if (userId is null || userId.Length == 0)
             throw new ArgumentException($"{nameof(userId)} cannot be empty.", nameof(userId));
 
-        var command = $"group list --user {userId}";
+        var command = new OpCommand("group", "list", "--user", userId);
         return Op(JsonContext.Default.ImmutableListUserGroup, command);
     }
 
@@ -67,7 +67,7 @@ public sealed partial class OnePasswordManager
         if (groupId is null || groupId.Length == 0)
             throw new ArgumentException($"{nameof(groupId)} cannot be empty.", nameof(groupId));
 
-        var command = $"group get {groupId}";
+        var command = new OpCommand("group", "get", groupId);
         return Op(JsonContext.Default.GroupDetails, command);
     }
 
@@ -83,9 +83,9 @@ public sealed partial class OnePasswordManager
 
         var trimmedDescription = description?.Trim();
 
-        var command = $"group create \"{trimmedName}\"";
+        var command = new OpCommand("group", "create", trimmedName);
         if (trimmedDescription is not null)
-            command += $" --description \"{trimmedDescription}\"";
+            command.Add("--description", trimmedDescription);
         return Op(JsonContext.Default.GroupDetails, command);
     }
 
@@ -120,11 +120,11 @@ public sealed partial class OnePasswordManager
         if (name is null && description is null)
             throw new InvalidOperationException("Nothing to edit.");
 
-        var command = $"group edit {groupId}";
+        var command = new OpCommand("group", "edit", groupId);
         if (trimmedName is not null)
-            command += $" --name \"{trimmedName}\"";
+            command.Add("--name", trimmedName);
         if (trimmedDescription is not null)
-            command += $" --description \"{trimmedDescription}\"";
+            command.Add("--description", trimmedDescription);
         Op(command);
     }
 
@@ -143,7 +143,7 @@ public sealed partial class OnePasswordManager
         if (groupId is null || groupId.Length == 0)
             throw new ArgumentException($"{nameof(groupId)} cannot be empty.", nameof(groupId));
 
-        var command = $"group delete {groupId}";
+        var command = new OpCommand("group", "delete", groupId);
         Op(command);
     }
 
@@ -170,7 +170,7 @@ public sealed partial class OnePasswordManager
         if (userRole != UserRole.Member && userRole != UserRole.Manager)
             throw new ArgumentException($"{nameof(userRole)} must be {nameof(UserRole.Member)} or {nameof(UserRole.Manager)}.", nameof(userRole));
 
-        var command = $"group user grant --group {groupId} --user {userId} --role \"{userRole.ToEnumString()}\"";
+        var command = new OpCommand("group", "user", "grant", "--group", groupId, "--user", userId, "--role", userRole.ToEnumString());
         Op(command);
     }
 
@@ -193,7 +193,7 @@ public sealed partial class OnePasswordManager
         if (userId is null || userId.Length == 0)
             throw new ArgumentException($"{nameof(userId)} cannot be empty.", nameof(userId));
 
-        var command = $"group user revoke --group {groupId} --user {userId}";
+        var command = new OpCommand("group", "user", "revoke", "--group", groupId, "--user", userId);
         Op(command);
     }
 }

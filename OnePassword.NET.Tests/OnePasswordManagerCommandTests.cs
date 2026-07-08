@@ -14,6 +14,8 @@ namespace OnePassword;
 [TestFixture]
 public class OnePasswordManagerCommandTests
 {
+    private static readonly string[] EnvironmentVariableNames = ["API_URL", "CONNECTION", "EMPTY"];
+    private static readonly string[] EnvironmentVariableValues = ["https://example.com", "Server=db;Password=secret=", ""];
     private static readonly string[] ParsedRecipients = ["one@example.com", "two@example.com"];
 
     [Test]
@@ -167,6 +169,17 @@ public class OnePasswordManagerCommandTests
     }
 
     [Test]
+    public void GetSecretPassesReferenceWithSpacesAsSingleArgument()
+    {
+        using var fakeCli = new FakeCli();
+        var manager = fakeCli.CreateManager();
+
+        manager.GetSecret("op://vault/item/field with spaces");
+
+        Assert.That(fakeCli.LastArgumentLines, Does.Contain("op://vault/item/field with spaces"));
+    }
+
+    [Test]
     public void SaveSecretUsesTrimmedReference()
     {
         using var fakeCli = new FakeCli();
@@ -179,6 +192,46 @@ public class OnePasswordManagerCommandTests
 
             Assert.That(fakeCli.LastArguments, Does.StartWith("read op://vault/item/field --no-newline --force --out-file "));
             Assert.That(fakeCli.LastArguments, Does.Contain(outputPath));
+        }
+        finally
+        {
+            if (File.Exists(outputPath))
+                File.Delete(outputPath);
+        }
+    }
+
+    [Test]
+    public void GetEnvironmentVariablesUsesTrimmedEnvironmentIdAndParsesOutput()
+    {
+        using var fakeCli = new FakeCli(nextOutput: "API_URL=https://example.com\nCONNECTION=Server=db;Password=secret=\nEMPTY=\n");
+        var manager = fakeCli.CreateManager();
+
+        var variables = manager.GetEnvironmentVariables("  env-id  ");
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(fakeCli.LastArguments, Is.EqualTo("environment read env-id"));
+            Assert.That(variables.Select(x => x.Name), Is.EqualTo(EnvironmentVariableNames));
+            Assert.That(variables.Select(x => x.Value), Is.EqualTo(EnvironmentVariableValues));
+        });
+    }
+
+    [Test]
+    public void SaveEnvironmentVariablesUsesTrimmedEnvironmentIdAndWritesOutput()
+    {
+        using var fakeCli = new FakeCli(nextOutput: "API_URL=https://example.com\n");
+        var manager = fakeCli.CreateManager();
+        var outputPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+
+        try
+        {
+            manager.SaveEnvironmentVariables("  env-id  ", outputPath);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(fakeCli.LastArguments, Is.EqualTo("environment read env-id"));
+                Assert.That(File.ReadAllText(outputPath), Is.EqualTo("API_URL=https://example.com\n"));
+            });
         }
         finally
         {
@@ -381,6 +434,19 @@ public class OnePasswordManagerCommandTests
     }
 
     [Test]
+    public void ShareItemPassesEmailValueWithSpacesAsSingleArgument()
+    {
+        using var fakeCli = new FakeCli();
+        var manager = fakeCli.CreateManager();
+
+        manager.ShareItem("item-id", "vault-id", ["recipient@example.com --view-once"]);
+
+        var emailFlagIndex = Array.IndexOf(fakeCli.LastArgumentLines, "--emails");
+        Assert.That(emailFlagIndex, Is.GreaterThanOrEqualTo(0));
+        Assert.That(fakeCli.LastArgumentLines[emailFlagIndex + 1], Is.EqualTo("recipient@example.com --view-once"));
+    }
+
+    [Test]
     public void ShareItemWithEmptyEmailCollectionOmitsEmailsFlag()
     {
         using var fakeCli = new FakeCli();
@@ -445,6 +511,7 @@ public class OnePasswordManagerCommandTests
     private sealed class FakeCli : IDisposable
     {
         private readonly string _argumentsPath;
+        private readonly string _argumentLinesPath;
         private readonly string _directoryPath;
         private readonly string _errorOutputPath;
         private readonly string _inputPath;
@@ -458,6 +525,7 @@ public class OnePasswordManagerCommandTests
         {
             _directoryPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
             _argumentsPath = Path.Combine(_directoryPath, "last-arguments.txt");
+            _argumentLinesPath = Path.Combine(_directoryPath, "last-argument-lines.txt");
             _errorOutputPath = Path.Combine(_directoryPath, "error-output.txt");
             _inputPath = Path.Combine(_directoryPath, "last-input.txt");
             _nextOutputPath = Path.Combine(_directoryPath, "next-output.txt");
@@ -491,7 +559,9 @@ public class OnePasswordManagerCommandTests
 
         public string ExecutableName { get; } = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "op.cmd" : "op";
 
-        public string LastArguments => File.Exists(_argumentsPath) ? File.ReadAllText(_argumentsPath) : "";
+        public string LastArguments => File.Exists(_argumentsPath) ? File.ReadAllText(_argumentsPath).TrimEnd('\r', '\n') : "";
+
+        public string[] LastArgumentLines => File.Exists(_argumentLinesPath) ? File.ReadAllLines(_argumentLinesPath) : [];
 
         public string LastInput => File.Exists(_inputPath) ? File.ReadAllText(_inputPath) : "";
 
@@ -535,6 +605,16 @@ public class OnePasswordManagerCommandTests
                   @echo off
                   setlocal
                   > "%~dp0last-arguments.txt" echo %*
+                  break > "%~dp0last-argument-lines.txt"
+                  if not "%~1"=="" >> "%~dp0last-argument-lines.txt" echo(%~1
+                  if not "%~2"=="" >> "%~dp0last-argument-lines.txt" echo(%~2
+                  if not "%~3"=="" >> "%~dp0last-argument-lines.txt" echo(%~3
+                  if not "%~4"=="" >> "%~dp0last-argument-lines.txt" echo(%~4
+                  if not "%~5"=="" >> "%~dp0last-argument-lines.txt" echo(%~5
+                  if not "%~6"=="" >> "%~dp0last-argument-lines.txt" echo(%~6
+                  if not "%~7"=="" >> "%~dp0last-argument-lines.txt" echo(%~7
+                  if not "%~8"=="" >> "%~dp0last-argument-lines.txt" echo(%~8
+                  if not "%~9"=="" >> "%~dp0last-argument-lines.txt" echo(%~9
                   > "%~dp0last-input.txt" more
                   if "%~1"=="update" (
                     if exist "%~dp0update-payload.zip" copy /y "%~dp0update-payload.zip" "%~3\update-payload.zip" > nul
@@ -555,6 +635,7 @@ public class OnePasswordManagerCommandTests
                   #!/bin/sh
                   script_dir=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
                   printf '%s' "$*" > "$script_dir/last-arguments.txt"
+                  printf '%s\n' "$@" > "$script_dir/last-argument-lines.txt"
                   cat > "$script_dir/last-input.txt"
                   if [ "$1" = "update" ]; then
                     if [ -f "$script_dir/update-payload.zip" ]; then
