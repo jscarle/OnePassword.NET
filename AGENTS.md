@@ -36,3 +36,36 @@ This repository contains `OnePassword.NET`, a .NET wrapper for the 1Password CLI
 
 - Never expose or leak raw 1Password CLI responses through the public API unless the user explicitly asks for that exact behavior.
 - Keep the wrapper abstraction stable and consumer-focused: parse CLI output into library models and shield consumers from CLI output-shape changes whenever practical.
+
+## Release Intent, Versioning, and Workflow
+
+Treat explicit release requests—such as “Mint a new release,” “Release this,” “Publish this as a new release,” “Create a new release,” or any clear equivalent—as authorization to carry out OnePassword.NET's full release workflow, including committing, pushing, tagging, and publishing as needed.
+
+If the user has not clearly requested a release, or if the appropriate change category cannot be determined confidently, ask for clarification **before** committing, pushing, creating a tag, or publishing a release.
+
+Only change OnePassword.NET's package, assembly, and file versions when the user has clearly requested that a release be published. Do not bump versions during ordinary implementation, refactoring, bug-fixing, dependency updates, testing, commits, pushes, or pull-request preparation unless those actions are part of an explicitly requested release.
+
+Choose the next version using these repository-specific rules:
+
+- Minor, backward-compatible changes increment the patch component. Example: `2.5.0` → `2.5.1`.
+- Moderate or breaking changes increment the middle component and reset the patch. Example: `2.5.0` → `2.6.0`.
+- Increment the major component and reset the other components only when the newest supported .NET generation changes. Example: `2.5.0` → `3.0.0`.
+- Breaking changes alone do not justify a major-version increment in this repository. If multiple categories apply, use the highest applicable category.
+
+Update `Version` in `OnePassword.NET/OnePassword.NET.csproj` using three components and update `AssemblyVersion` and `FileVersion` using the matching four-component form. Use a three-component lightweight tag such as `v2.5.1`; OnePassword.NET's release tags are lightweight and must remain so.
+
+A clear release request authorizes this complete workflow:
+
+1. Inspect the worktree, current branch, `origin`, `develop`, current CLI compatibility, recent commits, pull requests, issues, contributors, and releases before editing release metadata.
+2. Determine the next version, update the three version properties in `OnePassword.NET/OnePassword.NET.csproj`, and verify that the tag and release do not already exist. Use `NEXT_RELEASE.md` as release-note input when it exists.
+3. Validate the release-scoped changes using the repository's normal Release build and test commands, clearly reporting capability-limited skipped live tests.
+4. Create or reuse a `feature/release-X-Y-Z` branch for release preparation, following the existing `feature/<short-name>` branch policy.
+5. Commit all release-scoped changes using a single-line past-tense sentence ending in a period, then push the release branch.
+6. Open a ready pull request against `develop` titled `Prepare the X.Y.Z release`, with `Summary` and `Testing` sections consistent with recent release pull requests.
+7. Enable auto-merge using a merge commit, not squash, to preserve OnePassword.NET's current pull-request history convention. Monitor checks and review state, fix and push blockers, and wait until the pull request is merged.
+8. Fast-forward local `develop` from `origin/develop`, prune deleted remote refs, and remove the merged local release branch when appropriate.
+9. Create the lightweight `vX.Y.Z` tag on the latest `develop` commit and push that tag to `origin`.
+10. Publish a non-draft GitHub release named `vX.Y.Z - Description`. Follow recent structured notes when applicable, including Compatibility, Breaking changes, Changes, Contributors, and Thanks sections without inventing empty sections.
+11. Monitor the release-triggered `Publish` workflow until the OnePassword.NET NuGet package is published successfully, fixing in-scope failures when possible.
+
+Do not require separate confirmation for each Git or GitHub step after an unambiguous release command. Report the pull request, merge commit, tag, GitHub release URL, and NuGet publishing result when complete.
