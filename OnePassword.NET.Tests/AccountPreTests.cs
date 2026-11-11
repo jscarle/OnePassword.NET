@@ -76,14 +76,14 @@ public class AccountPreTests : TestsBase
 
             var account = accounts.First();
 
-            Assert.Multiple((Action)delegate
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(account.Id, Is.Not.Empty);
                 Assert.That(account.Url, Is.EqualTo($"https://{AccountAddress}"));
                 Assert.That(account.UserId, Is.Not.Empty);
                 Assert.That(account.Email, Is.EqualTo(AccountEmail));
                 Assert.That(account.Shorthand, Is.EqualTo(AccountAddress[..AccountAddress.IndexOf('.', StringComparison.Ordinal)]));
-            });
+            }
         });
     }
 
@@ -98,7 +98,7 @@ public class AccountPreTests : TestsBase
         {
             var account = OnePassword.GetAccount();
 
-            Assert.Multiple((Action)delegate
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(account.Id, Is.Not.Empty);
                 Assert.That(account.Name, Is.EqualTo(AccountName));
@@ -106,7 +106,7 @@ public class AccountPreTests : TestsBase
                 Assert.That(account.Type, Is.Not.EqualTo(AccountType.Unknown));
                 Assert.That(account.State, Is.EqualTo(State.Active));
                 Assert.That(account.Created, Is.Not.EqualTo(default(DateTimeOffset)));
-            });
+            }
         });
     }
 

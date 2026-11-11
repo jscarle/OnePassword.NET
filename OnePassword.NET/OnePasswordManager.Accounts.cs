@@ -32,8 +32,8 @@ public sealed partial class OnePasswordManager
 
         var trimmedAccount = account?.Trim() ?? "";
 
-        var command = trimmedAccount.Length > 0 ? $"account get --account \"{trimmedAccount}\"" : "account get";
-        return Op(JsonContext.Default.AccountDetails, command);
+        const string command = "account get";
+        return Op(JsonContext.Default.AccountDetails, command, account: trimmedAccount.Length > 0 ? trimmedAccount : null);
     }
 
     /// <inheritdoc />
@@ -62,26 +62,21 @@ public sealed partial class OnePasswordManager
 
         if (password is null || password.Length == 0)
             throw new ArgumentException($"{nameof(password)} cannot be empty.", nameof(password));
-        var trimmedPassword = password.Trim();
-        if (trimmedPassword.Length == 0)
-            throw new ArgumentException($"{nameof(password)} cannot be empty.", nameof(password));
 
         var trimmedShorthand = shorthand?.Trim() ?? "";
 
-        var command = $"account add --address \"{trimmedAddress}\" --email \"{trimmedEmail}\" --secret-key \"{trimmedSecretKey}\"";
+        var command = $"account add --address {QuoteArgument(trimmedAddress)} --email {QuoteArgument(trimmedEmail)}";
         if (trimmedShorthand.Length > 0)
-            command += $" --shorthand \"{trimmedShorthand}\"";
+            command += $" --shorthand {QuoteArgument(trimmedShorthand)}";
 
-        var result = Op(command, trimmedPassword, true);
+        var result = Op(command, password, allowDeviceRegistration: true, secretKey: trimmedSecretKey);
         if (result.Contains("No saved device ID.", StringComparison.Ordinal))
         {
             var deviceUuid = DeviceRegex.Match(result).Groups["UUID"].Value;
+            if (deviceUuid.Length == 0)
+                throw new InvalidOperationException(result.Trim());
             Environment.SetEnvironmentVariable("OP_DEVICE", deviceUuid);
-            Op(command, password);
-        }
-        else if (result.StartsWith("[ERROR]", StringComparison.InvariantCulture))
-        {
-            throw new InvalidOperationException(result.Length > 28 ? result[28..].Trim() : result.Trim());
+            Op(command, password, secretKey: trimmedSecretKey);
         }
 
         _account = trimmedShorthand.Length > 0 ? trimmedShorthand : trimmedAddress;
@@ -106,17 +101,16 @@ public sealed partial class OnePasswordManager
         if (_mode == Mode.ServiceAccount)
             throw new InvalidOperationException($"{nameof(SignIn)} is not supported when using service accounts.");
 
-        var trimmedPassword = password?.Trim();
         switch (_mode == Mode.AppIntegrated)
         {
-            case true when trimmedPassword is not null:
+            case true when password is not null:
                 throw new ArgumentException($"{nameof(password)} cannot be supplied when authentication is integrated into the 1Password desktop application.", nameof(password));
-            case false when trimmedPassword is null || trimmedPassword.Length == 0:
+            case false when password is null || password.Length == 0:
                 throw new ArgumentException($"{nameof(password)} cannot be empty.", nameof(password));
         }
 
         const string command = "signin --force --raw";
-        var result = Op(command, password?.Trim());
+        var result = Op(command, password);
         _session = result.Trim();
     }
 
@@ -129,8 +123,6 @@ public sealed partial class OnePasswordManager
         var command = "signout";
         if (all)
             command += " --all";
-        else if (_account.Length > 0)
-            command += $" --account \"{_account}\"";
         Op(command);
         _session = "";
     }
@@ -147,7 +139,7 @@ public sealed partial class OnePasswordManager
             SignOut(all);
 
         var command = "account forget";
-        command += all ? " --all" : $" \"{_account}\"";
+        command += all ? " --all" : $" {QuoteArgument(_account)}";
 
         var result = Op(command);
 

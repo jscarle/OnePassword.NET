@@ -60,7 +60,7 @@ public class TestItems : TestsBase
 
             _initialItem = OnePassword.CreateItem(template, TestVault);
 
-            Assert.Multiple((Action)delegate
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(_initialItem.Id, Is.Not.Empty);
                 Assert.That(_initialItem.Title, Is.EqualTo(InitialTitle));
@@ -74,7 +74,7 @@ public class TestItems : TestsBase
                 Assert.That(_initialItem.FileAttachments.First(x => x.Name == InitialAttachmentName).Size, Is.GreaterThan(0));
                 Assert.That(_initialItem.Tags, Does.Contain(Tag1));
                 Assert.That(_initialItem.Tags, Does.Contain(Tag2));
-            });
+            }
         });
     }
 
@@ -96,7 +96,7 @@ public class TestItems : TestsBase
 
             var item = OnePassword.EditItem(_initialItem, TestVault);
 
-            Assert.Multiple((Action)delegate
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(item.Id, Is.Not.Empty);
                 Assert.That(item.Title, Is.EqualTo(FinalTitle));
@@ -108,7 +108,7 @@ public class TestItems : TestsBase
                 Assert.That(item.FileAttachments.Any(x => x.Name == InitialAttachmentName), Is.True);
                 Assert.That(item.Tags, Does.Contain(Tag1));
                 Assert.That(item.Tags, Does.Not.Contain(Tag2));
-            });
+            }
         });
     }
 
@@ -146,11 +146,11 @@ public class TestItems : TestsBase
 
             var editedItem = OnePassword.EditItem(item, TestVault);
 
-            Assert.Multiple((Action)delegate
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(editedItem.FileAttachments.Any(x => x.Name == InitialAttachmentName), Is.True);
                 Assert.That(editedItem.FileAttachments.Any(x => x.Name == AddedAttachmentName), Is.True);
-            });
+            }
 
             _initialItem = editedItem;
         });
@@ -170,11 +170,11 @@ public class TestItems : TestsBase
 
             var editedItem = OnePassword.EditItem(item, TestVault);
 
-            Assert.Multiple((Action)delegate
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(editedItem.FileAttachments.Any(x => x.Name == InitialAttachmentName), Is.False);
                 Assert.That(editedItem.FileAttachments.Any(x => x.Name == AddedAttachmentName), Is.True);
-            });
+            }
 
             _initialItem = editedItem;
         });
@@ -195,11 +195,11 @@ public class TestItems : TestsBase
 
             var item = items.First(x => x.Title == FinalTitle);
 
-            Assert.Multiple((Action)delegate
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(item.Id, Is.Not.Empty);
                 Assert.That(item.Title, Is.EqualTo(FinalTitle));
-            });
+            }
 
             TestItem = item;
         });
@@ -216,7 +216,7 @@ public class TestItems : TestsBase
         {
             var item = OnePassword.GetItem(TestItem, TestVault);
 
-            Assert.Multiple((Action)delegate
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(item.Id, Is.Not.Empty);
                 Assert.That(item.Title, Is.EqualTo(FinalTitle));
@@ -227,7 +227,7 @@ public class TestItems : TestsBase
                 Assert.That(item.Fields.FirstOrDefault(x => x.Section?.Label == DeleteSection && x.Label == DeleteField), Is.Null);
                 Assert.That(item.FileAttachments.Any(x => x.Name == InitialAttachmentName), Is.False);
                 Assert.That(item.FileAttachments.Any(x => x.Name == AddedAttachmentName), Is.True);
-            });
+            }
 
             var attachment = item.FileAttachments.First(x => x.Name == AddedAttachmentName);
             OnePassword.SaveFileAttachmentContent(attachment, item, TestVault, _addedAttachmentOutputFilePath);

@@ -19,7 +19,7 @@ public sealed partial class OnePasswordManager
         if (template is null || template.Name.Length == 0)
             throw new ArgumentException($"{nameof(template.Name)} cannot be empty.", nameof(template));
 
-        var command = $"item template get \"{template.Name}\"";
+        var command = $"item template get {QuoteArgument(template.Name)}";
         var result = Op(JsonContext.Default.Template, command);
 
         result.Name = template.Name;
@@ -33,7 +33,7 @@ public sealed partial class OnePasswordManager
         if (string.IsNullOrEmpty(name))
             throw new ArgumentException($"{nameof(name)} cannot be empty.", nameof(name));
 
-        var command = $"item template get \"{name}\"";
+        var command = $"item template get {QuoteArgument(name)}";
         var result = Op(JsonContext.Default.Template, command);
 
         result.Name = name;
@@ -49,7 +49,7 @@ public sealed partial class OnePasswordManager
 
         var templateName = category.ToEnumString();
 
-        var command = $"item template get \"{templateName}\"";
+        var command = $"item template get {QuoteArgument(templateName)}";
         var result = Op(JsonContext.Default.Template, command);
 
         result.Name = templateName;

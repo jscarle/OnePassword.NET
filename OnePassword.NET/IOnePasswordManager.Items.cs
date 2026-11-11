@@ -94,6 +94,7 @@ public partial interface IOnePasswordManager
     public Item CreateItem(Template template, string vaultId);
 
     /// <summary>Edits an item.</summary>
+    /// <remarks>Uses a JSON item template. Do not use this method on items containing passkeys: the CLI overwrites passkeys during JSON template edits. The CLI does not support editing SSH Key items.</remarks>
     /// <param name="item">The item to edit.</param>
     /// <param name="vault">The vault that contains the item to edit.</param>
     /// <returns>The edited item.</returns>
@@ -101,6 +102,7 @@ public partial interface IOnePasswordManager
     public Item EditItem(Item item, IVault vault);
 
     /// <summary>Edits an item.</summary>
+    /// <remarks>Uses a JSON item template. Do not use this method on items containing passkeys: the CLI overwrites passkeys during JSON template edits. The CLI does not support editing SSH Key items.</remarks>
     /// <param name="item">The item to edit.</param>
     /// <param name="vaultId">The ID of the vault that contains the item to edit.</param>
     /// <returns>The edited item.</returns>
@@ -166,6 +168,7 @@ public partial interface IOnePasswordManager
     public void DeleteItem(string itemId, string vaultId);
 
     /// <summary>Moves an item.</summary>
+    /// <remarks>The CLI creates a new item ID in the destination vault. The supplied item still contains its original ID.</remarks>
     /// <param name="item">The item to move.</param>
     /// <param name="currentVault">The vault that contains the item to move.</param>
     /// <param name="destinationVault">The destination vault to move the item to.</param>
@@ -173,6 +176,7 @@ public partial interface IOnePasswordManager
     public void MoveItem(IItem item, IVault currentVault, IVault destinationVault);
 
     /// <summary>Moves an item.</summary>
+    /// <remarks>The CLI creates a new item ID in the destination vault. The original item ID no longer identifies the destination item.</remarks>
     /// <param name="itemId">The ID of the item to move.</param>
     /// <param name="currentVaultId">The ID of the vault that contains the item to move.</param>
     /// <param name="destinationVaultId">The ID of the destination vault to move the item to.</param>

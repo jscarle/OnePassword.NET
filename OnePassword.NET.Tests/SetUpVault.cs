@@ -26,14 +26,14 @@ public class SetUpVault : TestsBase
         {
             _initialVault = OnePassword.CreateVault(InitialName, InitialDescription, InitialIcon, true);
 
-            Assert.Multiple((Action)delegate
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(_initialVault.Id, Is.Not.Empty);
                 Assert.That(_initialVault.Name, Is.EqualTo(InitialName));
                 Assert.That(_initialVault.Type, Is.EqualTo(VaultType.User));
                 Assert.That(_initialVault.Items, Is.EqualTo(0));
                 Assert.That(_initialVault.Created, Is.Not.EqualTo(default(DateTimeOffset)));
-            });
+            }
         });
     }
 
@@ -62,11 +62,11 @@ public class SetUpVault : TestsBase
 
             var vault = vaults.First(x => x.Name == FinalName);
 
-            Assert.Multiple((Action)delegate
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(vault.Id, Is.Not.Empty);
                 Assert.That(vault.Name, Is.EqualTo(FinalName));
-            });
+            }
 
             TestVault = vault;
         });
@@ -83,14 +83,14 @@ public class SetUpVault : TestsBase
         {
             var vault = OnePassword.GetVault(TestVault);
 
-            Assert.Multiple((Action)delegate
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(vault.Id, Is.Not.Empty);
                 Assert.That(vault.Name, Is.EqualTo(FinalName));
                 Assert.That(vault.Type, Is.EqualTo(VaultType.User));
                 Assert.That(vault.Items, Is.EqualTo(0));
                 Assert.That(vault.Created, Is.Not.EqualTo(default(DateTimeOffset)));
-            });
+            }
         });
     }
 }

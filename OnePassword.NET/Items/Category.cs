@@ -143,5 +143,11 @@ public enum Category
     /// Wireless Router
     /// </summary>
     [EnumMember(Value = "Wireless Router")]
-    WirelessRouter
+    WirelessRouter,
+
+    /// <summary>
+    /// Crypto Wallet
+    /// </summary>
+    [EnumMember(Value = "Crypto Wallet")]
+    CryptoWallet
 }

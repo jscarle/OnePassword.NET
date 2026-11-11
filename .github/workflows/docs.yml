@@ -29,13 +29,13 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v6
 
-      - name: Setup .NET 8.0
+      - name: Setup .NET 11.0
         uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: 8.x
+          global-json-file: global.json
 
       - name: Setup docfx
-        run: dotnet tool update -g docfx
+        run: dotnet tool install -g docfx --allow-roll-forward
 
       - name: Build documentation
         run: docfx ./docfx/docfx.json

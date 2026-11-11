@@ -57,5 +57,11 @@ public enum State
     /// <summary>
     /// The state is unknown.
     /// </summary>
-    Unknown
+    Unknown,
+
+    /// <summary>
+    /// Account recovery has started.
+    /// </summary>
+    [EnumMember(Value = "Recovery Started")]
+    RecoveryStarted
 }

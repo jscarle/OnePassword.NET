@@ -30,7 +30,7 @@ public class TestDocuments : TestsBase
 
             _initialDocument = OnePassword.CreateDocument(TestVault, _filePath, InitialFileName, InitialTitle);
 
-            Assert.Multiple((Action)delegate { Assert.That(_initialDocument.Id, Is.Not.Empty); });
+            Assert.That(_initialDocument.Id, Is.Not.Empty);
         });
     }
 
@@ -62,11 +62,11 @@ public class TestDocuments : TestsBase
 
             var document = documents.First(x => x.Title == FinalTitle);
 
-            Assert.Multiple((Action)delegate
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(document.Id, Is.EqualTo(_initialDocument.Id));
                 Assert.That(document.Title, Is.EqualTo(FinalTitle));
-            });
+            }
 
             TestDocument = document;
         });

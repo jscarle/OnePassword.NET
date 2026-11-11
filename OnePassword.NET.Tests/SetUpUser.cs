@@ -33,7 +33,7 @@ public class SetUpUser : TestsBase
                 Assert.Ignore("User management is not authorized for the current account.");
             }
 
-            Assert.Multiple((Action)delegate
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(_initialUser.Id, Is.Not.Empty);
                 Assert.That(_initialUser.Name, Is.EqualTo(InitialName));
@@ -43,7 +43,7 @@ public class SetUpUser : TestsBase
                 Assert.That(_initialUser.Created, Is.Not.EqualTo(default(DateTimeOffset)));
                 Assert.That(_initialUser.Updated, Is.Not.EqualTo(default(DateTimeOffset)));
                 Assert.That(_initialUser.LastAuthentication, Is.Null);
-            });
+            }
         });
     }
 
@@ -105,14 +105,14 @@ public class SetUpUser : TestsBase
 
             var user = users.First(x => x.Name == FinalName);
 
-            Assert.Multiple((Action)delegate
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(user.Id, Is.Not.Empty);
                 Assert.That(user.Name, Is.EqualTo(FinalName));
                 Assert.That(user.Email, Is.EqualTo(TestUserEmail));
                 Assert.That(user.Type, Is.EqualTo(UserType.Member));
                 Assert.That(user.State, Is.EqualTo(State.Active));
-            });
+            }
 
             TestUser = user;
         });
@@ -131,7 +131,7 @@ public class SetUpUser : TestsBase
         {
             var user = OnePassword.GetUser(TestUser);
 
-            Assert.Multiple((Action)delegate
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(user.Id, Is.Not.Empty);
                 Assert.That(user.Name, Is.EqualTo(FinalName));
@@ -141,7 +141,7 @@ public class SetUpUser : TestsBase
                 Assert.That(user.Created, Is.Not.EqualTo(default(DateTimeOffset)));
                 Assert.That(user.Updated, Is.Not.EqualTo(default(DateTimeOffset)));
                 Assert.That(user.LastAuthentication, Is.Null);
-            });
+            }
         });
     }
 

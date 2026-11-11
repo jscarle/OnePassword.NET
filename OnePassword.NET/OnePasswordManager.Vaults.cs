@@ -83,11 +83,11 @@ public sealed partial class OnePasswordManager
 
         var trimmedDescription = description?.Trim();
 
-        var command = $"vault create \"{trimmedName}\"";
+        var command = $"vault create {QuoteArgument(trimmedName)}";
         if (trimmedDescription is not null)
-            command += $" --description \"{trimmedDescription}\"";
+            command += $" --description {QuoteArgument(trimmedDescription)}";
         if (icon != VaultIcon.Default && icon != VaultIcon.Unknown)
-            command += $" --icon \"{icon.ToEnumString()}\"";
+            command += $" --icon {QuoteArgument(icon.ToEnumString())}";
         if (allowAdminsToManage.HasValue)
             command += $" --allow-admins-to-manage {(allowAdminsToManage.Value ? "true" : "false")}";
         return Op(JsonContext.Default.VaultDetails, command);
@@ -126,11 +126,11 @@ public sealed partial class OnePasswordManager
 
         var command = $"vault edit {vaultId}";
         if (trimmedName is not null)
-            command += $" --name \"{trimmedName}\"";
+            command += $" --name {QuoteArgument(trimmedName)}";
         if (trimmedDescription is not null)
-            command += $" --description \"{trimmedDescription}\"";
+            command += $" --description {QuoteArgument(trimmedDescription)}";
         if (icon != VaultIcon.Default && icon != VaultIcon.Unknown)
-            command += $" --icon \"{icon.ToEnumString()}\"";
+            command += $" --icon {QuoteArgument(icon.ToEnumString())}";
         if (travelMode.HasValue)
             command += $" --travel-mode {(travelMode.Value ? "on" : "off")}";
         Op(command);
@@ -191,7 +191,8 @@ public sealed partial class OnePasswordManager
         if (permissions is null || permissions.Count == 0)
             throw new ArgumentException($"{nameof(permissions)} cannot be empty.", nameof(permissions));
 
-        var command = $"vault group grant --vault {vaultId} --group {groupId} --permissions \"{permissions.ToCommaSeparated()}\"";
+        var permissionNames = permissions.ToCommaSeparated();
+        var command = $"vault group grant --vault {vaultId} --group {groupId} --permissions {QuoteArgument(permissionNames)} --no-input";
         Op(command);
     }
 
@@ -205,7 +206,8 @@ public sealed partial class OnePasswordManager
         if (permissions is null || permissions.Count == 0)
             throw new ArgumentException($"{nameof(permissions)} cannot be empty.", nameof(permissions));
 
-        var command = $"vault user grant --vault {vaultId} --user {userId} --permissions \"{permissions.ToCommaSeparated()}\"";
+        var permissionNames = permissions.ToCommaSeparated();
+        var command = $"vault user grant --vault {vaultId} --user {userId} --permissions {QuoteArgument(permissionNames)} --no-input";
         Op(command);
     }
 
@@ -245,7 +247,8 @@ public sealed partial class OnePasswordManager
         if (permissions is null || permissions.Count == 0)
             throw new ArgumentException($"{nameof(permissions)} cannot be empty.", nameof(permissions));
 
-        var command = $"vault group revoke --vault {vaultId} --group {groupId} --permissions \"{permissions.ToCommaSeparated()}\"";
+        var permissionNames = permissions.ToCommaSeparated();
+        var command = $"vault group revoke --vault {vaultId} --group {groupId} --permissions {QuoteArgument(permissionNames)} --no-input";
         Op(command);
     }
 
@@ -259,7 +262,8 @@ public sealed partial class OnePasswordManager
         if (permissions is null || permissions.Count == 0)
             throw new ArgumentException($"{nameof(permissions)} cannot be empty.", nameof(permissions));
 
-        var command = $"vault user revoke --vault {vaultId} --user {userId} --permissions \"{permissions.ToCommaSeparated()}\"";
+        var permissionNames = permissions.ToCommaSeparated();
+        var command = $"vault user revoke --vault {vaultId} --user {userId} --permissions {QuoteArgument(permissionNames)} --no-input";
         Op(command);
     }
 }

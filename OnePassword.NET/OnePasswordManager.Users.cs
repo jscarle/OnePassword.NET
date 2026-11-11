@@ -87,9 +87,9 @@ public sealed partial class OnePasswordManager
         if (trimmedEmailAddress.Length == 0)
             throw new ArgumentException($"{nameof(emailAddress)} cannot be empty.", nameof(emailAddress));
 
-        var command = $"user provision --name \"{trimmedName}\" --email \"{trimmedEmailAddress}\"";
+        var command = $"user provision --name {QuoteArgument(trimmedName)} --email {QuoteArgument(trimmedEmailAddress)}";
         if (language != Language.Default)
-            command += $" --language \"{language.ToEnumString()}\"";
+            command += $" --language {QuoteArgument(language.ToEnumString())}";
         return Op(JsonContext.Default.UserDetails, command);
     }
 
@@ -150,7 +150,7 @@ public sealed partial class OnePasswordManager
 
         var command = $"user edit {userId}";
         if (trimmedName is not null)
-            command += $" --name \"{trimmedName}\"";
+            command += $" --name {QuoteArgument(trimmedName)}";
         if (travelMode.HasValue)
             command += $" --travel-mode {(travelMode.Value ? "on" : "off")}";
         Op(command);

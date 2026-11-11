@@ -34,7 +34,7 @@ public class SetUpGroup : TestsBase
                 Assert.Ignore("Group management is not authorized for the current account.");
             }
 
-            Assert.Multiple((Action)delegate
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(_initialGroup.Id, Is.Not.Empty);
                 Assert.That(_initialGroup.Name, Is.EqualTo(InitialName));
@@ -44,7 +44,7 @@ public class SetUpGroup : TestsBase
                 Assert.That(_initialGroup.Created, Is.Not.EqualTo(default(DateTimeOffset)));
                 Assert.That(_initialGroup.Updated, Is.Not.EqualTo(default(DateTimeOffset)));
                 Assert.That(_initialGroup.Permissions, Has.Count.EqualTo(0));
-            });
+            }
         });
     }
 
@@ -77,11 +77,11 @@ public class SetUpGroup : TestsBase
 
             var group = groups.First(x => x.Name == FinalName);
 
-            Assert.Multiple((Action)delegate
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(group.Id, Is.Not.Empty);
                 Assert.That(group.Name, Is.EqualTo(FinalName));
-            });
+            }
 
             TestGroup = group;
         });
@@ -100,7 +100,7 @@ public class SetUpGroup : TestsBase
         {
             var group = OnePassword.GetGroup(TestGroup);
 
-            Assert.Multiple((Action)delegate
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(group.Id, Is.Not.Empty);
                 Assert.That(group.Name, Is.EqualTo(FinalName));
@@ -110,7 +110,7 @@ public class SetUpGroup : TestsBase
                 Assert.That(group.Created, Is.Not.EqualTo(default(DateTimeOffset)));
                 Assert.That(group.Updated, Is.Not.EqualTo(default(DateTimeOffset)));
                 Assert.That(group.Permissions, Has.Count.EqualTo(0));
-            });
+            }
         });
     }
 }

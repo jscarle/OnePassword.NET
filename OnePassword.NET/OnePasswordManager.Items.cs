@@ -52,9 +52,9 @@ public sealed partial class OnePasswordManager
         if (favorite is not null && favorite.Value)
             command += " --favorite";
         if (categories is not null && categories.Count > 0)
-            command += $" --categories \"{categories.ToCommaSeparated(true)}\"";
+            command += $" --categories {QuoteArgument(categories.ToCommaSeparated(true))}";
         if (tags is not null && tags.Count > 0)
-            command += $" --tags \"{tags.ToCommaSeparated()}\"";
+            command += $" --tags {QuoteArgument(tags.ToCommaSeparated())}";
         return Op(JsonContext.Default.ImmutableListItem, command);
     }
 
@@ -153,6 +153,8 @@ public sealed partial class OnePasswordManager
             throw new ArgumentException($"{nameof(item.Id)} cannot be empty.", nameof(item));
         if (vaultId is null || vaultId.Length == 0)
             throw new ArgumentException($"{nameof(vaultId)} cannot be empty.", nameof(vaultId));
+        if (item.Category == Category.SshKey)
+            throw new InvalidOperationException("The 1Password CLI does not support editing SSH Key items.");
 
         var command = $"item edit {item.Id} --vault {vaultId}";
         foreach (var assignmentStatement in GetFileAttachmentAssignmentStatements(item.Fields, item.FileAttachments)
@@ -161,13 +163,14 @@ public sealed partial class OnePasswordManager
 
         var json = SerializeItemForEditCommand(item);
         if (item.TitleChanged)
-            command += $" --title \"{item.Title}\"";
+            command += $" --title {QuoteArgument(item.Title)}";
         if (((ITracked)item.Tags).Changed)
-            command += $" --tags \"{item.Tags.ToCommaSeparated()}\"";
+            command += $" --tags {QuoteArgument(item.Tags.ToCommaSeparated())}";
         if (((ITracked)item.Urls).Changed)
         {
             var changedUrl = item.Urls.FirstOrDefault(url => url.Primary && ((ITracked)url).Changed);
-            command += $" --url \"{changedUrl}\"";
+            if (changedUrl is not null)
+                command += $" --url {QuoteArgument(changedUrl.Href)}";
         }
         var editedItem = Op(JsonContext.Default.Item, command, json);
         ((ITracked)item).AcceptChanges();
@@ -436,7 +439,7 @@ public sealed partial class OnePasswordManager
         var commandTemplate = template.Clone();
         RemoveFileAttachmentFields(commandTemplate.Fields);
         commandTemplate.FileAttachments = [];
-        return JsonSerializer.Serialize(commandTemplate, JsonContext.Default.Template) + "\x04";
+        return JsonSerializer.Serialize(commandTemplate, JsonContext.Default.Template);
     }
 
     private static string SerializeItemForEditCommand(Item item)
@@ -454,8 +457,7 @@ public sealed partial class OnePasswordManager
 #if NET7_0_OR_GREATER
                 , JsonContext.Default.Item
 #endif
-            )
-            + "\x04";
+            );
     }
 
     private static void RemoveFileAttachmentFields(TrackedList<Field> fields)
@@ -528,12 +530,15 @@ public sealed partial class OnePasswordManager
             return "";
         }
 
-        return trimmedSection.Length == 0 ? trimmedName : $"{trimmedSection}.{trimmedName}";
-    }
+        // Assignment targets escape these characters separately from process argument quoting.
+        var escapedName = trimmedName.Replace("\\", "\\\\", StringComparison.Ordinal)
+            .Replace(".", "\\.", StringComparison.Ordinal)
+            .Replace("=", "\\=", StringComparison.Ordinal);
+        var escapedSection = trimmedSection.Replace("\\", "\\\\", StringComparison.Ordinal)
+            .Replace(".", "\\.", StringComparison.Ordinal)
+            .Replace("=", "\\=", StringComparison.Ordinal);
 
-    private static string QuoteArgument(string argument)
-    {
-        return $"\"{argument.Replace("\"", "\\\"", StringComparison.InvariantCulture)}\"";
+        return escapedSection.Length == 0 ? escapedName : $"{escapedSection}.{escapedName}";
     }
 
     private static ItemShare ParseItemShare(string result)

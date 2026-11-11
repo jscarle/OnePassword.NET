@@ -28,6 +28,7 @@ public class TestsBase
     private static readonly CancellationTokenSource TestCancellationTokenSource = new();
     private static readonly CancellationTokenSource TearDownCancellationTokenSource = new();
     private static readonly Uri DownloadSource = GetDownloadSource();
+    private static readonly HttpClient CliDownloadClient = new();
     private static readonly string ExecutableName = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "op.exe" : "op";
     private static bool _initialSetupDone;
 
@@ -55,8 +56,7 @@ public class TestsBase
         var zipFileName = Path.Combine(WorkingDirectory, Path.GetFileName(DownloadSource.LocalPath));
         var extractFilename = Path.Combine(WorkingDirectory, ExecutableName);
 
-        using var httpClient = new HttpClient();
-        await using (var stream = await httpClient.GetStreamAsync(DownloadSource.OriginalString))
+        await using (var stream = await CliDownloadClient.GetStreamAsync(DownloadSource.OriginalString))
         await using (var fileStream = new FileStream(zipFileName, FileMode.Create))
             await stream.CopyToAsync(fileStream);
 
@@ -98,7 +98,7 @@ public class TestsBase
         {
             action();
         }
-        catch (NUnit.Framework.IgnoreException)
+        catch (IgnoreException)
         {
             throw;
         }
@@ -145,7 +145,7 @@ public class TestsBase
 
     private static Uri GetDownloadSource()
     {
-        const string version = "v2.32.1";
+        const string version = "v2.42.0";
 
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             return new Uri($"https://cache.agilebits.com/dist/1P/op2/pkg/{version}/op_windows_amd64_{version}.zip");
