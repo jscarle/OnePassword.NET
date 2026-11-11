@@ -96,6 +96,8 @@ var item = onePassword.GetItem(itemSummary, vault);
 
 ### Editing a specific item
 
+**Passkeys:** `EditItem(...)` uses a JSON item template. The CLI overwrites passkeys when an item is edited with a JSON template, so do not use this method on items containing passkeys. The CLI also does not support editing SSH Key items. See the [official item editing documentation](https://www.1password.dev/cli/item-edit).
+
 ```csharp
 item.Fields.First(x => x.Label == "password").Value = "newpass";
 onePassword.EditItem(item, vault);

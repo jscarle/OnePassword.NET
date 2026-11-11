@@ -80,9 +80,9 @@ public sealed partial class OnePasswordManager
         var trimmedFileMode = fileMode?.Trim();
 
         // Not specifying --force will hang waiting for user input if the file exists.
-        var command = $"document get {documentId} --out-file \"{trimmedFilePath}\" --force --vault {vaultId}";
-        if (trimmedFileMode is not null)
-            command += $" --file-mode {trimmedFileMode}";
+        var command = $"document get {documentId} --out-file {QuoteArgument(trimmedFilePath)} --force --vault {vaultId}";
+        if (!string.IsNullOrEmpty(trimmedFileMode))
+            command += $" --file-mode {QuoteArgument(trimmedFileMode)}";
         Op(command);
     }
 
@@ -119,13 +119,13 @@ public sealed partial class OnePasswordManager
         var trimmedFileMode = fileMode?.Trim();
 
         // Not specifying --force will hang waiting for user input if the file exists.
-        var command = $"document get {documentId} --out-file \"{trimmedFilePath}\" --force";
+        var command = $"document get {documentId} --out-file {QuoteArgument(trimmedFilePath)} --force";
         if (vaultId is not null)
             command += $" --vault {vaultId}";
         if (includeArchive is not null && includeArchive.Value)
             command += " --include-archive";
-        if (trimmedFileMode is not null)
-            command += $" --file-mode {trimmedFileMode}";
+        if (!string.IsNullOrEmpty(trimmedFileMode))
+            command += $" --file-mode {QuoteArgument(trimmedFileMode)}";
         Op(command);
     }
 
@@ -177,13 +177,13 @@ public sealed partial class OnePasswordManager
         var trimmedFileName = fileName?.Trim();
         var trimmedTitle = title?.Trim();
 
-        var command = $"document create \"{trimmedFilePath}\" --vault {vaultId}";
+        var command = $"document create {QuoteArgument(trimmedFilePath)} --vault {vaultId}";
         if (trimmedFileName is not null)
-            command += $" --file-name \"{trimmedFileName}\"";
+            command += $" --file-name {QuoteArgument(trimmedFileName)}";
         if (trimmedTitle is not null)
-            command += $" --title \"{trimmedTitle}\"";
+            command += $" --title {QuoteArgument(trimmedTitle)}";
         if (tags is not null && tags.Count > 0)
-            command += $" --tags \"{tags.ToCommaSeparated()}\"";
+            command += $" --tags {QuoteArgument(tags.ToCommaSeparated())}";
         return Op(JsonContext.Default.Document, command);
     }
 
@@ -223,13 +223,13 @@ public sealed partial class OnePasswordManager
         var trimmedFileName = fileName?.Trim();
         var trimmedTitle = title?.Trim();
 
-        var command = $"document edit {documentId} \"{trimmedFilePath}\" --vault {vaultId}";
+        var command = $"document edit {documentId} {QuoteArgument(trimmedFilePath)} --vault {vaultId}";
         if (trimmedFileName is not null)
-            command += $" --file-name \"{trimmedFileName}\"";
+            command += $" --file-name {QuoteArgument(trimmedFileName)}";
         if (trimmedTitle is not null)
-            command += $" --title \"{trimmedTitle}\"";
-        if (tags is not null && tags.Count > 0)
-            command += $" --tags \"{tags.ToCommaSeparated()}\"";
+            command += $" --title {QuoteArgument(trimmedTitle)}";
+        if (tags is not null)
+            command += $" --tags {QuoteArgument(tags.ToCommaSeparated())}";
         Op(command);
     }
 

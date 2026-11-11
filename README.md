@@ -11,11 +11,17 @@ This library serves as a .NET wrapper for the [1Password](https://1password.com/
 
 ## References
 
-This library targets .NET Standard 2.1.
+This library targets .NET 11.
+
+The referenced 1Password CLI version is **2.42.0**. Compatibility was reviewed against the official command reference and full CLI 2 changelog on November 10, 2026; this version has not been validated against a live account. See the [CLI compatibility review](https://github.com/jscarle/OnePassword.NET/blob/develop/docfx/docs/cli-compatibility.md).
 
 ## Dependencies
 
 This library has no dependencies.
+
+## Breaking changes for 2.6.0
+
+- Requires .NET 11. The previous .NET Standard 2.1 target is no longer included.
 
 ## Breaking changes for 2.5.0
 
@@ -116,6 +122,8 @@ var item = onePassword.GetItem(itemSummary, vault);
 ```
 
 ### Editing a specific item
+
+**Passkeys:** `EditItem(...)` uses a JSON item template. The CLI overwrites passkeys when an item is edited with a JSON template, so do not use this method on items containing passkeys. The CLI also does not support editing SSH Key items. See the [official item editing documentation](https://www.1password.dev/cli/item-edit).
 
 ```csharp
 item.Fields.First(x => x.Label == "password").Value = "newpass";
@@ -218,7 +226,7 @@ Due to the fact that this library acts as a wrapper for the CLI and in order for
 the majority of tests are integration tests which must run against an active 1Password account (preferably a Business
 account).
 
-The live test harness is pinned to and was last verified against 1Password CLI `2.32.1`.
+The live test harness is pinned to 1Password CLI `2.42.0`. Its last recorded live verification was against `2.32.1`; the `2.42.0` compatibility review was performed statically without a live account. Automated test results are recorded in the release pull request.
 
 ### Effects on the active account
 

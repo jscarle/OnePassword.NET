@@ -19,11 +19,11 @@ public class OnePasswordManagerCommandTests
     [Test]
     public void VersionIsTrimmed()
     {
-        using var fakeCli = new FakeCli(versionOutput: "2.32.1\r\n");
+        using var fakeCli = new FakeCli(versionOutput: "2.42.0\r\n");
 
         var manager = fakeCli.CreateManager();
 
-        Assert.That(manager.Version, Is.EqualTo("2.32.1"));
+        Assert.That(manager.Version, Is.EqualTo("2.42.0"));
     }
 
     [Test]
@@ -101,7 +101,7 @@ public class OnePasswordManagerCommandTests
         {
             manager.SaveFileAttachmentContent("file-id", "item-id", "vault-id", outputPath);
 
-            Assert.That(fakeCli.LastArguments, Does.StartWith("read op://vault-id/item-id/file-id?attr=content --no-newline --force --out-file "));
+            Assert.That(fakeCli.LastArguments, Does.Match("^read \"?op://vault-id/item-id/file-id\\?attr=content\"? --no-newline --force --out-file "));
             Assert.That(fakeCli.LastArguments, Does.Contain(outputPath));
         }
         finally
@@ -119,12 +119,12 @@ public class OnePasswordManagerCommandTests
 
         manager.MoveItem("item-id", "current-vault-id", "destination-vault-id");
 
-        Assert.Multiple((Action)delegate
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(fakeCli.LastArguments, Does.StartWith("item move item-id --current-vault current-vault-id --destination-vault destination-vault-id"));
             Assert.That(fakeCli.LastArguments, Does.Not.Contain("{currentVaultId}"));
             Assert.That(fakeCli.LastArguments, Does.Not.Contain("{destinationVaultId}"));
-        });
+        }
     }
 
     [Test]
@@ -139,13 +139,13 @@ public class OnePasswordManagerCommandTests
         {
             manager.SearchForDocument("document-id", outputFilePath, "vault-id");
 
-            Assert.Multiple((Action)delegate
+            using (Assert.EnterMultipleScope())
             {
                 Assert.That(Directory.Exists(outputDirectory), Is.True);
                 Assert.That(fakeCli.LastArguments, Does.StartWith("document get document-id --out-file "));
                 Assert.That(fakeCli.LastArguments, Does.Contain(outputFilePath));
                 Assert.That(fakeCli.LastArguments, Does.Contain(" --force --vault vault-id"));
-            });
+            }
         }
         finally
         {
@@ -163,7 +163,7 @@ public class OnePasswordManagerCommandTests
 
         manager.GetSecret("  op://vault/item/field  ");
 
-        Assert.That(fakeCli.LastArguments, Does.StartWith("read op://vault/item/field --no-newline"));
+        Assert.That(fakeCli.LastArguments, Does.Match("^read \"?op://vault/item/field\"? --no-newline"));
     }
 
     [Test]
@@ -177,7 +177,7 @@ public class OnePasswordManagerCommandTests
         {
             manager.SaveSecret("  op://vault/item/field  ", outputPath);
 
-            Assert.That(fakeCli.LastArguments, Does.StartWith("read op://vault/item/field --no-newline --force --out-file "));
+            Assert.That(fakeCli.LastArguments, Does.Match("^read \"?op://vault/item/field\"? --no-newline --force --out-file "));
             Assert.That(fakeCli.LastArguments, Does.Contain(outputPath));
         }
         finally
@@ -196,22 +196,22 @@ public class OnePasswordManagerCommandTests
         manager.RevokeGroupPermissions("vault-id", "group-id", [VaultPermission.ViewItems]);
 
         Assert.That(fakeCli.LastArguments, Does.StartWith("vault group revoke --vault vault-id --group group-id --permissions "));
-        Assert.That(fakeCli.LastArguments, Does.Contain("View Items"));
+        Assert.That(fakeCli.LastArguments, Does.Contain("view_items"));
     }
 
     [Test]
     public void UpdateExtractsCurrentPlatformExecutablePayload()
     {
-        using var fakeCli = new FakeCli(updateVersionOutput: "2.33.0\n");
+        using var fakeCli = new FakeCli(versionOutput: "2.41.1\n", updateVersionOutput: "2.42.0\n");
         var manager = fakeCli.CreateManager();
 
         var updated = manager.Update();
 
-        Assert.Multiple((Action)delegate
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(updated, Is.True);
-            Assert.That(manager.Version, Is.EqualTo("2.33.0"));
-        });
+            Assert.That(manager.Version, Is.EqualTo("2.42.0"));
+        }
     }
 
     [Test]
@@ -263,7 +263,7 @@ public class OnePasswordManagerCommandTests
 
         template.Title = "Updated Title";
 
-        Assert.Throws<InvalidOperationException>((Action)delegate
+        Assert.Throws<InvalidOperationException>(() =>
         {
             manager.CreateItem(template, "vault-id");
         });
@@ -281,7 +281,7 @@ public class OnePasswordManagerCommandTests
 
         item.Title = "Updated Title";
 
-        Assert.Throws<InvalidOperationException>((Action)delegate
+        Assert.Throws<InvalidOperationException>(() =>
         {
             manager.EditItem(item, "vault-id");
         });
@@ -303,13 +303,13 @@ public class OnePasswordManagerCommandTests
         var root = jsonDocument.RootElement;
         var fields = root.GetProperty("fields").EnumerateArray().ToList();
 
-        Assert.Multiple((Action)delegate
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(root.GetProperty("category_id").GetString(), Is.EqualTo("custom-template-uuid"));
             Assert.That(fields.Any(field =>
                 field.GetProperty("label").GetString() == "Environment"
                 && field.GetProperty("value").GetString() == "Production"), Is.True);
-        });
+        }
     }
 
     [Test]
@@ -320,7 +320,7 @@ public class OnePasswordManagerCommandTests
 
         var result = manager.ShareItem("item-id", "vault-id");
 
-        Assert.Multiple((Action)delegate
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Url, Is.EqualTo(new Uri("https://share.example/item")));
             Assert.That(result.ExpiresAt, Is.Null);
@@ -328,7 +328,7 @@ public class OnePasswordManagerCommandTests
             Assert.That(result.ViewOnce, Is.Null);
             Assert.That(fakeCli.LastArguments, Does.StartWith("item share item-id --vault vault-id"));
             Assert.That(fakeCli.LastArguments, Does.Not.Contain("--emails"));
-        });
+        }
     }
 
     [Test]
@@ -339,12 +339,12 @@ public class OnePasswordManagerCommandTests
 
         var result = manager.ShareItem("item-id", "vault-id", "recipient@example.com");
 
-        Assert.Multiple((Action)delegate
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Url, Is.Null);
             Assert.That(result.Recipients, Is.Empty);
             Assert.That(fakeCli.LastArguments, Does.Contain("--emails recipient@example.com"));
-        });
+        }
     }
 
     [Test]
@@ -433,48 +433,43 @@ public class OnePasswordManagerCommandTests
 
         var result = manager.ShareItem("item-id", "vault-id");
 
-        Assert.Multiple((Action)delegate
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Url, Is.EqualTo(new Uri("https://share.example/item")));
             Assert.That(result.ExpiresAt, Is.EqualTo(DateTimeOffset.Parse("2026-03-15T12:00:00Z", CultureInfo.InvariantCulture)));
             Assert.That(result.ViewOnce, Is.True);
             Assert.That(result.Recipients, Is.EqualTo(ParsedRecipients));
-        });
+        }
     }
 
     private sealed class FakeCli : IDisposable
     {
         private readonly string _argumentsPath;
         private readonly string _directoryPath;
-        private readonly string _errorOutputPath;
         private readonly string _inputPath;
-        private readonly string _nextOutputPath;
-        private readonly string _updateMessagePath;
         private readonly string _updatePayloadPath;
-        private readonly string _updatedVersionOutputPath;
-        private readonly string _versionOutputPath;
 
-        public FakeCli(string versionOutput = "2.32.1\n", string nextOutput = "{}", string? updateVersionOutput = null, string? errorOutput = null)
+        public FakeCli(string versionOutput = "2.42.0\n", string nextOutput = "{}", string? updateVersionOutput = null, string? errorOutput = null)
         {
             _directoryPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
             _argumentsPath = Path.Combine(_directoryPath, "last-arguments.txt");
-            _errorOutputPath = Path.Combine(_directoryPath, "error-output.txt");
+            var errorOutputPath = Path.Combine(_directoryPath, "error-output.txt");
             _inputPath = Path.Combine(_directoryPath, "last-input.txt");
-            _nextOutputPath = Path.Combine(_directoryPath, "next-output.txt");
-            _updateMessagePath = Path.Combine(_directoryPath, "update-output.txt");
+            var nextOutputPath = Path.Combine(_directoryPath, "next-output.txt");
+            var updateMessagePath = Path.Combine(_directoryPath, "update-output.txt");
             _updatePayloadPath = Path.Combine(_directoryPath, "update-payload.zip");
-            _updatedVersionOutputPath = Path.Combine(_directoryPath, "updated-version-output.txt");
-            _versionOutputPath = Path.Combine(_directoryPath, "version-output.txt");
+            var updatedVersionOutputPath = Path.Combine(_directoryPath, "updated-version-output.txt");
+            var versionOutputPath = Path.Combine(_directoryPath, "version-output.txt");
 
             Directory.CreateDirectory(_directoryPath);
-            File.WriteAllText(_nextOutputPath, nextOutput);
-            File.WriteAllText(_versionOutputPath, versionOutput);
+            File.WriteAllText(nextOutputPath, nextOutput);
+            File.WriteAllText(versionOutputPath, versionOutput);
             if (errorOutput is not null)
-                File.WriteAllText(_errorOutputPath, errorOutput);
+                File.WriteAllText(errorOutputPath, errorOutput);
             if (updateVersionOutput is not null)
             {
-                File.WriteAllText(_updateMessagePath, $"Version {updateVersionOutput.Trim()} is now available.");
-                File.WriteAllText(_updatedVersionOutputPath, updateVersionOutput);
+                File.WriteAllText(updateMessagePath, $"Version {updateVersionOutput.Trim()} is now available.");
+                File.WriteAllText(updatedVersionOutputPath, updateVersionOutput);
                 CreateUpdatePayload();
             }
 
@@ -633,7 +628,7 @@ public class OnePasswordManagerCommandTests
         public string Id { get; } = id;
     }
 
-    private sealed class TestItem(string id) : OnePassword.Items.IItem
+    private sealed class TestItem(string id) : IItem
     {
         public string Id { get; } = id;
     }

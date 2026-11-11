@@ -15,7 +15,11 @@ This library serves as a .NET wrapper for the [1Password](https://1password.com/
 
 ## References
 
-This library targets .NET Standard 2.1.
+This library targets .NET 11.
+
+Version 2.6.0 requires .NET 11 and no longer includes the previous .NET Standard 2.1 target.
+
+The referenced 1Password CLI version is **2.42.0**. Compatibility was reviewed against the official command reference and full CLI 2 changelog on November 10, 2026; this version has not been validated against a live account. See the [CLI compatibility review](docs/cli-compatibility.md).
 
 ## Dependencies
 

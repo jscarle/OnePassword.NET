@@ -83,9 +83,9 @@ public sealed partial class OnePasswordManager
 
         var trimmedDescription = description?.Trim();
 
-        var command = $"group create \"{trimmedName}\"";
+        var command = $"group create {QuoteArgument(trimmedName)}";
         if (trimmedDescription is not null)
-            command += $" --description \"{trimmedDescription}\"";
+            command += $" --description {QuoteArgument(trimmedDescription)}";
         return Op(JsonContext.Default.GroupDetails, command);
     }
 
@@ -122,9 +122,9 @@ public sealed partial class OnePasswordManager
 
         var command = $"group edit {groupId}";
         if (trimmedName is not null)
-            command += $" --name \"{trimmedName}\"";
+            command += $" --name {QuoteArgument(trimmedName)}";
         if (trimmedDescription is not null)
-            command += $" --description \"{trimmedDescription}\"";
+            command += $" --description {QuoteArgument(trimmedDescription)}";
         Op(command);
     }
 
@@ -170,7 +170,7 @@ public sealed partial class OnePasswordManager
         if (userRole != UserRole.Member && userRole != UserRole.Manager)
             throw new ArgumentException($"{nameof(userRole)} must be {nameof(UserRole.Member)} or {nameof(UserRole.Manager)}.", nameof(userRole));
 
-        var command = $"group user grant --group {groupId} --user {userId} --role \"{userRole.ToEnumString()}\"";
+        var command = $"group user grant --group {groupId} --user {userId} --role {QuoteArgument(userRole.ToEnumString())}";
         Op(command);
     }
 

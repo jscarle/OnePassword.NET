@@ -58,7 +58,7 @@ internal static class CommonExtensions
         if (timeSpan.Days > 7)
         {
             result += $"{timeSpan.Days / 7}w";
-            timeSpan = TimeSpan.FromDays(timeSpan.Days % 7);
+            timeSpan -= TimeSpan.FromDays(timeSpan.Days / 7 * 7);
         }
 
         if (timeSpan.Days > 0)

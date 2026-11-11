@@ -23,5 +23,11 @@ public enum UserType
     /// <summary>
     /// The user type is unknown. 
     /// </summary>
-    Unknown
+    Unknown,
+
+    /// <summary>
+    /// Service account
+    /// </summary>
+    [EnumMember(Value = "Service Account")]
+    ServiceAccount
 }

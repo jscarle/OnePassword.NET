@@ -17,7 +17,7 @@ internal sealed class JsonStringEnumConverterEx<TEnum> : JsonConverter<TEnum> wh
     [SuppressMessage("AssemblyLoadTrimming", "IL2090:'this' argument does not satisfy 'DynamicallyAccessedMembersAttribute' in call to 'target method'.", Justification = "https://github.com/dotnet/runtime/issues/97737")]
     public JsonStringEnumConverterEx()
     {
-        foreach (TEnum enumMemberValue in Enum.GetValues(typeof(TEnum)))
+        foreach (var enumMemberValue in Enum.GetValues<TEnum>())
         {
             var enumMemberName = enumMemberValue.ToString();
 

@@ -25,7 +25,11 @@ public sealed partial class OnePasswordManager : IOnePasswordManager
     private readonly Mode _mode = Mode.Interactive;
     private readonly string _opPath;
     private readonly string _serviceAccountToken;
-    private readonly string[] _serviceAccountUnsupportedCommands = ["events-api", "group", "user"];
+    private readonly string[] _serviceAccountUnsupportedCommands =
+    [
+        "connect", "events-api", "group create", "group delete", "group edit", "group user",
+        "user provision", "user confirm", "user suspend", "user delete", "user recovery", "user reactivate", "user edit", "vault edit"
+    ];
     private readonly bool _verbose;
     private string _account = "";
     private string _session = "";
@@ -70,29 +74,34 @@ public sealed partial class OnePasswordManager : IOnePasswordManager
         var tempDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
         Directory.CreateDirectory(tempDirectory);
 
-        var command = $"update --directory \"{tempDirectory}\"";
-        var result = Op(command);
-
-        var match = VersionRegex.Match(result);
-        if (match.Success)
+        try
         {
-            foreach (var file in Directory.GetFiles(tempDirectory, "*.zip"))
+            var command = $"update --directory {QuoteArgument(tempDirectory)} --channel stable";
+            var result = Op(command);
+
+            var match = VersionRegex.Match(result);
+            if (match.Success)
             {
-                using var zipArchive = ZipFile.Open(file, ZipArchiveMode.Read);
+                foreach (var file in Directory.GetFiles(tempDirectory, "*.zip"))
+                {
+                    using var zipArchive = ZipFile.Open(file, ZipArchiveMode.Read);
 
-                var entry = zipArchive.Entries.FirstOrDefault(zipEntry => string.Equals(Path.GetFileName(zipEntry.FullName), packagedExecutableName, StringComparison.OrdinalIgnoreCase));
-                if (entry is null)
-                    continue;
-                entry.ExtractToFile(_opPath, true);
-                EnsureExecutablePermissions(_opPath);
+                    var entry = zipArchive.Entries.FirstOrDefault(zipEntry => string.Equals(Path.GetFileName(zipEntry.FullName), packagedExecutableName, StringComparison.OrdinalIgnoreCase));
+                    if (entry is null)
+                        continue;
+                    entry.ExtractToFile(_opPath, true);
+                    EnsureExecutablePermissions(_opPath);
 
-                Version = GetVersion();
-                updated = true;
-                break;
+                    Version = GetVersion();
+                    updated = true;
+                    break;
+                }
             }
         }
-
-        Directory.Delete(tempDirectory, true);
+        finally
+        {
+            Directory.Delete(tempDirectory, true);
+        }
 
         return updated;
     }
@@ -106,7 +115,7 @@ public sealed partial class OnePasswordManager : IOnePasswordManager
         if (trimmedReference.Length == 0)
             throw new ArgumentException($"{nameof(trimmedReference)} cannot be empty.", nameof(reference));
 
-        var command = $"read {trimmedReference} --no-newline";
+        var command = $"read {QuoteArgument(trimmedReference)} --no-newline";
         return Op(command);
     }
 
@@ -125,9 +134,9 @@ public sealed partial class OnePasswordManager : IOnePasswordManager
             throw new ArgumentException($"{nameof(trimmedFilePath)} cannot be empty.", nameof(filePath));
 
         var trimmedFileMode = fileMode?.Trim();
-        var command = $"read {trimmedReference} --no-newline --force --out-file \"{trimmedFilePath}\"";
+        var command = $"read {QuoteArgument(trimmedReference)} --no-newline --force --out-file {QuoteArgument(trimmedFilePath)}";
         if (trimmedFileMode is not null && trimmedFileMode.Length > 0)
-            command += $" --file-mode {trimmedFileMode}";
+            command += $" --file-mode {QuoteArgument(trimmedFileMode)}";
         Op(command);
     }
 
@@ -169,34 +178,44 @@ public sealed partial class OnePasswordManager : IOnePasswordManager
         chmod?.WaitForExit();
     }
 
-    private static string GetStandardError(Process process)
+    private static string QuoteArgument(string argument)
     {
-        var error = new StringBuilder();
-        while (process.StandardError.Peek() > -1)
-            error.Append((char)process.StandardError.Read());
-        return error.ToString();
+        var quotedArgument = new StringBuilder(argument.Length + 2);
+        quotedArgument.Append('"');
+        var backslashCount = 0;
+
+        foreach (var character in argument)
+        {
+            if (character == '\\')
+            {
+                backslashCount++;
+                continue;
+            }
+
+            // Backslashes before a quote, including the closing quote, must be doubled.
+            quotedArgument.Append('\\', character == '"' ? backslashCount * 2 + 1 : backslashCount);
+            quotedArgument.Append(character);
+            backslashCount = 0;
+        }
+
+        quotedArgument.Append('\\', backslashCount * 2);
+        quotedArgument.Append('"');
+        return quotedArgument.ToString();
     }
 
-    private static string GetStandardOutput(Process process)
+    private TResult Op<TResult>(JsonTypeInfo<TResult> jsonTypeInfo, string command, string? input = null, string? account = null) where TResult : class
     {
-        var output = new StringBuilder();
-        while (process.StandardOutput.Peek() > -1)
-            output.Append((char)process.StandardOutput.Read());
-        return output.ToString();
-    }
-
-    private TResult Op<TResult>(JsonTypeInfo<TResult> jsonTypeInfo, string command, string? input = null, bool returnError = false) where TResult : class
-    {
-        var result = Op(command, input is null ? Array.Empty<string>() : [input], returnError);
+        var result = Op(command, input is null ? Array.Empty<string>() : [input], account: account);
         var obj = JsonSerializer.Deserialize(result, jsonTypeInfo) ?? throw new SerializationException("Could not deserialize the command result.");
         if (obj is ITracked item)
             item.AcceptChanges();
         return obj;
     }
 
-    private string Op(string command, string? input = null, bool returnError = false) => Op(command, input is null ? Array.Empty<string>() : [input], returnError);
+    private string Op(string command, string? input = null, bool allowDeviceRegistration = false, string? secretKey = null) =>
+        Op(command, input is null ? Array.Empty<string>() : [input], allowDeviceRegistration, secretKey: secretKey);
 
-    private string Op(string command, IEnumerable<string> input, bool returnError)
+    private string Op(string command, IEnumerable<string> input, bool allowDeviceRegistration = false, string? account = null, string? secretKey = null)
     {
         var arguments = command;
         if (command != "--version")
@@ -213,7 +232,8 @@ public sealed partial class OnePasswordManager : IOnePasswordManager
             default:
                 var excluded = IsExcludedCommand(command, _excludedAccountCommands);
                 var requireAccount = _mode != Mode.AppIntegrated && !excluded;
-                var passAccount = _account.Length != 0 && !excluded;
+                var selectedAccount = account ?? _account;
+                var passAccount = selectedAccount.Length != 0 && !excluded;
                 if (requireAccount && !passAccount)
                     throw new InvalidOperationException("Cannot execute command because account has not been set.");
 
@@ -222,14 +242,14 @@ public sealed partial class OnePasswordManager : IOnePasswordManager
                     throw new InvalidOperationException("Cannot execute command because account has not been signed in.");
 
                 if (passAccount)
-                    arguments += $" --account {_account}";
+                    arguments += $" --account {QuoteArgument(selectedAccount)}";
                 if (passSession)
                     arguments += $" --session {_session}";
                 break;
         }
 
         if (_verbose)
-            Console.WriteLine($"{Path.GetDirectoryName(_opPath)}>op {arguments}");
+            Console.WriteLine($"{Path.GetDirectoryName(_opPath)}>op {command}");
 
         var startInfo = new ProcessStartInfo(_opPath, arguments)
         {
@@ -238,55 +258,60 @@ public sealed partial class OnePasswordManager : IOnePasswordManager
             RedirectStandardInput = true,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
+            StandardInputEncoding = new UTF8Encoding(false),
             StandardOutputEncoding = Encoding.UTF8,
             StandardErrorEncoding = Encoding.UTF8
         };
 
+        startInfo.Environment["OP_BIOMETRIC_UNLOCK_ENABLED"] = _mode == Mode.AppIntegrated ? "true" : "false";
         if (_mode == Mode.ServiceAccount)
-            startInfo.EnvironmentVariables["OP_SERVICE_ACCOUNT_TOKEN"] = _serviceAccountToken;
+        {
+            // Connect variables take precedence over an explicitly selected service account.
+            startInfo.Environment.Remove("OP_CONNECT_HOST");
+            startInfo.Environment.Remove("OP_CONNECT_TOKEN");
+            startInfo.Environment["OP_SERVICE_ACCOUNT_TOKEN"] = _serviceAccountToken;
+        }
+        else
+        {
+            startInfo.Environment.Remove("OP_SERVICE_ACCOUNT_TOKEN");
+        }
 
-        var process = Process.Start(startInfo) ?? throw new InvalidOperationException($"Could not start process for {_opPath}.");
+        if (secretKey is not null)
+            startInfo.Environment["OP_SECRET_KEY"] = secretKey;
+
+        using var process = Process.Start(startInfo) ?? throw new InvalidOperationException($"Could not start process for {_opPath}.");
+        // Drain both pipes before writing input so either output stream can grow without blocking the CLI.
+        var outputTask = process.StandardOutput.ReadToEndAsync();
+        var errorTask = process.StandardError.ReadToEndAsync();
         foreach (var inputLine in input)
         {
-            var lastChar = inputLine.Substring(inputLine.Length - 1, 1);
-            if (lastChar == "\x04")
-            {
-                process.StandardInput.WriteLine(inputLine[..^1]);
-                process.StandardInput.Flush();
-            }
-            else
-            {
-                process.StandardInput.WriteLine(inputLine);
-                process.StandardInput.Flush();
-            }
+            process.StandardInput.WriteLine(inputLine);
+            process.StandardInput.Flush();
         }
         process.StandardInput.Close();
 
-        var output = GetStandardOutput(process);
-        if (_verbose)
-            Console.WriteLine(output);
+        process.WaitForExit();
+        var output = outputTask.GetAwaiter().GetResult();
+        var error = errorTask.GetAwaiter().GetResult();
 
-        var error = GetStandardError(process);
-        if (_verbose)
-            Console.WriteLine(error);
-
-        if (!error.StartsWith("[ERROR]", StringComparison.InvariantCulture))
+        if (process.ExitCode == 0 && !error.StartsWith("[ERROR]", StringComparison.Ordinal))
             return output;
 
-        if (returnError)
+        if (allowDeviceRegistration && error.Contains("No saved device ID.", StringComparison.Ordinal))
             return error;
 
-        throw new InvalidOperationException(error.Length > 28 ? error[28..].Trim() : error);
+        var errorMessage = string.IsNullOrWhiteSpace(error) ? $"1Password CLI exited with code {process.ExitCode}." : error.Trim();
+        throw new InvalidOperationException(errorMessage);
     }
 
     private static bool IsExcludedCommand(string command, IEnumerable<string> excludedCommands)
     {
-        return excludedCommands.Any(x => command.StartsWith(x, StringComparison.InvariantCulture));
+        return excludedCommands.Any(x => string.Equals(command, x, StringComparison.Ordinal) || command.StartsWith(x + " ", StringComparison.Ordinal));
     }
 
     private static bool IsUnsupportedCommand(string command, IEnumerable<string> unsupportedCommands)
     {
-        return unsupportedCommands.Any(x => command.StartsWith(x, StringComparison.InvariantCulture));
+        return unsupportedCommands.Any(x => string.Equals(command, x, StringComparison.Ordinal) || command.StartsWith(x + " ", StringComparison.Ordinal));
     }
 #if NET7_0_OR_GREATER
 
